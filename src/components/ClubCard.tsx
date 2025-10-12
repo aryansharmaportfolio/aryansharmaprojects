@@ -29,8 +29,8 @@ const ClubCard = ({
       
       {/* Text overlay at bottom */}
       <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
-        <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg text-center">{name}</h3>
-        <p className="text-white/90 drop-shadow-lg">{role}</p>
+        <h3 className="font-bold text-white mb-2 drop-shadow-lg text-center text-2xl">{name}</h3>
+        <p className="text-white/90 drop-shadow-lg text-center">{role}</p>
       </div>
     </Card>;
 };

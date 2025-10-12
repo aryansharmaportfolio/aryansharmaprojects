@@ -19,10 +19,10 @@ const FeaturedProjects = () => {
   return <section id="projects" className="py-24 px-6 bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-5xl font-bold text-foreground mb-4 border-b-4 border-primary inline-block pb-2">
+          <h2 className="text-5xl font-bold text-foreground mb-6 border-b-4 border-primary inline-block pb-2">
             Featured Projects
           </h2>
-          <p className="text-xl mt-6 italic text-white my-[23px]">
+          <p className="text-xl italic text-white">
             A showcase of hands-on projects. Click on a project to view a detailed overview of the design process and its outcome.
           </p>
         </div>

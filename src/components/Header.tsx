@@ -9,6 +9,8 @@ const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [smoke, setSmoke] = useState<SmokePuff[]>([]);
+  const [scrollDirection, setScrollDirection] = useState("down");
+  const lastScrollY = useRef(0);
   const isScrolling = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
@@ -17,6 +19,13 @@ const Header = () => {
       const totalHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
       
       setIsScrolled(scrollY > 10);
+      
+      if (scrollY > lastScrollY.current) {
+        setScrollDirection("down");
+      } else {
+        setScrollDirection("up");
+      }
+      lastScrollY.current = scrollY;
 
       if (totalHeight > 0) {
         const progress = (scrollY / totalHeight) * 100;
@@ -57,6 +66,10 @@ const Header = () => {
       element.scrollIntoView({ behavior: "smooth" });
     }
   };
+
+  const rocketRotation = scrollDirection === "down" 
+    ? "rotate(-45deg)" 
+    : "rotate(135deg)";
 
   return (
     <header
@@ -108,14 +121,16 @@ const Header = () => {
             />
           ))}
           <div
-            className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2"
-            style={{ left: `${scrollProgress}%` }}
+            className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 transition-transform duration-200"
+            style={{ 
+              left: `${scrollProgress}%`,
+              transform: rocketRotation
+            }}
           >
             <span 
               className="text-2xl" 
               style={{ 
-                display: "inline-block", 
-                transform: 'rotate(-45deg)' 
+                display: "inline-block"
               }}
             >
               🚀

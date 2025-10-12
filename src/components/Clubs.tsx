@@ -20,7 +20,7 @@ const Clubs = () => {
     logo: "https://images.unsplash.com/photo-1581822261290-991b38693d1b?auto=format&fit=crop&w=800",
     details: {
       achievements: ["Designing and modeling a fully assembled H-motor high-powered rocket in SolidWorks, validating architecture against stability and performance parameters simulated in OpenRocket.", "Performing a CFD analysis using SolidWorks Flow Simulation to determine key flight characteristics, such as drag force and aerodynamic stability, on the rocket's comprehensive 3D model before fabrication.", "3D printing ogive nose cone and laser-cutting individual parts for the precise construction of the wooden fin can assembly.", "Drilling mounting points and installing hardware to secure the recovery system and ensure structural integrity for launch."],
-      skills: ["Team Leadership", "Project Management", "Aircraft Design", "CAD Modeling", "Technical Communication"]
+      skills: ["SolidWorks", "Computational Fluid Dynamics (CFD)", "MATLAB", "3D Printing"]
     }
   }, {
     id: "aiaa",

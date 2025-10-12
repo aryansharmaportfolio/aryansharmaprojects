@@ -7,22 +7,22 @@ const AboutMe = () => {
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left Column - Profile */}
           <div className="flex flex-col items-center space-y-6 animate-fade-in">
-            <div className="w-64 h-64 rounded-full overflow-hidden border-4 border-primary shadow-2xl">
+            <div className="w-64 h-64 rounded-full overflow-hidden border-4 border-white shadow-2xl">
               <img src={profilePicture} alt="Aryan Sharma" className="w-full h-full object-cover" />
             </div>
             
             <h2 className="text-3xl font-bold text-foreground">Aryan Sharma</h2>
             
             <div className="flex gap-4">
-              <Button variant="outline" className="gap-2 border-2 border-foreground text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all" asChild>
-                <a href="mailto:aryan@example.com">
+              <Button variant="outline" className="gap-2 border-2 border-foreground text-foreground hover:bg-gray-700 hover:text-white hover:border-gray-700 transition-all" asChild>
+                <a href="mailto:aryansharmaus2021@gmail.com">
                   <Mail className="w-5 h-5" />
                   Email
                 </a>
               </Button>
               
-              <Button variant="outline" className="gap-2 border-2 border-foreground text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all" asChild>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+              <Button variant="outline" className="gap-2 border-2 border-foreground text-foreground hover:bg-gray-700 hover:text-white hover:border-gray-700 transition-all" asChild>
+                <a href="https://www.linkedin.com/in/aryan-in-aerospace/" target="_blank" rel="noopener noreferrer">
                   <Linkedin className="w-5 h-5" />
                   LinkedIn
                 </a>
@@ -32,7 +32,7 @@ const AboutMe = () => {
 
           {/* Right Column - Bio */}
           <div className="space-y-6 animate-fade-in">
-            <h2 className="text-5xl font-bold text-foreground border-b-4 border-primary inline-block pb-2">
+            <h2 className="text-5xl font-bold text-foreground border-b-4 border-white inline-block pb-2">
               About Me
             </h2>
             

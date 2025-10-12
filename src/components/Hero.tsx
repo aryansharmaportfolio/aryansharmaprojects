@@ -1,4 +1,4 @@
-import heroBackground from "@/assets/hero-background.jpg";
+import heroVideo from "@/assets/hero-video.mp4";
 
 const Hero = () => {
   return (
@@ -6,14 +6,18 @@ const Hero = () => {
       id="home"
       className="relative h-screen flex items-center justify-center overflow-hidden"
     >
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{
-          backgroundImage: `url(${heroBackground})`,
-          filter: "brightness(0.7)",
-        }}
-      />
-      
+      <video
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute top-0 left-0 w-full h-full object-cover"
+        style={{ filter: "brightness(0.7)" }}
+      >
+        <source src={heroVideo} type="video/mp4" />
+        Your browser does not support the video tag.
+      </video>
+
       <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background" />
 
       <div className="relative z-10 text-center animate-fade-in">

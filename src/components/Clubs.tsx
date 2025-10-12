@@ -87,7 +87,7 @@ const Clubs = () => {
                     <ul className="space-y-4">
                       {selectedClub.details.achievements.map((achievement, idx) => <li key={idx} className="flex items-start">
                           <span className="text-primary mr-3 mt-1">▸</span>
-                          <span className="text-lg text-foreground/90">{achievement}</span>
+                          <span className="text-lg text-white">{achievement}</span>
                         </li>)}
                     </ul>
                   </div>

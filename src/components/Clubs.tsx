@@ -45,11 +45,11 @@ const Clubs = () => {
   return <section id="clubs" className="py-24 px-6 bg-background relative overflow-hidden">
       <div className="container mx-auto max-w-7xl">
         <div className={`text-center mb-16 transition-all duration-500 ${expandedClub ? 'opacity-0 -translate-y-4' : 'opacity-100 animate-fade-in'}`}>
-          <h2 className="text-5xl font-bold text-foreground mb-4 border-b-4 border-primary inline-block pb-2">
+          <h2 className="text-5xl font-bold text-foreground mb-6 border-b-4 border-primary inline-block pb-2">
             Clubs & Organizations
           </h2>
-          <p className="text-xl mt-6 italic text-white">
-            Actively contributing to aerospace and engineering communities through collaboration and hands-on projects.
+           <p className="text-xl italic text-white">
+            Actively contributing to aerospace and engineering communities through hands-on collaboration.
           </p>
         </div>
 

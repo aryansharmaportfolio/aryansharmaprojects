@@ -1,12 +1,22 @@
+import { useRef, useEffect } from "react";
 import heroVideo from "@/assets/hero-video.mp4";
 
 const Hero = () => {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    if (videoRef.current) {
+      videoRef.current.playbackRate = 0.5;
+    }
+  }, []);
+
   return (
     <section
       id="home"
       className="relative h-screen flex items-center justify-center overflow-hidden"
     >
       <video
+        ref={videoRef}
         autoPlay
         loop
         muted

@@ -15,14 +15,14 @@ const AboutMe = () => {
             
             <div className="flex gap-4">
               <Button variant="outline" className="gap-2 border-2 border-foreground text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all" asChild>
-                <a href="mailto:aryan@example.com">
+                <a href="mailto:aryansharmaus2021@gmail.com">
                   <Mail className="w-5 h-5" />
                   Email
                 </a>
               </Button>
               
               <Button variant="outline" className="gap-2 border-2 border-foreground text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all" asChild>
-                <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer">
+                <a href="https://www.linkedin.com/in/aryan-in-aerospace/" target="_blank" rel="noopener noreferrer">
                   <Linkedin className="w-5 h-5" />
                   LinkedIn
                 </a>

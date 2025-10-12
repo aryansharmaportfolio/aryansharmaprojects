@@ -22,16 +22,19 @@ const Header = () => {
         const progress = (scrollY / totalHeight) * 100;
         setScrollProgress(progress);
 
-        if (isScrolled) {
+        if (isScrolled && progress > 0.1) {
           const newSmokePuff: SmokePuff = {
             id: Date.now() + Math.random(),
             left: progress,
           };
-          setSmoke(prevSmoke => [...prevSmoke, newSmokePuff]);
+          setSmoke(prevSmoke => {
+            const newPuffs = [...prevSmoke, newSmokePuff];
+            return newPuffs.slice(-15);
+          });
 
           setTimeout(() => {
             setSmoke(prevSmoke => prevSmoke.filter(p => p.id !== newSmokePuff.id));
-          }, 1500);
+          }, 1200);
         }
       }
 
@@ -90,22 +93,25 @@ const Header = () => {
 
       <div
         className={`absolute bottom-0 left-0 h-1 w-full transition-opacity duration-300 ${
-          isScrolled ? "opacity-100" : "opacity-0"
+          isScrolled ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       >
         <div className="relative h-full w-full">
           {smoke.map((puff) => (
             <div
               key={puff.id}
-              className="absolute top-1/2 w-3 h-3 bg-white/30 rounded-full -translate-y-1/2 -translate-x-1/2 blur-sm animate-[fadeOut_1.5s_ease-out_forwards]"
-              style={{ left: `${puff.left}%` }}
+              className="absolute top-1/2 w-4 h-4 rounded-full -translate-y-1/2 -translate-x-1/2 animate-[fadeOut_1.2s_ease-out_forwards]"
+              style={{ 
+                left: `${puff.left}%`,
+                background: 'radial-gradient(circle, rgba(150, 150, 150, 0.4) 0%, rgba(150, 150, 150, 0) 70%)'
+              }}
             />
           ))}
           <div
             className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2"
             style={{ left: `${scrollProgress}%` }}
           >
-            <span className="text-2xl" style={{ transform: "rotate(90deg)", display: "inline-block" }}>
+            <span className="text-2xl" style={{ display: "inline-block" }}>
               🚀
             </span>
           </div>

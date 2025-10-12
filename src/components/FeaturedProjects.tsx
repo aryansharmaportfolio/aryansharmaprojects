@@ -22,7 +22,7 @@ const FeaturedProjects = () => {
           <h2 className="text-5xl font-bold text-foreground mb-4 border-b-4 border-primary inline-block pb-2">
             Featured Projects
           </h2>
-          <p className="text-xl mt-6 italic text-white my-[20px]">
+          <p className="text-xl mt-6 italic text-white my-[23px]">
             A showcase of hands-on projects. Click on a project to view a detailed overview of the design process and its outcome.
           </p>
         </div>

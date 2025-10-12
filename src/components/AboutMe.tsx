@@ -4,7 +4,7 @@ import profilePicture from "@/assets/profile-picture.png";
 
 const AboutMe = () => {
   return (
-    <section id="about" className="py-24 px-6 bg-secondary/50">
+    <section id="about" className="py-24 px-6 bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto max-w-6xl">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left Column - Profile */}

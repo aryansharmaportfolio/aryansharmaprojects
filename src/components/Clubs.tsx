@@ -42,7 +42,7 @@ const Clubs = () => {
     }
   }];
   const selectedClub = clubs.find(club => club.id === expandedClub);
-  return <section id="clubs" className="py-24 px-6 relative overflow-hidden bg-black/50">
+  return <section id="clubs" className="py-24 px-6 relative overflow-hidden bg-zinc-500">
       <div className="container mx-auto max-w-7xl">
         <div className={`text-center mb-16 transition-all duration-500 ${expandedClub ? 'opacity-0 -translate-y-4' : 'opacity-100 animate-fade-in'}`}>
           <h2 className="text-5xl font-bold text-foreground mb-4 border-b-4 border-primary inline-block pb-2">

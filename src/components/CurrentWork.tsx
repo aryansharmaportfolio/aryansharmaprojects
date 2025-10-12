@@ -4,7 +4,7 @@ const CurrentWork = () => {
         <h2 className="text-5xl font-bold text-foreground mb-6 border-b-4 border-primary inline-block pb-2">
           Current & Ongoing Work
         </h2>
-        <p className="text-xl italic mt-8 text-white my-[18px]">
+        <p className="text-xl italic mt-8 text-white my-[12px]">
           Continuously developing my technical abilities and practical knowledge by seeking hands-on experiences.
         </p>
       </div>

@@ -1,6 +1,6 @@
 import { Mail, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import profilePicture from "@/assets/profile-picture.png";
+import profilePicture from "@/assets/profile-picture.jpg";
 const AboutMe = () => {
   return <section id="about" className="py-24 px-6 bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto max-w-6xl">

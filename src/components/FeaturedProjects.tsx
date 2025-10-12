@@ -23,7 +23,7 @@ const FeaturedProjects = () => {
   ];
 
   return (
-    <section id="projects" className="py-24 px-6 bg-background">
+    <section id="projects" className="py-24 px-6 bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-16 animate-fade-in">
           <h2 className="text-5xl font-bold text-foreground mb-4 border-b-4 border-primary inline-block pb-2">

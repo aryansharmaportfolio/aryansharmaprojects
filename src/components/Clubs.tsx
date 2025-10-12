@@ -37,8 +37,8 @@ const Clubs = () => {
     role: "Co-Founder/Executive",
     logo: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?auto=format&fit=crop&w=800",
     details: {
-      achievements: ["Co-founded and grew the club to over 40 active members", "Organized workshops and guest speaker events with industry professionals", "Mentored students on aerospace fundamentals and career pathways"],
-      skills: ["Leadership", "Event Planning", "Public Speaking", "Mentorship", "Community Building"]
+      achievements: ["Co-founded and grew the school's first aerospace club to over 115 members, establishing it as the largest student organization in the school's history (est. 1965).", "Led the astronomy sub-department, coordinating monthly meetings and developing educational presentations.", "Co-developed and managed enrollment for over 115 members using a centralized Excel spreadsheet.", "Created a detailed assembly of a rocket in SolidWorks that resembles the Falcon 9, modeling the payload fairing, second stage, interstage, first stage booster body, grid fins, and engine cluster."],
+      skills: ["SolidWorks", "Leadership", "Excel", "Teamwork", "Project Management", "Program Development", "Recruitment/Member Outreach"]
     }
   }];
   const selectedClub = clubs.find(club => club.id === expandedClub);

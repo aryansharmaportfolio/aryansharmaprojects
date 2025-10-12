@@ -32,9 +32,10 @@ const Header = () => {
         setScrollProgress(progress);
 
         if (isScrolled && progress > 0.1) {
+          const offset = scrollDirection === 'down' ? -1.5 : 1.5;
           const newSmokePuff: SmokePuff = {
             id: Date.now() + Math.random(),
-            left: progress,
+            left: progress + offset,
           };
           setSmoke(prevSmoke => {
             const newPuffs = [...prevSmoke, newSmokePuff];
@@ -58,7 +59,7 @@ const Header = () => {
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [isScrolled]);
+  }, [isScrolled, scrollDirection]);
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
@@ -68,8 +69,8 @@ const Header = () => {
   };
 
   const rocketRotation = scrollDirection === "down" 
-    ? "rotate(45deg)" 
-    : "rotate(-135deg)";
+    ? "rotate(-45deg)" 
+    : "rotate(135deg)";
 
   return (
     <header
@@ -84,7 +85,6 @@ const Header = () => {
         >
           Aryan Sharma
         </button>
-
         <nav className="flex gap-8">
           {[
             { label: "Home", id: "home" },
@@ -103,7 +103,6 @@ const Header = () => {
           ))}
         </nav>
       </div>
-
       <div
         className={`absolute bottom-0 left-0 h-1 w-full transition-opacity duration-300 ${
           isScrolled ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -124,13 +123,14 @@ const Header = () => {
             className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 transition-transform duration-200"
             style={{ 
               left: `${scrollProgress}%`,
-              transform: rocketRotation
+              transform: rocketRotation 
             }}
           >
             <span 
               className="text-2xl" 
               style={{ 
-                display: "inline-block"
+                display: "inline-block",
+                transform: 'rotate(-45deg)'
               }}
             >
               🚀

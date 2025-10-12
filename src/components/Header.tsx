@@ -111,7 +111,13 @@ const Header = () => {
             className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2"
             style={{ left: `${scrollProgress}%` }}
           >
-            <span className="text-2xl" style={{ display: "inline-block" }}>
+            <span 
+              className="text-2xl" 
+              style={{ 
+                display: "inline-block", 
+                transform: 'rotate(-45deg)' 
+              }}
+            >
               🚀
             </span>
           </div>

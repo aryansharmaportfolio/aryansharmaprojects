@@ -24,30 +24,26 @@ const Index = () => {
 
       scrollTimeout.current = setTimeout(() => {
         const sections = Array.from(document.querySelectorAll('section'));
-        const snapLine = 96; // Corresponds to scroll-padding-top (6rem)
+        const viewportCenter = window.innerHeight / 2;
         
         let closestSection: HTMLElement | null = null;
         let smallestDistance = Infinity;
 
         sections.forEach(section => {
           const rect = section.getBoundingClientRect();
+          const sectionCenter = rect.top + rect.height / 2;
+          const distance = Math.abs(viewportCenter - sectionCenter);
 
-          // Check if the section is within the viewport at all
-          if (rect.top < window.innerHeight && rect.bottom > 0) {
-            const distance = Math.abs(rect.top - snapLine);
-            if (distance < smallestDistance) {
-              smallestDistance = distance;
-              closestSection = section;
-            }
+          if (distance < smallestDistance) {
+            smallestDistance = distance;
+            closestSection = section;
           }
         });
 
-        // Snap if the section is close enough, but not already perfectly aligned
-        if (closestSection && smallestDistance > 5 && smallestDistance < window.innerHeight / 3) {
+        if (closestSection && smallestDistance > 5 && smallestDistance < window.innerHeight / 2.5) {
           isSnapping.current = true;
-          closestSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          closestSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
 
-          // Release the lock after the scroll animation is likely finished
           setTimeout(() => {
             isSnapping.current = false;
           }, 1000);

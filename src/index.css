@@ -2,14 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-html {
-  scroll-snap-type: y proximity;
-  scroll-padding-top: 6rem; /* Adjust this value as needed */
-}
-
-section {
-  scroll-snap-align: center;
-}
+/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
+All colors MUST be HSL.
+*/
 
 @layer base {
   :root {

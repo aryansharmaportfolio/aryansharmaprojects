@@ -11,11 +11,12 @@ const AnimatedSection = ({ children }: Props) => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        setIsVisible(entries[0].isIntersecting);
+        if (entries[0].isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(ref.current!);
+        }
       },
-      {
-        threshold: 0.5,
-      }
+      { threshold: 0.1 }
     );
 
     if (ref.current) {
@@ -32,10 +33,8 @@ const AnimatedSection = ({ children }: Props) => {
   return (
     <div
       ref={ref}
-      className={`transition-all duration-700 ease-in-out ${
-        isVisible
-          ? "opacity-100 scale-100 translate-y-0"
-          : "opacity-0 scale-95 translate-y-10"
+      className={`transition-all duration-700 ease-out ${
+        isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-10"
       }`}
     >
       {children}

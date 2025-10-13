@@ -120,10 +120,10 @@ const Header = () => {
             />
           ))}
           <div
-            className="absolute top-0 -translate-y-1/2 -translate-x-1/2 transition-transform duration-200"
+            className="absolute top-0 -translate-x-1/2 transition-transform duration-200"
             style={{ 
               left: `${scrollProgress}%`,
-              transform: rocketRotation 
+              transform: `${rocketRotation} translateY(-50%)`
             }}
           >
             <span 

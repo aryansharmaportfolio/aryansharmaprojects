@@ -32,6 +32,7 @@ const Index = () => {
         sections.forEach(section => {
           const rect = section.getBoundingClientRect();
 
+          // Check if the section is within the viewport at all
           if (rect.top < window.innerHeight && rect.bottom > 0) {
             const distance = Math.abs(rect.top - snapLine);
             if (distance < smallestDistance) {
@@ -41,10 +42,12 @@ const Index = () => {
           }
         });
 
+        // Snap if the section is close enough, but not already perfectly aligned
         if (closestSection && smallestDistance > 5 && smallestDistance < window.innerHeight / 3) {
           isSnapping.current = true;
           closestSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 
+          // Release the lock after the scroll animation is likely finished
           setTimeout(() => {
             isSnapping.current = false;
           }, 1000);

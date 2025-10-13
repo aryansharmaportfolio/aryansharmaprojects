@@ -68,9 +68,9 @@ const Header = () => {
     }
   };
 
-  const rocketRotation = scrollDirection === "down" 
-    ? "rotate(45deg)" 
-    : "rotate(-135deg)";
+  const rocketTransform = scrollDirection === "down" 
+    ? "rotate(45deg) translateY(-50%)" 
+    : "rotate(-135deg) translateY(-50%)";
 
   return (
     <header
@@ -120,10 +120,10 @@ const Header = () => {
             />
           ))}
           <div
-            className="absolute top-0 -translate-y-1/2 -translate-x-1/2 transition-transform duration-200"
+            className="absolute top-0 -translate-x-1/2 transition-transform duration-200"
             style={{ 
               left: `${scrollProgress}%`,
-              transform: rocketRotation 
+              transform: rocketTransform
             }}
           >
             <span 

@@ -11,9 +11,11 @@ const AnimatedSection = ({ children }: Props) => {
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
+        // This is the fix: it now tracks if the section is on screen or not
         setIsVisible(entries[0].isIntersecting);
       },
       {
+        // This threshold makes the animation trigger when the section is 50% in view
         threshold: 0.5,
       }
     );

@@ -22,7 +22,6 @@ const Clubs = () => {
     } else {
       document.body.style.overflow = '';
     }
-    // Cleanup function to restore scrolling when the component unmounts
     return () => {
       document.body.style.overflow = '';
     };
@@ -34,8 +33,8 @@ const Clubs = () => {
     role: "Project Lead",
     logo: "https://images.unsplash.com/photo-1581822261290-991b38693d1b?auto=format&fit=crop&w=800",
     details: {
-      achievements: ["Led a team of 12 students in designing and building a competition-ready aircraft", "Coordinated with multiple sub-teams to ensure project milestones were met", "Presented technical design reviews to faculty and industry professionals"],
-      skills: ["Team Leadership", "Project Management", "Aircraft Design", "CAD Modeling", "Technical Communication"]
+      achievements: ["Designing and modeling a fully assembled H-motor high-powered rocket in SolidWorks, validating architecture against stability and performance parameters simulated in OpenRocket.", "Performing a CFD analysis using SolidWorks Flow Simulation to determine key flight characteristics, such as drag force and aerodynamic stability, on the rocket's comprehensive 3D model before fabrication.", "3D printing ogive nose cone and laser-cutting individual parts for the precise construction of the wooden fin can assembly.", "Drilling mounting points and installing hardware to secure the recovery system and ensure structural integrity for launch."],
+      skills: ["SolidWorks", "Computational Fluid Dynamics (CFD)", "MATLAB", "3D Printing"]
     }
   }, {
     id: "aiaa",
@@ -66,14 +65,12 @@ const Clubs = () => {
             Clubs & Organizations
           </h2>
           <p className="text-xl italic text-white">
-            Actively contributing to aerospace and engineering communities through collaboration and hands-on projects.
+            Actively contributing to aerospace and engineering communities through hands-on collaboration.
           </p>
         </div>
-
         <div className={`grid md:grid-cols-3 gap-8 transition-all duration-500 ${expandedClub ? 'opacity-0' : 'opacity-100 animate-fade-in'}`}>
           {clubs.map(club => <ClubCard key={club.id} {...club} onClick={() => setExpandedClub(club.id)} isExpanded={expandedClub === club.id} />)}
         </div>
-
         {expandedClub && selectedClub && (
           <div className="fixed inset-0 z-50 bg-background overflow-y-auto animate-fade-in">
             <div className="min-h-screen">
@@ -87,7 +84,6 @@ const Clubs = () => {
                   <X className="w-6 h-6 text-card-foreground" />
                 </button>
               </div>
-
               <div className="container mx-auto max-w-7xl px-6 py-16 animate-slide-up">
                 <div className="grid md:grid-cols-2 gap-12">
                   <div>
@@ -98,12 +94,11 @@ const Clubs = () => {
                       {selectedClub.details.achievements.map((achievement, idx) => (
                         <li key={idx} className="flex items-start">
                           <span className="text-primary mr-3 mt-1">▸</span>
-                          <span className="text-lg text-foreground/90">{achievement}</span>
+                          <span className="text-lg text-white">{achievement}</span>
                         </li>
                       ))}
                     </ul>
                   </div>
-
                   <div>
                     <h3 className="text-3xl font-bold text-foreground mb-6 border-l-4 border-primary pl-4">
                       Skills Developed

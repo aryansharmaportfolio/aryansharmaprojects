@@ -69,8 +69,8 @@ const Header = () => {
   };
 
   const rocketRotation = scrollDirection === "down" 
-    ? "rotate(-45deg)" 
-    : "rotate(135deg)";
+    ? "rotate(45deg)" 
+    : "rotate(-135deg)";
 
   return (
     <header

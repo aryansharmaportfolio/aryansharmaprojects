@@ -1,76 +1,68 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 
 interface SmokePuff {
   id: number;
   left: number;
 }
 
-const Header = () => {
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
+const useSmokeTrail = () => {
   const [smoke, setSmoke] = useState<SmokePuff[]>([]);
-  const [scrollDirection, setScrollDirection] = useState("down");
+  const [scrollProgress, setScrollProgress] = useState(0);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [scrollDirection, setScrollDirection] = useState<"up" | "down">("down");
   const lastScrollY = useRef(0);
-  const isScrolling = useRef<NodeJS.Timeout | null>(null);
+  const animationFrame = useRef<number | null>(null);
+  const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
 
-  useEffect(() => {
-    const handleScroll = () => {
+  const updateSmoke = useCallback((progress: number, direction: "up" | "down") => {
+    const offset = direction === "down" ? -1.2 : 1.2;
+    const newPuff: SmokePuff = { id: Date.now() + Math.random(), left: progress + offset };
+    setSmoke(prev => {
+      const next = [...prev, newPuff];
+      return next.slice(-15);
+    });
+    setTimeout(() => setSmoke(prev => prev.filter(p => p.id !== newPuff.id)), 1200);
+  }, []);
+
+  const onScroll = useCallback(() => {
+    if (animationFrame.current) cancelAnimationFrame(animationFrame.current);
+    animationFrame.current = requestAnimationFrame(() => {
       const scrollY = window.scrollY;
       const totalHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-      
       setIsScrolled(scrollY > 10);
-      
-      if (scrollY > lastScrollY.current) {
-        setScrollDirection("down");
-      } else {
-        setScrollDirection("up");
-      }
+      const direction = scrollY > lastScrollY.current ? "down" : "up";
+      setScrollDirection(direction);
       lastScrollY.current = scrollY;
-
       if (totalHeight > 0) {
         const progress = (scrollY / totalHeight) * 100;
         setScrollProgress(progress);
-
-        if (isScrolled && progress > 0.1) {
-          const offset = scrollDirection === 'down' ? -1.2 : 1.2;
-          const newSmokePuff: SmokePuff = {
-            id: Date.now() + Math.random(),
-            left: progress + offset,
-          };
-          setSmoke(prevSmoke => {
-            const newPuffs = [...prevSmoke, newSmokePuff];
-            return newPuffs.slice(-15);
-          });
-
-          setTimeout(() => {
-            setSmoke(prevSmoke => prevSmoke.filter(p => p.id !== newSmokePuff.id));
-          }, 1200);
-        }
+        if (scrollY > 10 && progress > 0.1) updateSmoke(progress, direction);
       }
+      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
+      scrollTimeout.current = setTimeout(() => setSmoke([]), 150);
+    });
+  }, [updateSmoke]);
 
-      if (isScrolling.current) {
-        clearTimeout(isScrolling.current);
-      }
-
-      isScrolling.current = setTimeout(() => {
-        setSmoke([]);
-      }, 150);
+  useEffect(() => {
+    window.addEventListener("scroll", onScroll);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      if (animationFrame.current) cancelAnimationFrame(animationFrame.current);
     };
+  }, [onScroll]);
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [isScrolled, scrollDirection]);
+  return { smoke, scrollProgress, isScrolled, scrollDirection };
+};
+
+const Header = () => {
+  const { smoke, scrollProgress, isScrolled, scrollDirection } = useSmokeTrail();
 
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
+    if (element) element.scrollIntoView({ behavior: "smooth" });
   };
 
-  const rocketRotation = scrollDirection === "down" 
-    ? "rotate(45deg)" 
-    : "rotate(-135deg)";
+  const rocketRotation = scrollDirection === "down" ? "rotate(45deg)" : "rotate(-135deg)";
 
   return (
     <header
@@ -92,7 +84,7 @@ const Header = () => {
             { label: "Projects", id: "projects" },
             { label: "Current Work", id: "current-work" },
             { label: "Clubs", id: "clubs" },
-          ].map((item) => (
+          ].map(item => (
             <button
               key={item.id}
               onClick={() => scrollToSection(item.id)}
@@ -109,28 +101,24 @@ const Header = () => {
         }`}
       >
         <div className="relative h-full w-full">
-          {smoke.map((puff) => (
+          {smoke.map(puff => (
             <div
               key={puff.id}
               className="absolute top-0 w-4 h-4 rounded-full -translate-y-1/2 -translate-x-1/2 animate-[fadeOut_1.2s_ease-out_forwards]"
-              style={{ 
+              style={{
                 left: `${puff.left}%`,
-                background: 'radial-gradient(circle, rgba(150, 150, 150, 0.4) 0%, rgba(150, 150, 150, 0) 70%)'
+                background:
+                  "radial-gradient(circle, rgba(150, 150, 150, 0.4) 0%, rgba(150, 150, 150, 0) 70%)",
               }}
             />
           ))}
           <div
             className="absolute top-0 -translate-x-1/2 -translate-y-1/2"
-            style={{ 
-              left: `${scrollProgress}%`,
-            }}
+            style={{ left: `${scrollProgress}%` }}
           >
-            <span 
+            <span
               className="text-2xl transition-transform duration-200"
-              style={{ 
-                display: "inline-block",
-                transform: rocketRotation,
-              }}
+              style={{ display: "inline-block", transform: rocketRotation }}
             >
               🚀
             </span>
@@ -142,3 +130,4 @@ const Header = () => {
 };
 
 export default Header;
+

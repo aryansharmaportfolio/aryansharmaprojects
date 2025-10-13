@@ -32,7 +32,7 @@ const Header = () => {
         setScrollProgress(progress);
 
         if (isScrolled && progress > 0.1) {
-          const offset = scrollDirection === 'down' ? -1.5 : 1.5;
+          const offset = scrollDirection === 'down' ? -1.2 : 1.2;
           const newSmokePuff: SmokePuff = {
             id: Date.now() + Math.random(),
             left: progress + offset,

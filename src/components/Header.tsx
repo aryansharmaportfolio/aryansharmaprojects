@@ -104,7 +104,7 @@ const Header = () => {
         </nav>
       </div>
       <div
-        className={`absolute bottom-0 left-0 h-1 w-full transition-opacity duration-300 ${
+        className={`absolute bottom-0 left-0 h-px w-full transition-opacity duration-300 ${
           isScrolled ? "opacity-100" : "opacity-0 pointer-events-none"
         }`}
       >
@@ -112,7 +112,7 @@ const Header = () => {
           {smoke.map((puff) => (
             <div
               key={puff.id}
-              className="absolute top-1/2 w-4 h-4 rounded-full -translate-y-1/2 -translate-x-1/2 animate-[fadeOut_1.2s_ease-out_forwards]"
+              className="absolute top-0 w-4 h-4 rounded-full -translate-y-1/2 -translate-x-1/2 animate-[fadeOut_1.2s_ease-out_forwards]"
               style={{ 
                 left: `${puff.left}%`,
                 background: 'radial-gradient(circle, rgba(150, 150, 150, 0.4) 0%, rgba(150, 150, 150, 0) 70%)'
@@ -120,7 +120,7 @@ const Header = () => {
             />
           ))}
           <div
-            className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 transition-transform duration-200"
+            className="absolute top-0 -translate-y-1/2 -translate-x-1/2 transition-transform duration-200"
             style={{ 
               left: `${scrollProgress}%`,
               transform: rocketRotation 
@@ -130,7 +130,6 @@ const Header = () => {
               className="text-2xl" 
               style={{ 
                 display: "inline-block",
-                transform: 'rotate(-45deg)'
               }}
             >
               🚀

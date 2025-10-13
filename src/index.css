@@ -4,6 +4,7 @@
 
 html {
   scroll-snap-type: y proximity;
+  scroll-padding-top: 6rem; /* Adjust this value as needed */
 }
 
 section {

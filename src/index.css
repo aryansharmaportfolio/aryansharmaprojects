@@ -3,12 +3,7 @@
 @tailwind utilities;
 
 html {
-  scroll-snap-type: y proximity;
-  scroll-padding-top: 6rem; /* Adjust this value as needed */
-}
-
-section {
-  scroll-snap-align: center;
+  scroll-padding-top: 6rem;
 }
 
 @layer base {

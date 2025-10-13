@@ -2,9 +2,13 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+html {
+  scroll-snap-type: y mandatory;
+}
+
+section {
+  scroll-snap-align: center;
+}
 
 @layer base {
   :root {

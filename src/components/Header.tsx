@@ -32,7 +32,7 @@ const Header = () => {
         setScrollProgress(progress);
 
         if (isScrolled && progress > 0.1) {
-          const offset = scrollDirection === 'down' ? -1.2 : 1.2;
+          const offset = scrollDirection === 'down' ? -1.5 : 1.5;
           const newSmokePuff: SmokePuff = {
             id: Date.now() + Math.random(),
             left: progress + offset,
@@ -69,8 +69,8 @@ const Header = () => {
   };
 
   const rocketRotation = scrollDirection === "down" 
-    ? "rotate(45deg)" 
-    : "rotate(-135deg)";
+    ? "rotate(-45deg)" 
+    : "rotate(135deg)";
 
   return (
     <header
@@ -120,10 +120,10 @@ const Header = () => {
             />
           ))}
           <div
-            className="absolute top-0 -translate-y-1/2 -translate-x-1/2 transition-transform duration-200"
+            className="absolute top-0 -translate-x-1/2 transition-transform duration-200"
             style={{ 
               left: `${scrollProgress}%`,
-              transform: rocketRotation 
+              transform: `${rocketRotation} translateY(-50%)`
             }}
           >
             <span 

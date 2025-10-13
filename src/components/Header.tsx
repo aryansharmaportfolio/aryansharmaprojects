@@ -1,47 +1,26 @@
 import { useState, useEffect, useRef } from "react";
 
-// Helper hook to manage the sparkling stars
-const useSparkles = (isVisible: boolean) => {
-  const [sparkles, setSparkles] = useState<{ id: number; top: string; left: string; size: number; opacity: number; }[]>([]);
-
-  useEffect(() => {
-    if (!isVisible) {
-      setSparkles([]);
-      return;
-    }
-
-    const generateSparkles = () => {
-      const newSparkles = Array.from({ length: 10 }).map((_, i) => ({
-        id: i,
-        top: `${Math.random() * 80 - 40}px`,
-        left: `${Math.random() * 80 - 40}px`,
-        size: Math.random() * 2 + 1,
-        opacity: Math.random(),
-      }));
-      setSparkles(newSparkles);
-    };
-
-    generateSparkles();
-    const interval = setInterval(generateSparkles, 2000);
-    return () => clearInterval(interval);
-  }, [isVisible]);
-
-  return sparkles;
-};
-
 interface SmokePuff {
   id: number;
   left: number;
+}
+
+interface Sparkle {
+  id: number;
+  top: string;
+  left: string;
+  size: number;
+  animationDelay: string;
 }
 
 const Header = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [smoke, setSmoke] = useState<SmokePuff[]>([]);
+  const [sparkles, setSparkles] = useState<Sparkle[]>([]);
   const [scrollDirection, setScrollDirection] = useState("down");
   const lastScrollY = useRef(0);
   const isScrolling = useRef<NodeJS.Timeout | null>(null);
-  const sparkles = useSparkles(isScrolled);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -62,29 +41,30 @@ const Header = () => {
         setScrollProgress(progress);
 
         if (isScrolled && progress > 0.1) {
-          const offset = scrollDirection === 'down' ? -1.2 : 1.2;
+          const smokeOffset = scrollDirection === 'down' ? -1.2 : 1.2;
           const newSmokePuff: SmokePuff = {
             id: Date.now() + Math.random(),
-            left: progress + offset,
+            left: progress + smokeOffset,
           };
-          setSmoke(prevSmoke => {
-            const newPuffs = [...prevSmoke, newSmokePuff];
-            return newPuffs.slice(-15);
-          });
+          setSmoke(prev => [...prev.slice(-15), newSmokePuff]);
 
-          setTimeout(() => {
-            setSmoke(prevSmoke => prevSmoke.filter(p => p.id !== newSmokePuff.id));
-          }, 1200);
+          const newSparkles = Array.from({ length: 2 }).map(() => ({
+            id: Date.now() + Math.random(),
+            top: `${Math.random() * 30 - 15}px`,
+            left: `${Math.random() * 30 - 15}px`,
+            size: Math.random() * 1.5 + 0.5,
+            animationDelay: `${Math.random()}s`,
+          }));
+          setSparkles(prev => [...prev.slice(-20), ...newSparkles]);
         }
       }
 
-      if (isScrolling.current) {
-        clearTimeout(isScrolling.current);
-      }
+      if (isScrolling.current) clearTimeout(isScrolling.current);
 
       isScrolling.current = setTimeout(() => {
         setSmoke([]);
-      }, 150);
+        setSparkles([]);
+      }, 200);
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -158,13 +138,13 @@ const Header = () => {
             {sparkles.map(sparkle => (
               <div 
                 key={sparkle.id}
-                className="absolute bg-white rounded-full transition-all duration-1000"
+                className="absolute bg-white rounded-full animate-twinkle-and-fade"
                 style={{
                   top: sparkle.top,
                   left: sparkle.left,
                   width: `${sparkle.size}px`,
                   height: `${sparkle.size}px`,
-                  opacity: sparkle.opacity,
+                  animationDelay: sparkle.animationDelay,
                 }}
               />
             ))}

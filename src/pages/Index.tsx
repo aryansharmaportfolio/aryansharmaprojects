@@ -19,24 +19,26 @@ const Index = () => {
 
       scrollTimeout.current = setTimeout(() => {
         const sections = Array.from(document.querySelectorAll('section'));
-        const viewportCenter = window.innerHeight / 2;
+        const viewportHeight = window.innerHeight;
         
         let closestSection: HTMLElement | null = null;
         let smallestDistance = Infinity;
 
         sections.forEach(section => {
           const rect = section.getBoundingClientRect();
-          const sectionCenter = rect.top + rect.height / 2;
-          const distance = Math.abs(viewportCenter - sectionCenter);
-
-          if (distance < smallestDistance) {
-            smallestDistance = distance;
-            closestSection = section;
+          const visibleAmount = Math.max(0, Math.min(rect.bottom, viewportHeight) - Math.max(rect.top, 0));
+          
+          if (visibleAmount > 0) {
+            const distance = Math.abs(rect.top - 96); // 96px is 6rem
+            if (distance < smallestDistance) {
+              smallestDistance = distance;
+              closestSection = section;
+            }
           }
         });
 
-        if (closestSection && smallestDistance < window.innerHeight / 3) {
-          closestSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (closestSection) {
+          closestSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }, 150);
     };

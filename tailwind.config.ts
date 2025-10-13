@@ -110,6 +110,11 @@ export default {
             opacity: "1"
           }
         },
+        "twinkle-and-fade": {
+          "0%": { transform: "scale(0.5)", opacity: "0.7" },
+          "50%": { transform: "scale(1.2)", opacity: "1" },
+          "100%": { transform: "scale(0.5)", opacity: "0" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -117,6 +122,7 @@ export default {
         "fade-in": "fade-in 0.6s ease-out",
         "slide-up": "slide-up 0.5s ease-out",
         "scale-in": "scale-in 0.5s ease-out",
+        "twinkle-and-fade": "twinkle-and-fade 1.5s ease-in-out forwards",
       },
     },
   },

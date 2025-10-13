@@ -3,9 +3,8 @@
 @tailwind utilities;
 
 html {
-  /* This is the key for smooth scrolling and preventing header cutoff */
   scroll-behavior: smooth;
-  scroll-padding-top: 6rem; /* Adjust if your header height changes */
+  scroll-padding-top: 6rem;
 }
 
 @layer base {

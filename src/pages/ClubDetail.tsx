@@ -1,10 +1,9 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+
 const ClubDetail = () => {
-  const {
-    id
-  } = useParams();
+  const { id } = useParams();
   const navigate = useNavigate();
   const clubData: Record<string, any> = {
     aeromavs: {
@@ -42,7 +41,6 @@ const ClubDetail = () => {
           Back to Portfolio
         </Button>
 
-        {/* Banner Section */}
         <div className="relative h-96 bg-cover bg-center mb-12 rounded-xl overflow-hidden">
           <img src={club.logo} alt={club.name} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />

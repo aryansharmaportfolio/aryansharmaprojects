@@ -37,7 +37,7 @@ const ClubDetail = () => {
   }
   return <div className="min-h-screen bg-background animate-slide-up">
       <div className="container mx-auto px-6 py-12">
-        <Button onClick={() => navigate("/")} variant="ghost" className="mb-8 gap-2 hover:bg-secondary">
+        <Button onClick={() => navigate("/#clubs")} variant="ghost" className="mb-8 gap-2 hover:bg-secondary">
           <ArrowLeft className="w-5 h-5" />
           Back to Portfolio
         </Button>

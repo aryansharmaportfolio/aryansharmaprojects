@@ -1,9 +1,10 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
 const ClubDetail = () => {
-  const { id } = useParams();
+  const {
+    id
+  } = useParams();
   const navigate = useNavigate();
   const clubData: Record<string, any> = {
     aeromavs: {
@@ -57,8 +58,8 @@ const ClubDetail = () => {
             </h2>
             <ul className="space-y-4">
               {club.achievements.map((achievement: string, index: number) => <li key={index} className="flex items-start">
-                  <span className="text-primary mr-3 mt-1">▸</span>
-                  <span className="text-lg text-muted-foreground">{achievement}</span>
+                  <span className="mr-3 mt-1 text-white">▸</span>
+                  <span className="text-lg text-white">{achievement}</span>
                 </li>)}
             </ul>
           </div>

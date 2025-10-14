@@ -48,7 +48,7 @@ const ClubDetail = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-12">
             <h1 className="text-5xl font-bold text-foreground mb-2">{club.name}</h1>
-            <p className="text-2xl text-white font-semibold">{club.role}</p>
+            <p className="text-2xl text-white font-semibold my-[4px] py-[4px]">{club.role}</p>
           </div>
         </div>
 

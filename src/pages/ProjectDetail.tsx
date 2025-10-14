@@ -74,7 +74,7 @@ const ProjectDetail = () => {
     <div className="min-h-screen bg-background animate-slide-up">
       <div className="container mx-auto px-6 py-12">
         <Button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/#projects")}
           variant="ghost"
           className="mb-8 gap-2 hover:bg-secondary"
         >

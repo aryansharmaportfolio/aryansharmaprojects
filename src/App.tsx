@@ -20,7 +20,7 @@ function ScrollToAnchor() {
         if (element) {
           element.scrollIntoView({ behavior: "smooth" });
         }
-      }, 100);
+      }, 300);
     } else {
       window.scrollTo(0, 0);
     }

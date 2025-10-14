@@ -6,7 +6,7 @@ const ClubDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-const clubData: Record<string, any> = {
+  const clubData: Record<string, any> = {
     aeromavs: {
       name: "Aero Mavs",
       role: "Project Lead",
@@ -58,7 +58,7 @@ const clubData: Record<string, any> = {
     <div className="min-h-screen bg-background animate-slide-up">
       <div className="container mx-auto px-6 py-12">
         <Button
-          onClick={() => navigate("/")}
+          onClick={() => navigate("/#clubs")}
           variant="ghost"
           className="mb-8 gap-2 hover:bg-secondary"
         >
@@ -66,7 +66,6 @@ const clubData: Record<string, any> = {
           Back to Portfolio
         </Button>
 
-        {/* Banner Section */}
         <div className="relative h-96 bg-cover bg-center mb-12 rounded-xl overflow-hidden">
           <img
             src={club.logo}

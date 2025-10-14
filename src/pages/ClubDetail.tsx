@@ -6,63 +6,41 @@ const ClubDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const clubData: Record<string, any> = {
+const clubData: Record<string, any> = {
     aeromavs: {
-      name: "AeroMavs",
+      name: "Aero Mavs",
       role: "Project Lead",
-      logo: "https://images.unsplash.com/photo-1581822261290-991b38693d1b?auto=format&fit=crop&w=400",
-      description: "UTA's premier rocketry organization focused on high-powered rocket design and competition.",
-      responsibilities: [
-        "Lead project planning and execution for rocket builds",
-        "Coordinate team of 15+ members across multiple subsystems",
-        "Manage budget and procurement of materials",
-        "Ensure compliance with NAR safety regulations",
-        "Organize launch events and competitions",
-      ],
+      logo: "https://images.unsplash.com/photo-1581822261290-991b38693d1b?auto=format&fit=crop&w=800",
       achievements: [
-        "Successfully launched 3 high-powered rockets",
-        "Achieved Level 2 certification flights",
-        "Won Best Design Award at regional competition",
-        "Grew team membership by 40%",
+        "Designing and modeling a fully assembled H-motor high-powered rocket in SolidWorks, validating architecture against stability and performance parameters simulated in OpenRocket.",
+        "Performing a CFD analysis using SolidWorks Flow Simulation to determine key flight characteristics, such as drag force and aerodynamic stability, on the rocket's comprehensive 3D model before fabrication.",
+        "3D printing ogive nose cone and laser-cutting individual parts for the precise construction of the wooden fin can assembly.",
+        "Drilling mounting points and installing hardware to secure the recovery system and ensure structural integrity for launch.",
       ],
+      skills: ["SolidWorks", "Computational Fluid Dynamics (CFD)", "MATLAB", "3D Printing"],
     },
     aiaa: {
       name: "AIAA",
       role: "Design-Build-Fly Team",
-      logo: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=400",
-      description: "American Institute of Aeronautics and Astronautics student chapter competing in the Design-Build-Fly competition.",
-      responsibilities: [
-        "Design and analyze aircraft structures",
-        "Perform aerodynamic calculations and CFD analysis",
-        "Prototype and test aircraft components",
-        "Collaborate with electrical and propulsion teams",
-        "Document design process and results",
-      ],
+      logo: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=800",
       achievements: [
-        "Designed competition aircraft meeting all requirements",
-        "Achieved successful flight demonstrations",
-        "Optimized wing design for maximum efficiency",
-        "Contributed to team's top 20 national placement",
+        "Designed and fabricated custom aircraft components for competition",
+        "Conducted aerodynamic analysis and performance testing",
+        "Collaborated with team members on structural optimization",
       ],
+      skills: ["Aerodynamics", "Structural Analysis", "Composite Materials", "Wind Tunnel Testing", "Flight Testing"],
     },
     "chs-aerospace": {
       name: "Coppell High School Aerospace Club",
       role: "Co-Founder/Executive",
-      logo: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?auto=format&fit=crop&w=400",
-      description: "Founded the first aerospace-focused club at Coppell High School to inspire the next generation of aerospace engineers.",
-      responsibilities: [
-        "Co-founded and established club structure",
-        "Recruited and mentored 115+ student members",
-        "Organized weekly meetings and workshops",
-        "Coordinated field trips to aerospace facilities",
-        "Managed club budget and fundraising initiatives",
-      ],
+      logo: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?auto=format&fit=crop&w=800",
       achievements: [
-        "Grew club from 0 to 115+ members in two years",
-        "Hosted guest speakers from NASA and aerospace industry",
-        "Organized successful model rocket competition",
-        "Established partnerships with local aerospace companies",
+        "Co-founded and grew the school's first aerospace club to over 115 members, establishing it as the largest student organization in the school's history (est. 1965).",
+        "Led the astronomy sub-department, coordinating monthly meetings and developing educational presentations.",
+        "Co-developed and managed enrollment for over 115 members using a centralized Excel spreadsheet.",
+        "Created a detailed assembly of a rocket in SolidWorks that resembles the Falcon 9, modeling the payload fairing, second stage, interstage, first stage booster body, grid fins, and engine cluster.",
       ],
+      skills: ["SolidWorks", "Leadership", "Excel", "Teamwork", "Project Management", "Program Development", "Recruitment/Member Outreach"],
     },
   };
 
@@ -88,58 +66,48 @@ const ClubDetail = () => {
           Back to Portfolio
         </Button>
 
-        <div className="space-y-12">
-          <div className="flex items-center gap-8">
-            <div className="w-40 h-40 bg-card rounded-xl flex items-center justify-center p-4 shadow-xl">
-              <img
-                src={club.logo}
-                alt={club.name}
-                className="w-full h-full object-contain"
-              />
-            </div>
-            <div className="space-y-2">
-              <h1 className="text-6xl font-bold text-foreground">{club.name}</h1>
-              <p className="text-2xl text-primary font-semibold">{club.role}</p>
-            </div>
+        {/* Banner Section */}
+        <div className="relative h-96 bg-cover bg-center mb-12 rounded-xl overflow-hidden">
+          <img
+            src={club.logo}
+            alt={club.name}
+            className="w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-12">
+            <h1 className="text-5xl font-bold text-foreground mb-2">{club.name}</h1>
+            <p className="text-2xl text-muted-foreground">{club.role}</p>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 gap-12">
+          <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-foreground border-l-4 border-primary pl-4">
+              My Role & Achievements
+            </h2>
+            <ul className="space-y-4">
+              {club.achievements.map((achievement: string, index: number) => (
+                <li key={index} className="flex items-start">
+                  <span className="text-primary mr-3 mt-1">▸</span>
+                  <span className="text-lg text-muted-foreground">{achievement}</span>
+                </li>
+              ))}
+            </ul>
           </div>
 
-          <p className="text-xl text-muted-foreground leading-relaxed">
-            {club.description}
-          </p>
-
-          <div className="grid md:grid-cols-2 gap-12">
-            <div className="space-y-6">
-              <h2 className="text-3xl font-bold text-foreground border-b-2 border-primary pb-2">
-                Responsibilities
-              </h2>
-              <ul className="space-y-3">
-                {club.responsibilities.map((responsibility: string, index: number) => (
-                  <li
-                    key={index}
-                    className="flex items-start gap-3 text-lg text-muted-foreground"
-                  >
-                    <span className="text-primary mt-1">▸</span>
-                    <span>{responsibility}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="space-y-6">
-              <h2 className="text-3xl font-bold text-foreground border-b-2 border-primary pb-2">
-                Key Achievements
-              </h2>
-              <ul className="space-y-3">
-                {club.achievements.map((achievement: string, index: number) => (
-                  <li
-                    key={index}
-                    className="flex items-start gap-3 text-lg text-muted-foreground"
-                  >
-                    <span className="text-primary mt-1">▸</span>
-                    <span>{achievement}</span>
-                  </li>
-                ))}
-              </ul>
+          <div className="space-y-6">
+            <h2 className="text-3xl font-bold text-foreground border-l-4 border-primary pl-4">
+              Skills Developed
+            </h2>
+            <div className="flex flex-wrap gap-3">
+              {club.skills.map((skill: string, index: number) => (
+                <span
+                  key={index}
+                  className="px-4 py-2 bg-card text-card-foreground rounded-lg text-lg font-medium"
+                >
+                  {skill}
+                </span>
+              ))}
             </div>
           </div>
         </div>

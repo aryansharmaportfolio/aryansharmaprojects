@@ -25,7 +25,7 @@ const ClubDetail = () => {
       name: "Coppell High School Aerospace Club",
       role: "Co-Founder/Executive",
       logo: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?auto=format&fit=crop&w=800",
-      achievements: ["Co-founded and grew the school's first aerospace club to over 115 members, establishing it as the largest student organization in the school's history (est. 1965).", "Led the astronomy sub-department, coordinating monthly meetings and developing educational presentations.", "Co-developed and managed enrollment for over 115 members using a centralized Excel spreadsheet.", "Created a detailed assembly of a rocket in SolidWorks that resembles the Falcon 9, modeling the payload fairing, second stage, interstage, first stage booster body, grid fins, and engine cluster."],
+      achievements: ["Co-founded and grew the school's first aerospace club to over 115 members, establishing it as the largest student organization in the school's history (est. 1965).", "Led the astronomy sub-department, coordinating monthly meetings and developing educational presentations.", "Co-developed and managed a centralized Excel spreadsheet to track member enrollment, event logistics, and communications.", "Designed and modeled a detailed rocket prototype, including the payload fairing, second stage, interstage, first stage booster body, grid fins, and engine cluster. in SolidWorks, inspired by Falcon 9, to showcase to students."],
       skills: ["SolidWorks", "Leadership", "Excel", "Teamwork", "Project Management", "Program Development", "Recruitment/Member Outreach"]
     }
   };

@@ -10,37 +10,45 @@ import ClubDetail from "@/pages/ClubDetail";
 import ProjectDetail from "@/pages/ProjectDetail";
 import NotFound from "@/pages/NotFound";
 
-function ScrollToAnchor() {
-  const { pathname, hash } = useLocation();
+function App() {
+  const location = useLocation();
 
   useEffect(() => {
-    if (hash) {
-      setTimeout(() => {
-        const element = document.getElementById(hash.substring(1));
+    const scrollToHash = () => {
+      if (location.hash) {
+        const id = location.hash.replace("#", "");
+        const element = document.getElementById(id);
         if (element) {
           element.scrollIntoView({ behavior: "smooth" });
         }
-      }, 100);
-    } else {
-      window.scrollTo(0, 0);
-    }
-  }, [pathname, hash]);
+      } else {
+        window.scrollTo(0, 0);
+      }
+    };
 
-  return null;
+    const timer = setTimeout(() => {
+      scrollToHash();
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, [location]);
+
+  return (
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/club/:id" element={<ClubDetail />} />
+      <Route path="/project/:id" element={<ProjectDetail />} />
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
 }
 
-function App() {
+function Root() {
   return (
     <Router>
-      <ScrollToAnchor />
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/club/:id" element={<ClubDetail />} />
-        <Route path="/project/:id" element={<ProjectDetail />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+      <App />
     </Router>
   );
 }
 
-export default App;
+export default Root;

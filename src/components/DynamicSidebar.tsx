@@ -14,7 +14,7 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
   };
 
   return (
-    <div className="fixed top-0 left-0 h-full w-100 group z-50">
+    <div className="fixed top-0 left-0 h-full w-48 group z-50">
       <div
         onClick={handleNavigateBack}
         className={cn(

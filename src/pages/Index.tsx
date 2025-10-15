@@ -14,15 +14,26 @@ const Index = () => {
   const isSnapping = useRef(false);
   const location = useLocation(); // ADDED: Get location object
 
-  // ADDED: New useEffect to handle scrolling to a section based on navigation state
+  // Handle instant positioning to section without scrolling animation
   useEffect(() => {
     if (location.state?.section) {
-      const element = document.getElementById(location.state.section);
-      if (element) {
-        element.scrollIntoView({ block: 'center' });
-        // Clear the state to prevent scrolling on refresh
-        window.history.replaceState({}, document.title)
+      // Prevent scroll restoration
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
       }
+      
+      // Use requestAnimationFrame to ensure DOM is ready, then position instantly
+      requestAnimationFrame(() => {
+        const element = document.getElementById(location.state.section);
+        if (element) {
+          const yOffset = element.offsetTop;
+          window.scrollTo(0, yOffset);
+          // Clear the state to prevent scrolling on refresh
+          window.history.replaceState({}, document.title);
+        }
+      });
+    } else {
+      window.scrollTo(0, 0);
     }
   }, [location.state]);
 

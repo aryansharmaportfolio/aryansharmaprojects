@@ -8,6 +8,7 @@ import {
 import Index from "@/pages/Index";
 import ClubDetail from "@/pages/ClubDetail";
 import ProjectDetail from "@/pages/ProjectDetail";
+import WorkDetail from "@/pages/WorkDetail";
 import NotFound from "@/pages/NotFound";
 
 function ScrollToAnchor() {
@@ -45,6 +46,7 @@ function App() {
         <Route path="/" element={<Index />} />
         <Route path="/club/:id" element={<ClubDetail />} />
         <Route path="/project/:id" element={<ProjectDetail />} />
+        <Route path="/work/:id" element={<WorkDetail />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
     </Router>

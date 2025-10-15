@@ -1,18 +1,18 @@
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
 
-interface ProjectCardProps {
+interface WorkCardProps {
   id: string;
   title: string;
-  description: string;
+  role: string;
   image: string;
 }
 
-const ProjectCard = ({ id, title, description, image }: ProjectCardProps) => {
+const WorkCard = ({ id, title, role, image }: WorkCardProps) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
-    navigate(`/project/${id}`, { state: { from: 'projects' } });
+    navigate(`/work/${id}`, { state: { from: 'current-work' } });
   };
 
   return (
@@ -35,10 +35,10 @@ const ProjectCard = ({ id, title, description, image }: ProjectCardProps) => {
       {/* Text overlay at bottom */}
       <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
         <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg text-left">{title}</h3>
-        <p className="text-white/90 drop-shadow-lg">{description}</p>
+        <p className="text-white/90 drop-shadow-lg">{role}</p>
       </div>
     </Card>
   );
 };
 
-export default ProjectCard;
+export default WorkCard;

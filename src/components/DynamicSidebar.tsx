@@ -50,19 +50,25 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
         <div
           onClick={isMobile ? toggleSidebar : undefined}
           className={cn(
-            "absolute top-1/2 -translate-y-1/2 left-0",
-            "h-64 w-12 bg-black/50 backdrop-blur-md",
-            "border-t-2 border-b-2 border-r-2 border-white/10 rounded-r-lg shadow-2xl",
+            "absolute left-0",
+            "w-16 bg-black/60 backdrop-blur-md",
+            "border-t-2 border-b-2 border-r-2 border-white/10 shadow-2xl",
             "flex items-center justify-center",
             "transition-all duration-500 ease-in-out",
-            !isMobile && "group-hover:opacity-0 group-hover:translate-x-[-100%]"
+            !isMobile && "group-hover:opacity-0 group-hover:translate-x-[-100%]",
+            isMobile
+              ? "h-64 top-1/2 -translate-y-1/2 rounded-r-lg"
+              : "h-full top-0"
           )}
         >
-          <div className="absolute inset-0 animate-pulse-slow bg-white/5 rounded-r-lg" />
+          <div className={cn(
+              "absolute inset-0 animate-pulse-slow bg-white/10",
+               isMobile && "rounded-r-lg"
+          )} />
           <span
             className="
               [writing-mode:vertical-rl] transform rotate-180
-              text-white text-xl font-bold uppercase tracking-[0.3em]
+              text-white text-3xl font-black uppercase tracking-[0.4em]
               text-shadow-glow
             "
           >

@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom"; // ADDED: Import useLocation
+import { useLocation } from "react-router-dom";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import AboutMe from "@/components/AboutMe";
@@ -12,33 +12,28 @@ import AnimatedSection from "@/components/AnimatedSection";
 const Index = () => {
   const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
   const isSnapping = useRef(false);
-  const location = useLocation(); // ADDED: Get location object
+  const location = useLocation();
 
-  // Handle instant positioning to section without scrolling animation
+  // MODIFIED: This useEffect now correctly handles instant scrolling to a section.
   useEffect(() => {
     if (location.state?.section) {
-      // Prevent scroll restoration
-      if ('scrollRestoration' in history) {
-        history.scrollRestoration = 'manual';
-      }
-      
-      // Use setTimeout to ensure DOM is fully ready, then position instantly
-      setTimeout(() => {
+      // Use requestAnimationFrame to ensure the DOM is ready for scrolling.
+      requestAnimationFrame(() => {
         const element = document.getElementById(location.state.section);
         if (element) {
-          const yOffset = element.offsetTop;
-          window.scrollTo({ top: yOffset, left: 0, behavior: 'instant' as ScrollBehavior });
-          // Clear the state to prevent scrolling on refresh
+          // Use 'auto' behavior for an instant jump, not a smooth scroll.
+          element.scrollIntoView({ behavior: 'auto', block: 'center' });
+          // Clear the state from history to prevent this from happening on a page refresh.
           window.history.replaceState({}, document.title);
         }
-      }, 0);
+      });
     }
-  }, [location.state]);
+  }, [location]); // Depend on the location object itself.
 
-
+  // This useEffect handles the "smart scroll" snapping and can remain as is.
   useEffect(() => {
     const handleSmartScroll = () => {
-      if (isSnapping.current) {
+      if (isSnapping.current || location.state?.section) {
         return;
       }
 
@@ -77,7 +72,7 @@ const Index = () => {
 
     window.addEventListener('scroll', handleSmartScroll);
     return () => window.removeEventListener('scroll', handleSmartScroll);
-  }, []);
+  }, [location.state]);
 
   return (
     <div className="min-h-screen">

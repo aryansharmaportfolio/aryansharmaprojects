@@ -14,23 +14,18 @@ const Index = () => {
   const isSnapping = useRef(false);
   const location = useLocation();
 
-  // MODIFIED: This useEffect now correctly handles instant scrolling to a section.
   useEffect(() => {
     if (location.state?.section) {
-      // Use requestAnimationFrame to ensure the DOM is ready for scrolling.
       requestAnimationFrame(() => {
         const element = document.getElementById(location.state.section);
         if (element) {
-          // Use 'auto' behavior for an instant jump, not a smooth scroll.
           element.scrollIntoView({ behavior: 'auto', block: 'center' });
-          // Clear the state from history to prevent this from happening on a page refresh.
           window.history.replaceState({}, document.title);
         }
       });
     }
-  }, [location]); // Depend on the location object itself.
+  }, [location]);
 
-  // This useEffect handles the "smart scroll" snapping and can remain as is.
   useEffect(() => {
     const handleSmartScroll = () => {
       if (isSnapping.current || location.state?.section) {

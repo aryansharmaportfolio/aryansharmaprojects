@@ -1,4 +1,4 @@
-import ProjectCard from "@/components/ProjectCard";
+import ProjectCard from "./ProjectCard";
 const FeaturedProjects = () => {
   const projects = [{
     id: "project-1",

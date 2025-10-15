@@ -12,41 +12,28 @@ import WorkDetail from "@/pages/WorkDetail";
 import NotFound from "@/pages/NotFound";
 
 function ScrollToAnchor() {
-  const location = useLocation();
-  const { pathname, hash, state } = location as {
-    pathname: string;
-    hash: string;
-    state?: { section?: string } | null;
-  };
+  const { pathname, hash } = useLocation();
 
   useEffect(() => {
-    // 1) Anchor hash takes priority
+    // If there's an anchor (e.g. #portfolio)
     if (hash) {
+      // Wait for DOM to update, then jump instantly
       setTimeout(() => {
         const element = document.getElementById(hash.substring(1));
         if (element) {
-          window.scrollTo({ top: element.offsetTop, left: 0, behavior: "auto" });
+          // Instantly set scroll position (no animation)
+          window.scrollTo({
+            top: element.offsetTop,
+            left: 0,
+            behavior: "auto", // ensures instant jump
+          });
         }
       }, 0);
-      return;
+    } else {
+      // No hash → just go to top of page
+      window.scrollTo(0, 0);
     }
-
-    // 2) If returning to home with a target section in state → jump instantly to that section
-    if (pathname === "/" && state?.section) {
-      setTimeout(() => {
-        const el = document.getElementById(state.section!);
-        if (el) {
-          window.scrollTo({ top: el.offsetTop, left: 0, behavior: "auto" });
-          // Clear history state after using it to prevent re-triggering
-          window.history.replaceState({}, document.title, window.location.pathname + window.location.search + window.location.hash);
-        }
-      }, 0);
-      return;
-    }
-
-    // 3) Default behavior for normal route changes
-    window.scrollTo(0, 0);
-  }, [pathname, hash, state]);
+  }, [pathname, hash]);
 
   return null;
 }

@@ -16,15 +16,13 @@ const Index = () => {
 
   useEffect(() => {
     if (location.state?.section) {
-      // Ensure DOM is painted, then jump instantly to the target section
-      setTimeout(() => {
+      requestAnimationFrame(() => {
         const element = document.getElementById(location.state.section);
         if (element) {
-          window.scrollTo({ top: element.offsetTop, left: 0, behavior: 'auto' });
-          // Clear the state so future navigations don't reuse it
-          window.history.replaceState({}, document.title, window.location.pathname + window.location.search + window.location.hash);
+          element.scrollIntoView({ behavior: 'auto', block: 'center' });
+          window.history.replaceState({}, document.title);
         }
-      }, 0);
+      });
     }
   }, [location]);
 

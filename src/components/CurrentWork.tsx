@@ -1,4 +1,4 @@
-import WorkCard from "@/components/WorkCard";
+import WorkCard from "./WorkCard";
 
 const CurrentWork = () => {
   const currentWork = [

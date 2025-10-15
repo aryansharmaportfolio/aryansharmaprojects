@@ -63,6 +63,10 @@ const Header = ({ activeSection }: { activeSection: string }) => {
   }, [isScrolled, scrollDirection]);
 
   const scrollToSection = (sectionId: string) => {
+    if (sectionId === "home") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      return;
+    }
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
@@ -70,6 +74,7 @@ const Header = ({ activeSection }: { activeSection: string }) => {
   };
 
   const navLinks = [
+      { label: "Home", id: "home" },
       { label: "About Me", id: "about-me" },
       { label: "Projects", id: "featured-projects" },
       { label: "Current Work", id: "current-work" },
@@ -88,7 +93,7 @@ const Header = ({ activeSection }: { activeSection: string }) => {
     >
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
         <button
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          onClick={() => scrollToSection("home")}
           className="text-2xl font-bold text-foreground hover:text-primary transition-colors"
         >
           Aryan Sharma
@@ -101,7 +106,7 @@ const Header = ({ activeSection }: { activeSection: string }) => {
               onClick={() => scrollToSection(item.id)}
               className={cn(
                 "text-foreground font-medium transition-all duration-200 hover:text-white hover:font-bold hover:scale-105",
-                activeSection === item.id && "font-bold text-primary"
+                (activeSection === item.id || (item.id === 'home' && !activeSection)) && "font-bold text-white"
               )}
             >
               {item.label}

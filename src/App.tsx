@@ -18,9 +18,9 @@ function ScrollToAnchor() {
       setTimeout(() => {
         const element = document.getElementById(hash.substring(1));
         if (element) {
-          element.scrollIntoView({ behavior: "smooth" });
+          element.scrollIntoView({ behavior: "auto" });
         }
-      }, 300);
+      }, 100);
     } else {
       window.scrollTo(0, 0);
     }

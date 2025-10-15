@@ -86,23 +86,136 @@ html {
   }
 }
 
+/* ==============================================
+MASTERPIECE ANIMATION SUITE
+==============================================
+*/
+
+/* Keyframes for Animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes backgroundShine {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+@keyframes gradient-pan {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes border-glow {
+  0% { border-color: hsla(var(--primary), 0.5); box-shadow: 0 0 10px hsla(var(--primary), 0.3); }
+  50% { border-color: hsla(var(--primary), 1); box-shadow: 0 0 20px hsla(var(--primary), 0.7); }
+  100% { border-color: hsla(var(--primary), 0.5); box-shadow: 0 0 10px hsla(var(--primary), 0.3); }
+}
+
+@keyframes text-clip-animation {
+  from { background-position: 200% center; }
+  to { background-position: -200% center; }
+}
+
+/* Sidebar Specific Animations */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.05); }
+}
+
+/* New Utility Classes */
 @layer utilities {
+  /* General Animations */
+  .animate-fade-in {
+    animation: fadeIn 1s ease-out forwards;
+  }
+  
+  .animate-fade-in-up {
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+
+  /* Staggered Animations (for parent containers) */
+  .stagger-children > * {
+    opacity: 0;
+    animation: fadeInUp 0.8s ease-out forwards;
+  }
+
+  /* Card and Interactive Element Enhancements */
+  .card-hover-glow {
+    @apply transition-all duration-300;
+  }
+  .card-hover-glow:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 0 30px hsla(var(--primary), 0.4), 0 0 15px hsla(var(--accent), 0.2);
+    border-color: hsla(var(--primary), 0.8);
+  }
+
+  .border-animated-glow {
+    animation: border-glow 4s linear infinite;
+  }
+  
+  /* Text and Title Enhancements */
+  .text-gradient-animated {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(90deg, hsl(var(--foreground)), hsl(var(--primary)), hsl(var(--foreground)));
+    background-size: 200% auto;
+    animation: text-clip-animation 5s linear infinite;
+  }
+
+  .underline-animated {
+    @apply relative;
+  }
+  .underline-animated::after {
+    content: '';
+    @apply absolute bottom-0 left-0 h-0.5 w-full bg-primary;
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease-out;
+  }
+  .group:hover .underline-animated::after, .underline-animated:hover::after {
+    transform: scaleX(1);
+  }
+  
+  /* Button Enhancements */
+  .button-shine-effect {
+    @apply relative overflow-hidden;
+  }
+  .button-shine-effect::after {
+    content: '';
+    @apply absolute top-0 -left-full h-full w-full;
+    background: linear-gradient(120deg, transparent, hsla(var(--primary), 0.4), transparent);
+    transition: left 0.6s ease;
+  }
+  .button-shine-effect:hover::after {
+    left: 100%;
+  }
+
+  /* Background Effects */
+  .background-gradient-pan {
+    background: linear-gradient(90deg, hsl(var(--background)), hsl(var(--secondary)), hsl(var(--background)));
+    background-size: 400% 400%;
+    animation: gradient-pan 15s ease infinite;
+  }
+
+  .background-grid {
+    background-image: linear-gradient(to right, hsla(var(--border) / 0.2) 1px, transparent 1px),
+                      linear-gradient(to bottom, hsla(var(--border) / 0.2) 1px, transparent 1px);
+    background-size: 3rem 3rem;
+  }
+
+  /* Sidebar Specific Styles */
   .text-shadow-glow {
     text-shadow: 0 0 8px rgba(255, 255, 255, 0.4), 0 0 20px rgba(255, 255, 255, 0.2);
   }
-}
 
-@keyframes pulse-slow {
-  0%, 100% {
-    opacity: 1;
-    transform: scale(1);
+  .animate-pulse-slow {
+    animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
   }
-  50% {
-    opacity: 0.5;
-    transform: scale(1.05);
-  }
-}
-
-.animate-pulse-slow {
-  animation: pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }

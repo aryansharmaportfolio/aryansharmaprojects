@@ -1,6 +1,4 @@
 import { useParams, useNavigate } from "react-router-dom";
-import { ArrowLeft } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import DynamicSidebar from "@/components/DynamicSidebar";
 
 const ClubDetail = () => {
@@ -58,16 +56,7 @@ const ClubDetail = () => {
       <DynamicSidebar returnSection="clubs" />
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-6 py-12">
-          <Button
-            onClick={() => navigate("/", { state: { section: "clubs" } })}
-            variant="ghost"
-            className="mb-8 gap-2 hover:bg-secondary relative z-10"
-          >
-            <ArrowLeft className="w-5 h-5" />
-            Back to Portfolio
-          </Button>
-
-          <div className="relative h-96 bg-cover bg-center mb-12 rounded-xl overflow-hidden">
+          <div className="relative h-96 bg-cover bg-center mb-12 rounded-xl overflow-hidden mt-16">
             <img src={club.logo} alt={club.name} className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-12">

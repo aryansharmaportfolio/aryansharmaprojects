@@ -43,7 +43,6 @@ const ClubDetail = () => {
     },
   };
   const club = clubData[id || ""];
-
   if (!club) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -51,15 +50,11 @@ const ClubDetail = () => {
       </div>
     );
   }
-
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-12">
-        <Button 
-          onClick={() => navigate("/", { state: { section: "clubs" } })} 
-          variant="ghost" 
-          className="mb-8 gap-2 hover:bg-secondary"
-        >
+        {/* MODIFIED: Changed the onClick handler to navigate with state */}
+        <Button onClick={() => navigate("/", { state: { section: "clubs" } })} variant="ghost" className="mb-8 gap-2 hover:bg-secondary">
           <ArrowLeft className="w-5 h-5" />
           Back to Portfolio
         </Button>
@@ -105,5 +100,4 @@ const ClubDetail = () => {
     </div>
   );
 };
-
 export default ClubDetail;

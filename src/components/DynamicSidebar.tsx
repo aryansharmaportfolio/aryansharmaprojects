@@ -1,5 +1,6 @@
 import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { cn } from "@/lib/utils";
 
 interface DynamicSidebarProps {
   returnSection: string;
@@ -13,25 +14,30 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
   };
 
   return (
-    <div 
-      className="fixed top-0 left-0 h-full w-24 group flex items-center justify-center z-40"
-      onClick={handleNavigateBack}
-    >
-      <div 
-        className="
-          absolute top-1/2 -translate-y-1/2 left-0 
-          h-48 w-16 bg-card/80 backdrop-blur-md 
-          rounded-r-lg shadow-lg cursor-pointer
-          flex items-center justify-end
-          transition-all duration-300 ease-in-out
-          -translate-x-full group-hover:translate-x-0
-        "
+    // This outer div is the invisible hover "trigger" area on the left edge of the screen.
+    <div className="fixed top-0 left-0 h-full w-24 group z-50">
+      {/* This is the main sidebar panel that slides in. */}
+      <div
+        onClick={handleNavigateBack}
+        className={cn(
+          "fixed top-0 left-0 h-full w-72 cursor-pointer",
+          "flex items-center justify-center",
+          "bg-gradient-to-r from-black via-black/80 to-transparent",
+          "transition-transform duration-300 ease-in-out",
+          "-translate-x-full group-hover:translate-x-0" // Slides in on hover
+        )}
       >
-        <div className="flex flex-col items-center text-white space-y-2 -mr-1">
-          <ArrowLeft className="h-6 w-6 transform -rotate-45" />
-          <span className="[writing-mode:vertical-rl] font-semibold tracking-wider uppercase text-sm">
-            Portfolio
-          </span>
+        <div 
+          className="
+            flex items-center gap-4 text-white 
+            font-semibold text-lg tracking-wider
+            transition-all duration-300
+            opacity-0 group-hover:opacity-100 group-hover:delay-100
+            hover:scale-105
+          "
+        >
+          <ArrowLeft className="h-6 w-6" />
+          <span>Back to Portfolio</span>
         </div>
       </div>
     </div>

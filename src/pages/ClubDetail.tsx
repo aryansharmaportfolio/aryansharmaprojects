@@ -58,10 +58,10 @@ const ClubDetail = () => {
       <DynamicSidebar returnSection="clubs" />
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-6 py-12">
-          <Button 
-            onClick={() => navigate("/", { state: { section: "clubs" } })} 
-            variant="ghost" 
-            className="mb-8 gap-2 hover:bg-secondary"
+          <Button
+            onClick={() => navigate("/", { state: { section: "clubs" } })}
+            variant="ghost"
+            className="mb-8 gap-2 hover:bg-secondary relative z-10"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Portfolio

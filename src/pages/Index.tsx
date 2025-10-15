@@ -14,23 +14,27 @@ const Index = () => {
   const isSnapping = useRef(false);
   const location = useLocation();
 
-  // MODIFIED: useEffect to handle instant scrolling
+  // Handle instant positioning to section without scrolling animation
   useEffect(() => {
-    // A small timeout to ensure the DOM is fully rendered
-    const timer = setTimeout(() => {
-      if (location.state?.section) {
+    if (location.state?.section) {
+      // Prevent scroll restoration
+      if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+      }
+      
+      // Use requestAnimationFrame to ensure DOM is ready, then position instantly
+      requestAnimationFrame(() => {
         const element = document.getElementById(location.state.section);
         if (element) {
-          element.scrollIntoView({ behavior: 'auto', block: 'start' });
+          const yOffset = element.offsetTop;
+          window.scrollTo(0, yOffset);
           // Clear the state to prevent scrolling on refresh
           window.history.replaceState({}, document.title);
         }
-      } else {
-        window.scrollTo(0, 0);
-      }
-    }, 0);
-
-    return () => clearTimeout(timer);
+      });
+    } else {
+      window.scrollTo(0, 0);
+    }
   }, [location.state]);
 
 

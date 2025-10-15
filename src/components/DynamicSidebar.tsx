@@ -104,7 +104,6 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
             "fixed top-0 left-0 h-full w-96 flex items-center justify-center bg-black/80 backdrop-blur-xl border-r-2 border-white/10 transition-transform duration-500 ease-in-out pointer-events-none",
             isMobile
               ? (isOpen ? "translate-x-0 pointer-events-auto" : "-translate-x-full")
-              // The group-hover makes this entire panel clickable when it's open on desktop
               : "-translate-x-full group-hover:translate-x-0 group-hover:pointer-events-auto" 
           )}
         >
@@ -122,7 +121,7 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
           >
             <div className="relative h-10 w-10 flex items-center justify-center">
               <span className={cn(
-                "text-4xl relative", // Added relative positioning here
+                "text-4xl relative", 
                 isLaunching ? "animate-rocket-launch" : "group-hover:animate-rocket-idle rotate-[-135deg]"
               )}>
                 🚀

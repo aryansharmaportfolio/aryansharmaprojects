@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
 
 interface SmokePuff {
   id: number;
   left: number;
 }
 
-const Header = () => {
+const Header = ({ activeSection }: { activeSection: string }) => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [smoke, setSmoke] = useState<SmokePuff[]>([]);
@@ -68,6 +69,13 @@ const Header = () => {
     }
   };
 
+  const navLinks = [
+      { label: "About Me", id: "about-me" },
+      { label: "Projects", id: "featured-projects" },
+      { label: "Current Work", id: "current-work" },
+      { label: "Clubs", id: "clubs" },
+  ];
+
   const rocketRotation = scrollDirection === "down" 
     ? "rotate(45deg)" 
     : "rotate(-135deg)";
@@ -80,24 +88,21 @@ const Header = () => {
     >
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
         <button
-          onClick={() => scrollToSection("home")}
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
           className="text-2xl font-bold text-foreground hover:text-primary transition-colors"
         >
           Aryan Sharma
         </button>
 
         <nav className="flex gap-8">
-          {[
-            { label: "Home", id: "home" },
-            { label: "About Me", id: "about" },
-            { label: "Projects", id: "projects" },
-            { label: "Current Work", id: "current-work" },
-            { label: "Clubs", id: "clubs" },
-          ].map((item) => (
+          {navLinks.map((item) => (
             <button
               key={item.id}
               onClick={() => scrollToSection(item.id)}
-              className="text-foreground font-medium transition-all duration-200 hover:text-white hover:font-bold hover:scale-105"
+              className={cn(
+                "text-foreground font-medium transition-all duration-200 hover:text-white hover:font-bold hover:scale-105",
+                activeSection === item.id && "font-bold text-primary"
+              )}
             >
               {item.label}
             </button>

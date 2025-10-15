@@ -14,9 +14,7 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
   };
 
   return (
-    // This outer div is the invisible hover "trigger" area on the left edge of the screen.
-    <div className="fixed top-0 left-0 h-full w-24 group z-50">
-      {/* This is the main sidebar panel that slides in. */}
+    <div className="fixed top-0 left-0 h-full w-48 group z-50">
       <div
         onClick={handleNavigateBack}
         className={cn(
@@ -24,7 +22,7 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
           "flex items-center justify-center",
           "bg-gradient-to-r from-black via-black/80 to-transparent",
           "transition-transform duration-300 ease-in-out",
-          "-translate-x-full group-hover:translate-x-0" // Slides in on hover
+          "-translate-x-full group-hover:translate-x-0"
         )}
       >
         <div 

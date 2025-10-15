@@ -19,6 +19,7 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isLaunching, setIsLaunching] = useState(false);
   const [smoke, setSmoke] = useState<SmokePuff[]>([]);
+  const [rocketPosition, setRocketPosition] = useState(0);
   const navigate = useNavigate();
   const smokeIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
@@ -28,19 +29,19 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const addSmokePuff = (isLaunch = false) => {
+  const addSmokePuff = (isIdle: boolean, currentRocketPos: number) => {
     const newPuff: SmokePuff = {
       id: Date.now() + Math.random(),
-      x: isLaunch ? 20 + Math.random() * 10 : 0,
+      x: currentRocketPos + (isIdle ? 0 : 20 + Math.random() * 10),
       y: Math.random() * 10 - 5,
-      scale: Math.random() * 0.5 + (isLaunch ? 1.2 : 0.8),
+      scale: Math.random() * 0.5 + (isIdle ? 0.8 : 1.2),
     };
     setSmoke(prev => [...prev.slice(-20), newPuff]);
   };
 
   const handleMouseEnter = () => {
     if (!isMobile && !isLaunching) {
-      smokeIntervalRef.current = setInterval(() => addSmokePuff(false), 150);
+      smokeIntervalRef.current = setInterval(() => addSmokePuff(true, 0), 150);
     }
   };
 
@@ -56,18 +57,40 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
     setIsLaunching(true);
     if (smokeIntervalRef.current) clearInterval(smokeIntervalRef.current);
 
-    const launchSmokeInterval = setInterval(() => addSmokePuff(true), 40);
+    let start: number | null = null;
+    const duration = 800;
+    const distance = -350;
 
-    setTimeout(() => {
-      clearInterval(launchSmokeInterval);
-      navigate("/", { state: { section: returnSection } });
-    }, 800);
+    const launchSmokeInterval = setInterval(() => {
+      const elapsed = start ? performance.now() - start : 0;
+      const progress = Math.min(elapsed / duration, 1);
+      const currentPos = progress * distance;
+      addSmokePuff(false, currentPos);
+    }, 40);
+
+    const animateLaunch = (timestamp: number) => {
+      if (!start) start = timestamp;
+      const elapsed = timestamp - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const newPos = progress * distance;
+      setRocketPosition(newPos);
+
+      if (elapsed < duration) {
+        requestAnimationFrame(animateLaunch);
+      } else {
+        clearInterval(launchSmokeInterval);
+        setTimeout(() => {
+          navigate("/", { state: { section: returnSection } });
+        }, 200);
+      }
+    };
+    requestAnimationFrame(animateLaunch);
   };
-
+  
   const toggleSidebar = () => {
     if (isMobile) setIsOpen(!isOpen);
   };
-
+  
   return (
     <>
       {isMobile && (
@@ -104,7 +127,7 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
             "fixed top-0 left-0 h-full w-96 flex items-center justify-center bg-black/80 backdrop-blur-xl border-r-2 border-white/10 transition-transform duration-500 ease-in-out pointer-events-none",
             isMobile
               ? (isOpen ? "translate-x-0 pointer-events-auto" : "-translate-x-full")
-              : "-translate-x-full group-hover:translate-x-0 group-hover:pointer-events-auto"
+              : "-translate-x-full group-hover:translate-x-0 group-hover:pointer-events-auto" 
           )}
         >
           {isMobile && (
@@ -114,30 +137,31 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
           )}
 
           <div className="absolute inset-0 w-full h-full bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
-
+          
           <div
             onClick={handleLaunch}
             className="relative z-10 flex flex-col items-center gap-6 text-white font-semibold text-2xl tracking-wider transition-all duration-300 hover:scale-105 cursor-pointer"
           >
-            <div className="relative h-10 w-10 flex items-center justify-center">
-              <span className={cn(
-                "text-4xl",
-                isLaunching ? "animate-rocket-launch" : "group-hover:animate-rocket-idle rotate-[-135deg]"
-              )}>
-                🚀
-              </span>
-              <div className="absolute top-1/2 left-1/2">
+            <div className="relative h-10 w-96">
                 {smoke.map(puff => (
                   <div
                     key={puff.id}
-                    className="absolute w-6 h-6 rounded-full animate-smoke-puff"
+                    className="absolute top-1/2 left-1/2 w-6 h-6 rounded-full animate-smoke-puff"
                     style={{
                       transform: `translate(${puff.x}px, ${puff.y}px) scale(${puff.scale})`,
                       background: 'radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 70%)'
                     }}
                   />
                 ))}
-              </div>
+              <span className={cn(
+                "text-4xl absolute top-1/2 left-1/2 transition-opacity",
+                isLaunching && "opacity-0",
+                "group-hover:animate-rocket-idle rotate-[-135deg]"
+              )}
+                style={{ transform: `translateX(${rocketPosition}px) rotate(-135deg)` }}
+              >
+                🚀
+              </span>
             </div>
             <div className="relative w-full flex items-center justify-center">
               <div className="absolute w-1/2 h-0.5 bg-white/20" />

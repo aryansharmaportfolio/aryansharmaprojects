@@ -55,7 +55,7 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
 
     setIsLaunching(true);
     if (smokeIntervalRef.current) clearInterval(smokeIntervalRef.current);
-    
+
     const launchSmokeInterval = setInterval(() => addSmokePuff(true), 40);
 
     setTimeout(() => {
@@ -67,7 +67,7 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
   const toggleSidebar = () => {
     if (isMobile) setIsOpen(!isOpen);
   };
-  
+
   return (
     <>
       {isMobile && (
@@ -104,7 +104,7 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
             "fixed top-0 left-0 h-full w-96 flex items-center justify-center bg-black/80 backdrop-blur-xl border-r-2 border-white/10 transition-transform duration-500 ease-in-out pointer-events-none",
             isMobile
               ? (isOpen ? "translate-x-0 pointer-events-auto" : "-translate-x-full")
-              : "-translate-x-full group-hover:translate-x-0 group-hover:pointer-events-auto" 
+              : "-translate-x-full group-hover:translate-x-0 group-hover:pointer-events-auto"
           )}
         >
           {isMobile && (
@@ -114,30 +114,30 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
           )}
 
           <div className="absolute inset-0 w-full h-full bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
-          
+
           <div
             onClick={handleLaunch}
             className="relative z-10 flex flex-col items-center gap-6 text-white font-semibold text-2xl tracking-wider transition-all duration-300 hover:scale-105 cursor-pointer"
           >
             <div className="relative h-10 w-10 flex items-center justify-center">
               <span className={cn(
-                "text-4xl relative", 
+                "text-4xl",
                 isLaunching ? "animate-rocket-launch" : "group-hover:animate-rocket-idle rotate-[-135deg]"
               )}>
                 🚀
-                <div className="absolute top-1/2 left-1/2">
-                  {smoke.map(puff => (
-                    <div
-                      key={puff.id}
-                      className="absolute w-6 h-6 rounded-full animate-smoke-puff"
-                      style={{
-                        transform: `translate(${puff.x}px, ${puff.y}px) scale(${puff.scale})`,
-                        background: 'radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 70%)'
-                      }}
-                    />
-                  ))}
-                </div>
               </span>
+              <div className="absolute top-1/2 left-1/2">
+                {smoke.map(puff => (
+                  <div
+                    key={puff.id}
+                    className="absolute w-6 h-6 rounded-full animate-smoke-puff"
+                    style={{
+                      transform: `translate(${puff.x}px, ${puff.y}px) scale(${puff.scale})`,
+                      background: 'radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 70%)'
+                    }}
+                  />
+                ))}
+              </div>
             </div>
             <div className="relative w-full flex items-center justify-center">
               <div className="absolute w-1/2 h-0.5 bg-white/20" />

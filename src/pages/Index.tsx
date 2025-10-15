@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import AboutMe from "@/components/AboutMe";
@@ -13,6 +13,7 @@ const Index = () => {
   const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
   const isSnapping = useRef(false);
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (location.state?.section) {
@@ -20,14 +21,17 @@ const Index = () => {
         const element = document.getElementById(location.state.section);
         if (element) {
           element.scrollIntoView({ behavior: 'auto', block: 'center' });
-          window.history.replaceState({}, document.title);
+          // By replacing the state, we remove the `section` property from the location state.
+          // This is the key to re-enabling the smart scroll.
+          navigate(location.pathname, { replace: true, state: {} });
         }
       });
     }
-  }, [location]);
+  }, [location, navigate]);
 
   useEffect(() => {
     const handleSmartScroll = () => {
+      // This condition now works correctly because the state is cleared after the initial jump.
       if (isSnapping.current || location.state?.section) {
         return;
       }

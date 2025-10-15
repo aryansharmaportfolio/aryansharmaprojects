@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom"; // ADDED: Import useLocation
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import AboutMe from "@/components/AboutMe";
@@ -11,6 +12,20 @@ import AnimatedSection from "@/components/AnimatedSection";
 const Index = () => {
   const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
   const isSnapping = useRef(false);
+  const location = useLocation(); // ADDED: Get location object
+
+  // ADDED: New useEffect to handle scrolling to a section based on navigation state
+  useEffect(() => {
+    if (location.state?.section) {
+      const element = document.getElementById(location.state.section);
+      if (element) {
+        element.scrollIntoView({ block: 'center' });
+        // Clear the state to prevent scrolling on refresh
+        window.history.replaceState({}, document.title)
+      }
+    }
+  }, [location.state]);
+
 
   useEffect(() => {
     const handleSmartScroll = () => {

@@ -16,23 +16,41 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
   return (
     <div
       onClick={handleNavigateBack}
-      className="fixed top-0 left-0 h-full w-72 group z-50 cursor-pointer"
+      className="fixed top-0 left-0 h-full group z-50 cursor-pointer"
     >
       <div
         className={cn(
-          "absolute top-0 left-0 h-full w-full",
-          "transition-transform duration-300 ease-in-out",
-          "-translate-x-[calc(100%-2rem)] group-hover:translate-x-0"
+          "absolute top-1/2 -translate-y-1/2 left-0",
+          "bg-card/80 backdrop-blur-sm shadow-lg rounded-r-md",
+          "transition-opacity duration-300",
+          "group-hover:opacity-0"
         )}
       >
-        <div className="absolute inset-0 bg-gradient-to-r from-black via-black/80 to-transparent" />
-        
-        <div className="absolute top-0 right-0 h-full w-8 bg-card/60 backdrop-blur-md border-r-2 border-white/10" />
+        <div className="flex items-center justify-center h-full p-3">
+          <span
+            className="
+              [writing-mode:vertical-rl] transform rotate-180 
+              text-white font-semibold uppercase tracking-widest text-sm
+            "
+          >
+            Portfolio
+          </span>
+        </div>
+      </div>
 
+      <div
+        className={cn(
+          "absolute top-0 left-0 h-full w-72",
+          "flex items-center justify-center",
+          "bg-gradient-to-r from-black via-black/90 to-transparent",
+          "transition-transform duration-300 ease-in-out",
+          "-translate-x-full group-hover:translate-x-0"
+        )}
+      >
         <div
           className="
-            relative z-10 flex items-center justify-center h-full
-            gap-4 text-white font-semibold text-lg tracking-wider
+            flex items-center gap-4 text-white
+            font-semibold text-lg tracking-wider
             transition-opacity duration-300
             opacity-0 group-hover:opacity-100 group-hover:delay-150
           "

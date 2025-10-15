@@ -22,18 +22,16 @@ const Index = () => {
         history.scrollRestoration = 'manual';
       }
       
-      // Use requestAnimationFrame to ensure DOM is ready, then position instantly
-      requestAnimationFrame(() => {
+      // Use setTimeout to ensure DOM is fully ready, then position instantly
+      setTimeout(() => {
         const element = document.getElementById(location.state.section);
         if (element) {
           const yOffset = element.offsetTop;
-          window.scrollTo(0, yOffset);
+          window.scrollTo({ top: yOffset, left: 0, behavior: 'instant' as ScrollBehavior });
           // Clear the state to prevent scrolling on refresh
           window.history.replaceState({}, document.title);
         }
-      });
-    } else {
-      window.scrollTo(0, 0);
+      }, 0);
     }
   }, [location.state]);
 

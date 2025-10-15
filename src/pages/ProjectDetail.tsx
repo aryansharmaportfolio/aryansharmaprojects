@@ -1,37 +1,62 @@
-import { BrowserRouter as Router, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-// The original component content is moved into its own component
-const ProjectDetailContent = () => {
+const ProjectDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const location = useLocation();
-
-  const returnSection = location.state?.from || 'featured-projects';
 
   const projectData: Record<string, any> = {
-    "sentinel-vision": {
-      name: "Sentinel Vision",
-      description: "AI-powered aerial surveillance for wildfire detection.",
-      logo: "https://images.unsplash.com/photo-1562300554-4896011316b1?auto=format&fit=crop&w=800",
-      achievements: [
-        "Developed a deep learning model to analyze aerial imagery in real-time.",
-        "Integrated GPS data to pinpoint wildfire locations with high accuracy.",
-        "Designed a cloud-based alert system for emergency responders."
+    "project-1": {
+      title: "Rocket Propulsion System",
+      image: "https://images.unsplash.com/photo-1581822261290-991b38693d1b?auto=format&fit=crop&w=1200",
+      skills: [
+        "Solid Propellant Chemistry",
+        "Combustion Analysis",
+        "Thrust Vector Control",
+        "Safety Protocols",
+        "CAD Design (SolidWorks)",
       ],
-      skills: ["Python", "TensorFlow", "Computer Vision", "AWS", "GIS"]
+      achievements: [
+        "Successfully designed and tested a high-powered rocket motor achieving 500N thrust",
+        "Optimized fuel mixture for 15% efficiency improvement",
+        "Led a team of 8 engineers through full development cycle",
+        "Presented findings at regional aerospace conference",
+      ],
     },
-    "orbital-mechanics-simulator": {
-      name: "Orbital Mechanics Simulator",
-      description: "A web-based tool for simulating satellite orbits.",
-      logo: "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=800",
-      achievements: [
-        "Implemented n-body physics simulations using JavaScript.",
-        "Created an interactive 3D visualization with Three.js.",
-        "Allowed users to define custom orbital parameters and celestial bodies."
+    "project-2": {
+      title: "UAV Flight Dynamics",
+      image: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=1200",
+      skills: [
+        "Flight Control Systems",
+        "MATLAB/Simulink",
+        "PID Controller Design",
+        "Sensor Integration",
+        "Autonomous Navigation",
       ],
-      skills: ["JavaScript", "Three.js", "Physics Engine", "React", "HTML Canvas"]
+      achievements: [
+        "Developed stable autonomous flight controller for fixed-wing UAV",
+        "Reduced oscillation by 40% through advanced PID tuning",
+        "Integrated GPS and IMU for precise navigation",
+        "Completed 50+ successful test flights",
+      ],
+    },
+    "project-3": {
+      title: "Aerodynamic Optimization",
+      image: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?auto=format&fit=crop&w=1200",
+      skills: [
+        "Computational Fluid Dynamics",
+        "ANSYS Fluent",
+        "Wind Tunnel Testing",
+        "Data Analysis",
+        "Optimization Algorithms",
+      ],
+      achievements: [
+        "Reduced drag coefficient by 22% through iterative design",
+        "Validated CFD results with wind tunnel experiments",
+        "Generated comprehensive technical report",
+        "Applied findings to Design-Build-Fly competition aircraft",
+      ],
     },
   };
 
@@ -40,7 +65,7 @@ const ProjectDetailContent = () => {
   if (!project) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl">Project not found. Note: Preview may not show dynamic content.</p>
+        <p className="text-xl">Project not found</p>
       </div>
     );
   }
@@ -48,49 +73,60 @@ const ProjectDetailContent = () => {
   return (
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-12">
-        <Button 
-          onClick={() => navigate("/", { state: { section: returnSection } })} 
-          variant="ghost" 
+        <Button
+          onClick={() => navigate("/", { state: { section: "projects" } })}
+          variant="ghost"
           className="mb-8 gap-2 hover:bg-secondary"
         >
           <ArrowLeft className="w-5 h-5" />
           Back to Portfolio
         </Button>
 
-        <div className="relative h-96 bg-cover bg-center mb-12 rounded-xl overflow-hidden">
-          <img src={project.logo} alt={project.name} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-12">
-            <h1 className="text-5xl font-bold text-foreground mb-2">{project.name}</h1>
-            <p className="text-2xl text-white font-semibold my-[4px] py-[4px]">{project.description}</p>
-          </div>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-12">
+        <div className="space-y-12">
           <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-foreground border-l-4 border-primary pl-4">
-              Key Achievements
-            </h2>
-            <ul className="space-y-4">
-              {project.achievements.map((achievement: string, index: number) => (
-                <li key={index} className="flex items-start">
-                  <span className="mr-3 mt-1 text-white">▸</span>
-                  <span className="text-lg text-white">{achievement}</span>
-                </li>
-              ))}
-            </ul>
+            <h1 className="text-6xl font-bold text-foreground">{project.title}</h1>
+            <div className="aspect-video rounded-xl overflow-hidden shadow-2xl">
+              <img
+                src={project.image}
+                alt={project.title}
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
 
-          <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-foreground border-l-4 border-primary pl-4">
-              Technologies Used
-            </h2>
-            <div className="flex flex-wrap gap-3">
-              {project.skills.map((skill: string, index: number) => (
-                <span key={index} className="px-4 py-2 bg-card text-card-foreground rounded-lg text-lg font-medium">
-                  {skill}
-                </span>
-              ))}
+          <div className="grid md:grid-cols-2 gap-12">
+            <div className="space-y-6">
+              <h2 className="text-3xl font-bold text-foreground border-b-2 border-primary pb-2">
+                List of Skills
+              </h2>
+              <ul className="space-y-3">
+                {project.skills.map((skill: string, index: number) => (
+                  <li
+                    key={index}
+                    className="flex items-start gap-3 text-lg text-muted-foreground"
+                  >
+                    <span className="text-primary mt-1">▸</span>
+                    <span>{skill}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="space-y-6">
+              <h2 className="text-3xl font-bold text-foreground border-b-2 border-primary pb-2">
+                My Role & Achievements
+              </h2>
+              <ul className="space-y-3">
+                {project.achievements.map((achievement: string, index: number) => (
+                  <li
+                    key={index}
+                    className="flex items-start gap-3 text-lg text-muted-foreground"
+                  >
+                    <span className="text-primary mt-1">▸</span>
+                    <span>{achievement}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
           </div>
         </div>
@@ -98,21 +134,5 @@ const ProjectDetailContent = () => {
     </div>
   );
 };
-
-
-// This wrapper provides the Router context needed by the hooks in ProjectDetailContent.
-const ProjectDetail = () => {
-    return (
-        <Router>
-            <Routes>
-                {/* This route will match URLs like "/project/some-id" */}
-                <Route path="/project/:id" element={<ProjectDetailContent />} />
-                {/* This is a fallback for isolated preview environments */}
-                <Route path="*" element={<ProjectDetailContent />} />
-            </Routes>
-        </Router>
-    );
-};
-
 
 export default ProjectDetail;

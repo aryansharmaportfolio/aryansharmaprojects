@@ -137,21 +137,35 @@ MASTERPIECE ANIMATION SUITE
   }
   100% {
     opacity: 0;
-    transform: scale(1.5) translate(calc(var(--tw-translate-x) * 1.5), calc(var(--tw-translate-y) * 1.5));
+    transform: scale(2.5) translate(calc(var(--tw-translate-x) - 50px), var(--tw-translate-y));
   }
 }
 
 @keyframes rocket-launch {
   0% {
-    transform: translateX(0) rotate(-135deg);
+    transform: translateX(0) rotate(-135deg) scale(1);
     opacity: 1;
   }
   100% {
-    transform: translateX(-250px) rotate(-135deg);
+    transform: translateX(-350px) rotate(-135deg) scale(0.5);
     opacity: 0;
   }
 }
 
+@keyframes rocket-idle {
+  0%, 100% {
+    transform: translate(0, 0) rotate(-135deg);
+  }
+  25% {
+    transform: translate(-1px, 1px) rotate(-137deg);
+  }
+  50% {
+    transform: translate(1px, -1px) rotate(-133deg);
+  }
+  75% {
+    transform: translate(-1px, -1px) rotate(-135deg);
+  }
+}
 
 /* New Utility Classes */
 @layer utilities {
@@ -248,5 +262,9 @@ MASTERPIECE ANIMATION SUITE
 
   .animate-rocket-launch {
     animation: rocket-launch 0.8s ease-in forwards;
+  }
+
+  .animate-rocket-idle {
+    animation: rocket-idle 0.3s infinite ease-in-out;
   }
 }

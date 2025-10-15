@@ -75,8 +75,8 @@ const Header = ({ activeSection }: { activeSection: string }) => {
 
   const navLinks = [
       { label: "Home", id: "home" },
-      { label: "About Me", id: "about-me" },
-      { label: "Projects", id: "featured-projects" },
+      { label: "About Me", id: "about" },
+      { label: "Projects", id: "projects" },
       { label: "Current Work", id: "current-work" },
       { label: "Clubs", id: "clubs" },
   ];

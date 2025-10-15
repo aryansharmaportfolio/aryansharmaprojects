@@ -1,6 +1,7 @@
 import { useParams, useNavigate } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import DynamicSidebar from "@/components/DynamicSidebar";
 
 const ClubDetail = () => {
   const { id } = useParams();
@@ -53,56 +54,59 @@ const ClubDetail = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="container mx-auto px-6 py-12">
-        <Button 
-          onClick={() => navigate("/", { state: { section: "clubs" } })} 
-          variant="ghost" 
-          className="mb-8 gap-2 hover:bg-secondary"
-        >
-          <ArrowLeft className="w-5 h-5" />
-          Back to Portfolio
-        </Button>
+    <>
+      <DynamicSidebar returnSection="clubs" />
+      <div className="min-h-screen bg-background">
+        <div className="container mx-auto px-6 py-12">
+          <Button 
+            onClick={() => navigate("/", { state: { section: "clubs" } })} 
+            variant="ghost" 
+            className="mb-8 gap-2 hover:bg-secondary"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            Back to Portfolio
+          </Button>
 
-        <div className="relative h-96 bg-cover bg-center mb-12 rounded-xl overflow-hidden">
-          <img src={club.logo} alt={club.name} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-12">
-            <h1 className="text-5xl font-bold text-foreground mb-2">{club.name}</h1>
-            <p className="text-2xl text-white font-semibold my-[4px] py-[4px]">{club.role}</p>
-          </div>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-12">
-          <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-foreground border-l-4 border-primary pl-4">
-              My Role & Achievements
-            </h2>
-            <ul className="space-y-4">
-              {club.achievements.map((achievement: string, index: number) => (
-                <li key={index} className="flex items-start">
-                  <span className="mr-3 mt-1 text-white">▸</span>
-                  <span className="text-lg text-white">{achievement}</span>
-                </li>
-              ))}
-            </ul>
+          <div className="relative h-96 bg-cover bg-center mb-12 rounded-xl overflow-hidden">
+            <img src={club.logo} alt={club.name} className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+            <div className="absolute bottom-0 left-0 right-0 p-12">
+              <h1 className="text-5xl font-bold text-foreground mb-2">{club.name}</h1>
+              <p className="text-2xl text-white font-semibold my-[4px] py-[4px]">{club.role}</p>
+            </div>
           </div>
 
-          <div className="space-y-6">
-            <h2 className="text-3xl font-bold text-foreground border-l-4 border-primary pl-4">
-              Skills Developed
-            </h2>
-            <div className="flex flex-wrap gap-3">
-              {club.skills.map((skill: string, index: number) => (
-                <span key={index} className="px-4 py-2 bg-card text-card-foreground rounded-lg text-lg font-medium">
-                  {skill}
-                </span>
-              ))}
+          <div className="grid md:grid-cols-2 gap-12">
+            <div className="space-y-6">
+              <h2 className="text-3xl font-bold text-foreground border-l-4 border-primary pl-4">
+                My Role & Achievements
+              </h2>
+              <ul className="space-y-4">
+                {club.achievements.map((achievement: string, index: number) => (
+                  <li key={index} className="flex items-start">
+                    <span className="mr-3 mt-1 text-white">▸</span>
+                    <span className="text-lg text-white">{achievement}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            <div className="space-y-6">
+              <h2 className="text-3xl font-bold text-foreground border-l-4 border-primary pl-4">
+                Skills Developed
+              </h2>
+              <div className="flex flex-wrap gap-3">
+                {club.skills.map((skill: string, index: number) => (
+                  <span key={index} className="px-4 py-2 bg-card text-card-foreground rounded-lg text-lg font-medium">
+                    {skill}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
         </div>
       </div>
-    </div>
+    </>
   );
 };
 

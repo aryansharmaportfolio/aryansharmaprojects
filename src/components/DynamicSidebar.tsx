@@ -14,20 +14,22 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
   };
 
   return (
-    <div className="fixed top-0 left-0 h-full w-48 group z-50">
+    <div
+      onClick={handleNavigateBack}
+      className="fixed top-0 left-0 h-full w-72 group z-50 cursor-pointer"
+    >
       <div
-        onClick={handleNavigateBack}
         className={cn(
-          "fixed top-0 left-0 h-full w-72 cursor-pointer",
+          "absolute top-0 left-0 h-full w-full",
           "flex items-center justify-center",
           "bg-gradient-to-r from-black via-black/80 to-transparent",
           "transition-transform duration-300 ease-in-out",
-          "-translate-x-full group-hover:translate-x-0"
+          "-translate-x-[calc(100%-2rem)] group-hover:translate-x-0"
         )}
       >
-        <div 
+        <div
           className="
-            flex items-center gap-4 text-white 
+            flex items-center gap-4 text-white
             font-semibold text-lg tracking-wider
             transition-all duration-300
             opacity-0 group-hover:opacity-100 group-hover:delay-100

@@ -1,9 +1,9 @@
-import { BrowserRouter as Router, Routes, Route, useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DynamicSidebar from "@/components/DynamicSidebar";
 
-const ProjectDetailContent = () => {
+const ProjectDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const location = useLocation();
@@ -40,7 +40,7 @@ const ProjectDetailContent = () => {
   if (!project) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <p className="text-xl">Project not found. Note: Preview may not show dynamic content.</p>
+        <p className="text-xl">Project not found.</p>
       </div>
     );
   }
@@ -50,10 +50,10 @@ const ProjectDetailContent = () => {
       <DynamicSidebar returnSection={returnSection} />
       <div className="min-h-screen bg-background">
         <div className="container mx-auto px-6 py-12">
-          <Button 
-            onClick={() => navigate("/", { state: { section: returnSection } })} 
-            variant="ghost" 
-            className="mb-8 gap-2 hover:bg-secondary"
+          <Button
+            onClick={() => navigate("/", { state: { section: returnSection } })}
+            variant="ghost"
+            className="mb-8 gap-2 hover:bg-secondary relative z-10"
           >
             <ArrowLeft className="w-5 h-5" />
             Back to Portfolio
@@ -100,17 +100,6 @@ const ProjectDetailContent = () => {
       </div>
     </>
   );
-};
-
-const ProjectDetail = () => {
-    return (
-        <Router>
-            <Routes>
-                <Route path="/project/:id" element={<ProjectDetailContent />} />
-                <Route path="*" element={<ProjectDetailContent />} />
-            </Routes>
-        </Router>
-    );
 };
 
 export default ProjectDetail;

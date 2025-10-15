@@ -14,14 +14,22 @@ function ScrollToAnchor() {
   const { pathname, hash } = useLocation();
 
   useEffect(() => {
+    // If there's an anchor (e.g. #portfolio)
     if (hash) {
+      // Wait for DOM to update, then jump instantly
       setTimeout(() => {
         const element = document.getElementById(hash.substring(1));
         if (element) {
-          element.scrollIntoView();
+          // Instantly set scroll position (no animation)
+          window.scrollTo({
+            top: element.offsetTop,
+            left: 0,
+            behavior: "auto", // ensures instant jump
+          });
         }
-      }, 100);
+      }, 0);
     } else {
+      // No hash → just go to top of page
       window.scrollTo(0, 0);
     }
   }, [pathname, hash]);

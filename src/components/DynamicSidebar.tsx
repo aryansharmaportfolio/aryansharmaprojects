@@ -100,25 +100,37 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
           </span>
         </div>
 
+        {/* --- MODIFIED THIS DIV --- */}
         <div
+          onClick={handleLaunch} // onClick moved here
           className={cn(
-            "fixed top-0 left-0 h-full w-96 flex items-center justify-center bg-black/80 backdrop-blur-xl border-r-2 border-white/10 transition-transform duration-500 ease-in-out pointer-events-none",
+            "fixed top-0 left-0 h-full w-96 flex items-center justify-center backdrop-blur-xl border-r-2 border-white/10 transition-transform duration-500 ease-in-out pointer-events-none cursor-pointer",
+            // Gradient added, bg-black/80 removed
+            "bg-gradient-to-r from-black to-transparent", 
             isMobile
               ? (isOpen ? "translate-x-0 pointer-events-auto" : "-translate-x-full")
               : "-translate-x-full group-hover:translate-x-0 group-hover:pointer-events-auto"
           )}
         >
           {isMobile && (
-            <button onClick={() => toggleSidebar(false)} className="absolute top-4 right-4 text-white hover:text-primary">
+            <button 
+              onClick={(e) => {
+                e.stopPropagation(); // Stop click from triggering launch
+                toggleSidebar(false);
+              }} 
+              className="absolute top-4 right-4 text-white hover:text-primary z-20" // Added z-20
+            >
               <X size={32} />
             </button>
           )}
 
           <div className="absolute inset-0 w-full h-full bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
 
+          {/* --- MODIFIED THIS DIV --- */}
           <div
-            onClick={handleLaunch}
-            className="relative z-10 flex flex-col items-center gap-6 text-white font-semibold text-2xl tracking-wider transition-all duration-300 hover:scale-105 cursor-pointer"
+            // onClick removed
+            // hover:scale-105 and cursor-pointer removed
+            className="relative z-10 flex flex-col items-center gap-6 text-white font-semibold text-2xl tracking-wider transition-all duration-300"
           >
             <div className="relative h-10 w-10 flex items-center justify-center">
               <span className={cn(
@@ -130,8 +142,6 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
               
               <div className="absolute top-1/2 left-1/2 transform translate-x-[12px] -translate-y-[12px]">
                 {smoke.map(puff => (
-                  // --- THIS IS THE FIX ---
-                  // 1. This OUTER div handles the POSITION from JavaScript
                   <div
                     key={puff.id}
                     className="absolute"
@@ -139,7 +149,6 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
                       transform: `translate(${puff.x}px, ${puff.y}px)`,
                     }}
                   >
-                    {/* 2. This INNER div handles the ANIMATION from CSS */}
                     <div
                       className="w-5 h-5 rounded-full animate-smoke-puff pointer-events-none"
                       style={{
@@ -150,7 +159,6 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
                       }}
                     />
                   </div>
-                  // --- END FIX ---
                 ))}
               </div>
             </div>

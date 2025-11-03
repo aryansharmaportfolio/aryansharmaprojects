@@ -119,7 +119,7 @@ export default {
           "50%": { borderColor: "hsl(var(--foreground))" },
         },
         
-        // --- ADD THESE SIMPLE KEYFRAMES ---
+        // --- REVERTED TO SIMPLE, WORKING ROCKET ANIMATIONS ---
         "rocket-idle": {
           "0%, 100%": { transform: "translate(0, 0) rotate(-135deg)" },
           "50%": { transform: "translate(-1px, 1px) rotate(-135deg)" },
@@ -128,12 +128,18 @@ export default {
           "0%": { transform: "translate(0, 0) rotate(-135deg)", opacity: "1" },
           "100%": { transform: "translate(-200px, -200px) rotate(-135deg)", opacity: "0" },
         },
-        "smoke-puff": {
-          "0%": { opacity: "0.5", transform: "scale(0.5)" },
-          "100%": { opacity: "0", transform: "scale(2.5)" },
-        },
-        // --- END ADD ---
 
+        // --- REPLACED 'smoke-puff' with 'smoke-trail' ---
+        "smoke-trail": {
+          "0%": { 
+            transform: "scaleY(0.1)", 
+            opacity: "1" 
+          },
+          "100%": { 
+            transform: "scaleY(4) translateY(20px)", 
+            opacity: "0" 
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -143,11 +149,10 @@ export default {
         "scale-in": "scale-in 0.5s ease-out",
         "typing": "typing 1.5s ease-out 1s 1 normal forwards, blink-caret .75s step-end 1s 4 normal forwards",
 
-        // --- ADD THESE SIMPLE ANIMATIONS ---
+        // --- UPDATED ANIMATIONS ---
         "rocket-idle": "rocket-idle 0.3s ease-in-out infinite",
         "rocket-launch": "rocket-launch 0.8s ease-in forwards",
-        "smoke-puff": "smoke-puff 1s ease-out forwards",
-        // --- END ADD ---
+        "smoke-trail": "smoke-trail 0.8s ease-out forwards",
       },
     },
   },

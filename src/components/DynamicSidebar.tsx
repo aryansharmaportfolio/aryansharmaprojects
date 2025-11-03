@@ -3,7 +3,6 @@ import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
-// Back to the SmokePuff interface
 interface SmokePuff {
   id: number;
   x: number;
@@ -19,9 +18,9 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isLaunching, setIsLaunching] = useState(false);
-  const [smoke, setSmoke] = useState<SmokePuff[]>([]); // Back to smoke state
+  const [smoke, setSmoke] = useState<SmokePuff[]>([]);
   const navigate = useNavigate();
-  const smokeIntervalRef = useRef<NodeJS.Timeout | null>(null); // Back to interval ref
+  const smokeIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -29,19 +28,18 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Back to the addSmokePuff function
   const addSmokePuff = (isLaunch = false) => {
     const newPuff: SmokePuff = {
       id: Date.now() + Math.random(),
       // Puffs move away (bottom-left) from the nozzle
       x: Math.random() * -10 - (isLaunch ? 5 : 0),
       y: Math.random() * 10 + (isLaunch ? 5 : 0),
-      scale: Math.random() * 0.5 + (isLaunch ? 1.2 : 0.8),
+      // Set a base scale
+      scale: Math.random() * 0.5 + (isLaunch ? 0.8 : 0.4),
     };
     setSmoke(prev => [...prev.slice(-20), newPuff]);
   };
 
-  // Back to mouse hover logic
   const handleMouseEnter = () => {
     if (!isMobile && !isLaunching) {
       smokeIntervalRef.current = setInterval(() => addSmokePuff(false), 150);
@@ -65,7 +63,6 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
     setTimeout(() => {
       clearInterval(launchSmokeInterval);
       navigate("/", { state: { section: returnSection } });
-      // Reset state after navigation
       setTimeout(() => setIsLaunching(false), 200);
     }, 800);
   };
@@ -87,8 +84,8 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
       )}
 
       <div
-        onMouseEnter={handleMouseEnter} // Added back
-        onMouseLeave={handleMouseLeave} // Added back
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
         className={cn("fixed top-0 left-0 h-full group z-50")}
       >
         <div
@@ -133,15 +130,17 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
                 🚀
               </span>
               
-              {/* --- THIS IS THE FIX --- */}
-              {/* This div is now correctly positioned at the rocket's nozzle */}
               <div className="absolute top-1/2 left-1/2 transform translate-x-[12px] -translate-y-[12px]">
                 {smoke.map(puff => (
                   <div
                     key={puff.id}
                     className="absolute w-6 h-6 rounded-full animate-smoke-puff"
                     style={{
-                      transform: `translate(${puff.x}px, ${puff.y}px) scale(${puff.scale})`,
+                      // --- MODIFIED: Set CSS Variables ---
+                      // @ts-ignore
+                      '--x': `${puff.x}px`,
+                      '--y': `${puff.y}px`,
+                      '--start-scale': puff.scale,
                       background: 'radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 70%)'
                     }}
                   />

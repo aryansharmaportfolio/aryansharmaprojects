@@ -127,8 +127,9 @@ export default {
         "scale-in": "scale-in 0.5s ease-out",
         
         // --- MODIFIED THIS LINE ---
-        // Removed "steps()" for a smooth animation and changed duration to 1.5s
-        "typing": "typing 1.5s ease-out 1s 1 normal forwards, blink-caret .75s step-end infinite",
+        // Changed "infinite" to "4" to make it blink 4 times total
+        // (2 during typing, 2 after) and then stop.
+        "typing": "typing 1.5s ease-out 1s 1 normal forwards, blink-caret .75s step-end 1s 4 normal forwards",
         // --- END MODIFICATION ---
       },
     },

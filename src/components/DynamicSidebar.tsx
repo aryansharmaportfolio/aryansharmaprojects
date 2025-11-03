@@ -1,14 +1,9 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react"; // Removed useRef
 import { X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 
-interface SmokePuff {
-  id: number;
-  x: number;
-  y: number;
-  scale: number;
-}
+// --- Removed SmokePuff interface ---
 
 interface DynamicSidebarProps {
   returnSection: string;
@@ -18,9 +13,8 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [isLaunching, setIsLaunching] = useState(false);
-  const [smoke, setSmoke] = useState<SmokePuff[]>([]);
   const navigate = useNavigate();
-  const smokeIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  // --- Removed smoke state and interval ref ---
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -28,51 +22,30 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const addSmokePuff = (isLaunch = false) => {
-    const newPuff: SmokePuff = {
-      id: Date.now() + Math.random(),
-      x: isLaunch ? 20 + Math.random() * 10 : 0,
-      y: Math.random() * 10 - 5,
-      scale: Math.random() * 0.5 + (isLaunch ? 1.2 : 0.8),
-    };
-    setSmoke(prev => [...prev.slice(-20), newPuff]);
-  };
-
-  const handleMouseEnter = () => {
-    if (!isMobile && !isLaunching) {
-      smokeIntervalRef.current = setInterval(() => addSmokePuff(false), 150);
-    }
-  };
-
-  const handleMouseLeave = () => {
-    if (smokeIntervalRef.current) {
-      clearInterval(smokeIntervalRef.current);
-    }
-  };
+  // --- Removed addSmokePuff, handleMouseEnter, handleMouseLeave ---
 
   const handleLaunch = () => {
     if (isLaunching) return;
 
     setIsLaunching(true);
-    if (smokeIntervalRef.current) clearInterval(smokeIntervalRef.current);
-
-    const launchSmokeInterval = setInterval(() => addSmokePuff(true), 40);
+    // --- Removed interval logic ---
 
     setTimeout(() => {
-      clearInterval(launchSmokeInterval);
       navigate("/", { state: { section: returnSection } });
-    }, 800);
+      // Reset launching state after navigation for next time
+      setTimeout(() => setIsLaunching(false), 200); 
+    }, 800); // Matches rocket launch animation
   };
 
-  const toggleSidebar = () => {
-    if (isMobile) setIsOpen(!isOpen);
+  const toggleSidebar = (open: boolean) => {
+    if (isMobile) setIsOpen(open);
   };
 
   return (
     <>
       {isMobile && (
         <div
-          onClick={() => setIsOpen(false)}
+          onClick={() => toggleSidebar(false)} // Close on overlay click
           className={cn(
             "fixed inset-0 bg-black/50 z-40 transition-opacity",
             isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
@@ -81,12 +54,11 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
       )}
 
       <div
-        onMouseEnter={handleMouseEnter}
-        onMouseLeave={handleMouseLeave}
+        // --- Removed hover handlers ---
         className={cn("fixed top-0 left-0 h-full group z-50")}
       >
         <div
-          onClick={isMobile ? toggleSidebar : undefined}
+          onClick={isMobile ? () => toggleSidebar(true) : undefined} // Open on tab click
           className={cn(
             "absolute left-0 w-16 bg-black/60 backdrop-blur-md border-t-2 border-b-2 border-r-2 border-white/10 shadow-2xl flex items-center justify-center transition-all duration-500 ease-in-out cursor-pointer",
             !isMobile && "group-hover:opacity-0 group-hover:translate-x-[-100%]",
@@ -108,7 +80,7 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
           )}
         >
           {isMobile && (
-            <button onClick={() => setIsOpen(false)} className="absolute top-4 right-4 text-white hover:text-primary">
+            <button onClick={() => toggleSidebar(false)} className="absolute top-4 right-4 text-white hover:text-primary">
               <X size={32} />
             </button>
           )}
@@ -126,24 +98,39 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
               )}>
                 🚀
               </span>
-              <div className="absolute top-1/2 left-1/2">
-                {smoke.map(puff => (
-                  <div
-                    key={puff.id}
-                    className="absolute w-6 h-6 rounded-full animate-smoke-puff"
-                    style={{
-                      transform: `translate(${puff.x}px, ${puff.y}px) scale(${puff.scale})`,
-                      background: 'radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 70%)'
-                    }}
-                  />
-                ))}
+              
+              {/* --- NEW SMOKE TRAIL CONTAINER --- */}
+              <div 
+                className={cn(
+                  "absolute w-3 h-3", // Small origin point
+                  // Positioned at the rocket nozzle (top-right of the rotated emoji)
+                  "top-1/2 left-1/2 transform translate-x-[12px] -translate-y-[12px]", 
+                  // Hide unless hovering or launching
+                  "opacity-0 transition-opacity",
+                  !isMobile && "group-hover:opacity-100",
+                  isLaunching && "opacity-100"
+                )}
+              >
+                {/* Multiple trail elements with delays for a thicker look */}
+                <div 
+                  className="absolute w-full h-full rounded-full bg-white/70 animate-smoke-trail origin-top"
+                  style={{ animationIterationCount: 'infinite', animationDelay: '0s' }}
+                />
+                <div 
+                  className="absolute w-full h-full rounded-full bg-white/70 animate-smoke-trail origin-top"
+                  style={{ animationIterationCount: 'infinite', animationDelay: '0.2s' }}
+                />
+                <div 
+                  className="absolute w-full h-full rounded-full bg-white/70 animate-smoke-trail origin-top"
+                  style={{ animationIterationCount: 'infinite', animationDelay: '0.4s' }}
+                />
               </div>
             </div>
             <div className="relative w-full flex items-center justify-center">
               <div className="absolute w-1/2 h-0.5 bg-white/20" />
               <div className={cn(
                 "absolute w-full h-0.5 bg-white transition-transform duration-700 ease-in-out",
-                (isMobile && isOpen) ? "scale-x-100 delay-200" : "scale-x-0 group-hover:scale-x-100 group-hover:delay-200"
+                (isMobile && isOpen) ? "scale-x-100 delay-200" : "scale-x-0 group-hover:scale-x-100 group-hover:delay-2S00"
               )} />
             </div>
             <span>Back to Portfolio</span>

@@ -1,8 +1,13 @@
 import type { Config } from "tailwindcss";
 
-export default {
+const config: Config = {
   darkMode: ["class"],
-  content: ["./pages/**/*.{ts,tsx}", "./components/**/*.{ts,tsx}", "./app/**/*.{ts,tsx}", "./src/**/*.{ts,tsx}"],
+  content: [
+    "./pages/**/*.{ts,tsx}",
+    "./components/**/*.{ts,tsx}",
+    "./app/**/*.{ts,tsx}",
+    "./src/**/*.{ts,tsx}",
+  ],
   prefix: "",
   theme: {
     container: {
@@ -58,11 +63,13 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
       },
+
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
       },
+
       keyframes: {
         "accordion-down": {
           from: { height: "0" },
@@ -74,15 +81,15 @@ export default {
         },
         "fade-in": {
           "0%": { opacity: "0", transform: "translateY(20px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" }
+          "100%": { opacity: "1", transform: "translateY(0)" },
         },
         "slide-up": {
           "0%": { transform: "translateY(100%)", opacity: "0" },
-          "100%": { transform: "translateY(0)", opacity: "1" }
+          "100%": { transform: "translateY(0)", opacity: "1" },
         },
         "scale-in": {
           "0%": { transform: "scale(0.8)", opacity: "0" },
-          "100%": { transform: "scale(1)", opacity: "1" }
+          "100%": { transform: "scale(1)", opacity: "1" },
         },
         "typing": {
           "0%": { width: "0%" },
@@ -98,32 +105,43 @@ export default {
         },
         "rocket-launch": {
           "0%": { transform: "translate(0, 0) rotate(-135deg)", opacity: "1" },
-          "100%": { transform: "translate(-200px, -200px) rotate(-135deg)", opacity: "0" },
+          "100%": {
+            transform: "translate(-200px, -200px) rotate(-135deg)",
+            opacity: "0",
+          },
         },
-        
         "smoke-puff": {
           "0%": {
             opacity: "0.7",
-            transform: "translateX(0) scale(var(--start-scale))",
+            transform: "translateX(0) scale(var(--start-scale, 1))",
           },
           "100%": {
             opacity: "0",
-            transform: "translateX(-24px) scale(calc(var(--start-scale) * 3))",
+            transform: "translateX(-24px) scale(calc(var(--start-scale, 1) * 3))",
           },
         },
+        "fadeOut": {
+          "0%": { opacity: "0.7", transform: "scale(1)" },
+          "100%": { opacity: "0", transform: "scale(3)" },
+        },
       },
+
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.6s ease-out",
         "slide-up": "slide-up 0.5s ease-out",
         "scale-in": "scale-in 0.5s ease-out",
-        "typing": "typing 1.5s ease-out 1s 1 normal forwards, blink-caret .75s step-end 1s 4 normal forwards",
+        "typing":
+          "typing 1.5s ease-out 1s 1 normal forwards, blink-caret .75s step-end 1s 4 normal forwards",
         "rocket-idle": "rocket-idle 0.3s ease-in-out infinite",
         "rocket-launch": "rocket-launch 0.8s ease-in forwards",
         "smoke-puff": "smoke-puff 1s ease-out forwards",
+        "fadeOut": "fadeOut 1.2s ease-out forwards",
       },
     },
   },
   plugins: [require("tailwindcss-animate")],
-} satisfies Config;
+};
+
+export default config;

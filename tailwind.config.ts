@@ -119,7 +119,7 @@ export default {
           "50%": { borderColor: "hsl(var(--foreground))" },
         },
         
-        // --- REVERTED TO SIMPLE, WORKING ROCKET ANIMATIONS ---
+        // --- BACK TO THE ORIGINAL WORKING ROCKET ANIMATIONS ---
         "rocket-idle": {
           "0%, 100%": { transform: "translate(0, 0) rotate(-135deg)" },
           "50%": { transform: "translate(-1px, 1px) rotate(-135deg)" },
@@ -128,17 +128,9 @@ export default {
           "0%": { transform: "translate(0, 0) rotate(-135deg)", opacity: "1" },
           "100%": { transform: "translate(-200px, -200px) rotate(-135deg)", opacity: "0" },
         },
-
-        // --- REPLACED 'smoke-puff' with 'smoke-trail' ---
-        "smoke-trail": {
-          "0%": { 
-            transform: "scaleY(0.1)", 
-            opacity: "1" 
-          },
-          "100%": { 
-            transform: "scaleY(4) translateY(20px)", 
-            opacity: "0" 
-          },
+        "smoke-puff": {
+          "0%": { opacity: "0.5", transform: "scale(0.5)" },
+          "100%": { opacity: "0", transform: "scale(2.5)" },
         },
       },
       animation: {
@@ -149,10 +141,10 @@ export default {
         "scale-in": "scale-in 0.5s ease-out",
         "typing": "typing 1.5s ease-out 1s 1 normal forwards, blink-caret .75s step-end 1s 4 normal forwards",
 
-        // --- UPDATED ANIMATIONS ---
+        // --- BACK TO THE ORIGINAL WORKING ROCKET ANIMATIONS ---
         "rocket-idle": "rocket-idle 0.3s ease-in-out infinite",
         "rocket-launch": "rocket-launch 0.8s ease-in forwards",
-        "smoke-trail": "smoke-trail 0.8s ease-out forwards",
+        "smoke-puff": "smoke-puff 1s ease-out forwards",
       },
     },
   },

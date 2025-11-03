@@ -1,5 +1,8 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { useNavigate } from "react-router-dom";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface WorkCardProps {
   id: string;
@@ -9,17 +12,20 @@ interface WorkCardProps {
 }
 
 const WorkCard = ({ id, title, role, image }: WorkCardProps) => {
-  const navigate = useNavigate();
-
-  const handleClick = () => {
-    navigate(`/work/${id}`, { state: { from: 'current-work' } });
-  };
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <Card
-      onClick={handleClick}
-      className="group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-80"
-    >
+    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
+      <CollapsibleTrigger asChild>
+        <Card className="group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-80">
+          <div className="absolute top-4 right-4 z-30">
+            <ChevronDown 
+              className={cn(
+                "h-6 w-6 text-white transition-transform duration-300",
+                isOpen && "rotate-180"
+              )}
+            />
+          </div>
       {/* Full-bleed image with gradient overlay */}
       <div className="absolute inset-0">
         <img src={image} alt={title} className="w-full h-full object-cover" />
@@ -32,12 +38,22 @@ const WorkCard = ({ id, title, role, image }: WorkCardProps) => {
         </div>
       </div>
       
-      {/* Text overlay at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
-        <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg text-left">{title}</h3>
-        <p className="text-white/90 drop-shadow-lg">{role}</p>
-      </div>
-    </Card>
+          {/* Text overlay at bottom */}
+          <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
+            <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg text-left">{title}</h3>
+            <p className="text-white/90 drop-shadow-lg">{role}</p>
+          </div>
+        </Card>
+      </CollapsibleTrigger>
+      
+      <CollapsibleContent className="mt-4">
+        <Card className="p-6 bg-card border border-border">
+          <p className="text-foreground">
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
+          </p>
+        </Card>
+      </CollapsibleContent>
+    </Collapsible>
   );
 };
 

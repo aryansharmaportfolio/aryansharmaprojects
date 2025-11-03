@@ -14,12 +14,6 @@ const CurrentWork = () => {
       role: "Engineering Intern",
       image: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=800",
     },
-    {
-      id: "work-3",
-      title: "Flight Dynamics Analysis",
-      role: "Student Researcher",
-      image: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?auto=format&fit=crop&w=800",
-    },
   ];
 
   return (
@@ -34,7 +28,7 @@ const CurrentWork = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 animate-fade-in">
+        <div className="grid md:grid-cols-2 gap-8 animate-fade-in">
           {currentWork.map((work) => (
             <WorkCard key={work.id} {...work} />
           ))}

@@ -10,11 +10,6 @@ const FeaturedProjects = () => {
     title: "UAV Flight Dynamics",
     description: "Analysis of unmanned aerial vehicle control systems",
     image: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=800"
-  }, {
-    id: "project-3",
-    title: "Aerodynamic Optimization",
-    description: "CFD simulation and wind tunnel testing",
-    image: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?auto=format&fit=crop&w=800"
   }];
   return <section id="projects" className="py-24 px-6 bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto max-w-7xl">
@@ -27,7 +22,7 @@ const FeaturedProjects = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 animate-fade-in">
+        <div className="grid md:grid-cols-2 gap-8 animate-fade-in">
           {projects.map(project => <ProjectCard key={project.id} {...project} />)}
         </div>
       </div>

@@ -127,8 +127,9 @@ export default {
         "scale-in": "scale-in 0.5s ease-out",
         
         // --- MODIFIED THIS LINE ---
-        // Removed "steps()" for a smooth animation and changed duration to 1.5s
-        "typing": "typing 1.5s ease-out 1s 1 normal forwards, blink-caret .75s step-end infinite",
+        // Back to "steps()", but with 17 steps (for "Project Portfolio")
+        // and a faster duration of 1.5s
+        "typing": "typing 1.5s steps(17, end) 1s 1 normal forwards, blink-caret .75s step-end infinite",
         // --- END MODIFICATION ---
       },
     },

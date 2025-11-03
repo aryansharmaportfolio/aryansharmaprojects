@@ -101,19 +101,21 @@ export default {
           "100%": { transform: "translate(-200px, -200px) rotate(-135deg)", opacity: "0" },
         },
         
-        // --- MODIFIED SMOKE PUFF KEYFRAMES ---
+        // --- THIS IS THE FIX ---
+        // We separate transform (for position) from scale (for puffing)
         "smoke-puff": {
           "0%": {
             opacity: "0.7",
-            transform: "translate(var(--x), var(--y)) scale(var(--start-scale))"
+            transform: "translate(var(--x), var(--y))", // Position
+            scale: "var(--start-scale)" // Initial scale
           },
           "100%": {
             opacity: "0",
-            // Puffs will grow 3x their starting scale
-            transform: "translate(var(--x), var(--y)) scale(calc(var(--start-scale) * 3))"
+            transform: "translate(var(--x), var(--y))", // Position (doesn't change)
+            scale: "calc(var(--start-scale) * 3)" // Final scale
           },
         },
-        // --- END MODIFICATION ---
+        // --- END FIX ---
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",

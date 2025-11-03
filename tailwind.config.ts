@@ -104,11 +104,11 @@ export default {
         "smoke-puff": {
           "0%": {
             opacity: "0.7",
-            scale: "var(--start-scale)"
+            transform: "translateX(0) scale(var(--start-scale))",
           },
           "100%": {
             opacity: "0",
-            scale: "calc(var(--start-scale) * 3)"
+            transform: "translateX(-24px) scale(calc(var(--start-scale) * 3))",
           },
         },
       },

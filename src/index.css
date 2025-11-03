@@ -132,12 +132,12 @@ MASTERPIECE ANIMATION SUITE
 
 @keyframes smoke-puff {
   0% {
-    opacity: 1;
-    transform: scale(0.5) translate(var(--tw-translate-x), var(--tw-translate-y));
+    opacity: 0.7;
+    transform: translateX(0) scale(var(--start-scale, 0.5));
   }
   100% {
     opacity: 0;
-    transform: scale(2.5) translate(calc(var(--tw-translate-x) - 50px), var(--tw-translate-y));
+    transform: translateX(-24px) scale(calc(var(--start-scale, 0.5) * 3));
   }
 }
 

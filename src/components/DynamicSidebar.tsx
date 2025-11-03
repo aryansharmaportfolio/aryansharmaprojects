@@ -141,11 +141,12 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
                   >
                     {/* 2. This INNER div handles the ANIMATION from CSS */}
                     <div
-                      className="w-6 h-6 rounded-full animate-smoke-puff"
+                      className="w-5 h-5 rounded-full animate-smoke-puff pointer-events-none"
                       style={{
                         // @ts-ignore
-                        '--start-scale': puff.scale, // Pass scale to animation
-                        background: 'radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 70%)'
+                        '--start-scale': puff.scale,
+                        background: 'radial-gradient(circle, rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 70%)',
+                        filter: 'blur(0.5px)'
                       }}
                     />
                   </div>

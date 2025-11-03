@@ -50,7 +50,7 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
     }
   };
 
-  const handleLaunch = (). => {
+  const handleLaunch = () => {
     if (isLaunching) return;
 
     setIsLaunching(true);
@@ -102,10 +102,10 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
 
         {/* --- MODIFIED THIS DIV --- */}
         <div
-          onClick={handleLaunch} // 1. Click handler is on the whole panel
+          onClick={handleLaunch} // 1. CLICK HANDLER MOVED HERE
           className={cn(
-            "fixed top-0 left-0 h-full w-96 flex items-center justify-center backdrop-blur-xl border-r-2 border-white/10 transition-transform duration-500 ease-in-out pointer-events-none cursor-pointer", // 2. Added cursor-pointer
-            "bg-gradient-to-r from-black to-black/0", // 3. Added gradient (black to transparent)
+            "fixed top-0 left-0 h-full w-96 flex items-center justify-center backdrop-blur-xl border-r-2 border-white/10 transition-transform duration-500 ease-in-out pointer-events-none cursor-pointer",
+            "bg-gradient-to-r from-black to-transparent", // 3. GRADIENT ADDED (bg-black/80 removed)
             isMobile
               ? (isOpen ? "translate-x-0 pointer-events-auto" : "-translate-x-full")
               : "-translate-x-full group-hover:translate-x-0 group-hover:pointer-events-auto"
@@ -114,7 +114,7 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
           {isMobile && (
             <button 
               onClick={(e) => {
-                e.stopPropagation(); // 4. Prevents X button from triggering launch
+                e.stopPropagation(); // Stop click from triggering launch
                 toggleSidebar(false);
               }} 
               className="absolute top-4 right-4 text-white hover:text-primary z-20"
@@ -125,10 +125,10 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
 
           <div className="absolute inset-0 w-full h-full bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
 
-          {/* --- MODIFIED THIS INNER DIV --- */}
+          {/* --- MODIFIED THIS DIV --- */}
           <div
-            // 5. Removed onClick, hover:scale-105, and cursor-pointer
-            className="relative z-10 flex flex-col items-center gap-6 text-white font-semibold text-2xl tracking-wider transition-all duration-300"
+            // onClick, hover:scale-105, and cursor-pointer removed
+            className="relative z-10 flex flex-col items-center gap-6 text-white font-semibold text-2xl tracking-wider transition-all duration-300 pointer-events-none" // 2. POINTER-EVENTS-NONE ADDED
           >
             <div className="relative h-10 w-10 flex items-center justify-center">
               <span className={cn(

@@ -110,7 +110,6 @@ export default {
             opacity: "1"
           }
         },
-        // --- ADDED THESE KEYFRAMES ---
         "typing": {
           "0%": { width: "0%" },
           "100%": { width: "100%" },
@@ -119,7 +118,6 @@ export default {
           "from, to": { borderColor: "transparent" },
           "50%": { borderColor: "hsl(var(--foreground))" },
         },
-        // --- END ADDED KEYFRAMES ---
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -128,11 +126,10 @@ export default {
         "slide-up": "slide-up 0.5s ease-out",
         "scale-in": "scale-in 0.5s ease-out",
         
-        // --- ADDED THIS ANIMATION ---
-        // "Project Portfolio" is 17 chars. We'll use 20 steps.
-        // It will type over 2s, wait 1s, and then blink the cursor.
-        "typing": "typing 2s steps(20, end) 1s 1 normal forwards, blink-caret .75s step-end infinite",
-        // --- END ADDED ANIMATION ---
+        // --- MODIFIED THIS LINE ---
+        // Removed "steps()" for a smooth animation and changed duration to 1.5s
+        "typing": "typing 1.5s ease-out 1s 1 normal forwards, blink-caret .75s step-end infinite",
+        // --- END MODIFICATION ---
       },
     },
   },

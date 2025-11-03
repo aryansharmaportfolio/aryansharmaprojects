@@ -26,23 +26,22 @@ const ProjectCard = ({ id, title, description, image }: ProjectCardProps) => {
         {/* Dark gradient for text readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         
-        {/* --- SHINE EFFECT REMOVED --- */}
-        {/* <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
-        </div> */}
-      </div>
+        {/* --- SHINE REMOVED --- */}
 
-      {/* --- ADDED: Black fade-in overlay with text --- */}
-      <div className="absolute inset-0 bg-black/70 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-20">
-        <p className="text-lg font-semibold text-white px-4 text-center">
-          Click to learn more
-        </p>
+        {/* --- ADDED: Simple black overlay on hover --- */}
+        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
       </div>
       
-      {/* Text overlay at bottom (MODIFIED to fade out) */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 z-10 transition-opacity duration-300 group-hover:opacity-0">
-        <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg text-left">{title}</h3>
-        <p className="text-white/90 drop-shadow-lg">{description}</p>
+      {/* Text overlay at bottom (MODIFIED to add new text on hover) */}
+      <div className="absolute bottom-0 left-0 right-0 p-6 z-20 flex flex-col justify-end overflow-hidden">
+        {/* ADDED: "Click to learn" text (hidden by default) */}
+        <p className="text-lg font-bold text-white text-left opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-40 group-hover:mb-2 transition-all duration-300 ease-in-out">
+          {`Click to learn more about ${title}`}
+        </p>
+
+        {/* ORIGINAL: Title and Description (now with transitions) */}
+        <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg text-left transition-all duration-300 ease-in-out">{title}</h3>
+        <p className="text-white/90 drop-shadow-lg text-left transition-all duration-300 ease-in-out">{description}</p>
       </div>
     </Card>
   );

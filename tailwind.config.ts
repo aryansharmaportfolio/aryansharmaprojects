@@ -65,50 +65,24 @@ export default {
       },
       keyframes: {
         "accordion-down": {
-          from: {
-            height: "0",
-          },
-          to: {
-            height: "var(--radix-accordion-content-height)",
-          },
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
         },
         "accordion-up": {
-          from: {
-            height: "var(--radix-accordion-content-height)",
-          },
-          to: {
-            height: "0",
-          },
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
         },
         "fade-in": {
-          "0%": {
-            opacity: "0",
-            transform: "translateY(20px)"
-          },
-          "100%": {
-            opacity: "1",
-            transform: "translateY(0)"
-          }
+          "0%": { opacity: "0", transform: "translateY(20px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" }
         },
         "slide-up": {
-          "0%": {
-            transform: "translateY(100%)",
-            opacity: "0"
-          },
-          "100%": {
-            transform: "translateY(0)",
-            opacity: "1"
-          }
+          "0%": { transform: "translateY(100%)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" }
         },
         "scale-in": {
-          "0%": {
-            transform: "scale(0.8)",
-            opacity: "0"
-          },
-          "100%": {
-            transform: "scale(1)",
-            opacity: "1"
-          }
+          "0%": { transform: "scale(0.8)", opacity: "0" },
+          "100%": { transform: "scale(1)", opacity: "1" }
         },
         "typing": {
           "0%": { width: "0%" },
@@ -118,8 +92,6 @@ export default {
           "from, to": { borderColor: "transparent" },
           "50%": { borderColor: "hsl(var(--foreground))" },
         },
-        
-        // --- BACK TO THE ORIGINAL WORKING ROCKET ANIMATIONS ---
         "rocket-idle": {
           "0%, 100%": { transform: "translate(0, 0) rotate(-135deg)" },
           "50%": { transform: "translate(-1px, 1px) rotate(-135deg)" },
@@ -128,10 +100,20 @@ export default {
           "0%": { transform: "translate(0, 0) rotate(-135deg)", opacity: "1" },
           "100%": { transform: "translate(-200px, -200px) rotate(-135deg)", opacity: "0" },
         },
+        
+        // --- MODIFIED SMOKE PUFF KEYFRAMES ---
         "smoke-puff": {
-          "0%": { opacity: "0.5", transform: "scale(0.5)" },
-          "100%": { opacity: "0", transform: "scale(2.5)" },
+          "0%": {
+            opacity: "0.7",
+            transform: "translate(var(--x), var(--y)) scale(var(--start-scale))"
+          },
+          "100%": {
+            opacity: "0",
+            // Puffs will grow 3x their starting scale
+            transform: "translate(var(--x), var(--y)) scale(calc(var(--start-scale) * 3))"
+          },
         },
+        // --- END MODIFICATION ---
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -140,8 +122,6 @@ export default {
         "slide-up": "slide-up 0.5s ease-out",
         "scale-in": "scale-in 0.5s ease-out",
         "typing": "typing 1.5s ease-out 1s 1 normal forwards, blink-caret .75s step-end 1s 4 normal forwards",
-
-        // --- BACK TO THE ORIGINAL WORKING ROCKET ANIMATIONS ---
         "rocket-idle": "rocket-idle 0.3s ease-in-out infinite",
         "rocket-launch": "rocket-launch 0.8s ease-in forwards",
         "smoke-puff": "smoke-puff 1s ease-out forwards",

@@ -118,6 +118,22 @@ export default {
           "from, to": { borderColor: "transparent" },
           "50%": { borderColor: "hsl(var(--foreground))" },
         },
+        
+        // --- ADD THESE SIMPLE KEYFRAMES ---
+        "rocket-idle": {
+          "0%, 100%": { transform: "translate(0, 0) rotate(-135deg)" },
+          "50%": { transform: "translate(-1px, 1px) rotate(-135deg)" },
+        },
+        "rocket-launch": {
+          "0%": { transform: "translate(0, 0) rotate(-135deg)", opacity: "1" },
+          "100%": { transform: "translate(-200px, -200px) rotate(-135deg)", opacity: "0" },
+        },
+        "smoke-puff": {
+          "0%": { opacity: "0.5", transform: "scale(0.5)" },
+          "100%": { opacity: "0", transform: "scale(2.5)" },
+        },
+        // --- END ADD ---
+
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -125,12 +141,13 @@ export default {
         "fade-in": "fade-in 0.6s ease-out",
         "slide-up": "slide-up 0.5s ease-out",
         "scale-in": "scale-in 0.5s ease-out",
-        
-        // --- MODIFIED THIS LINE ---
-        // Changed "infinite" to "4" to make it blink 4 times total
-        // (2 during typing, 2 after) and then stop.
         "typing": "typing 1.5s ease-out 1s 1 normal forwards, blink-caret .75s step-end 1s 4 normal forwards",
-        // --- END MODIFICATION ---
+
+        // --- ADD THESE SIMPLE ANIMATIONS ---
+        "rocket-idle": "rocket-idle 0.3s ease-in-out infinite",
+        "rocket-launch": "rocket-launch 0.8s ease-in forwards",
+        "smoke-puff": "smoke-puff 1s ease-out forwards",
+        // --- END ADD ---
       },
     },
   },

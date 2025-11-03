@@ -31,10 +31,8 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
   const addSmokePuff = (isLaunch = false) => {
     const newPuff: SmokePuff = {
       id: Date.now() + Math.random(),
-      // Puffs move away (bottom-left) from the nozzle
       x: Math.random() * -10 - (isLaunch ? 5 : 0),
       y: Math.random() * 10 + (isLaunch ? 5 : 0),
-      // Set a base scale
       scale: Math.random() * 0.5 + (isLaunch ? 0.8 : 0.4),
     };
     setSmoke(prev => [...prev.slice(-20), newPuff]);
@@ -136,7 +134,7 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
                     key={puff.id}
                     className="absolute w-6 h-6 rounded-full animate-smoke-puff"
                     style={{
-                      // --- MODIFIED: Set CSS Variables ---
+                      // This passes the variables to the animation
                       // @ts-ignore
                       '--x': `${puff.x}px`,
                       '--y': `${puff.y}px`,

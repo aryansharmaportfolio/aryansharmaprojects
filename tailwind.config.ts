@@ -64,7 +64,6 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       keyframes: {
-        // --- EXISTING KEYFRAMES ---
         "accordion-down": {
           from: {
             height: "0",
@@ -119,52 +118,19 @@ export default {
           "from, to": { borderColor: "transparent" },
           "50%": { borderColor: "hsl(var(--foreground))" },
         },
-
-        // --- NEW ROCKET KEYFRAMES ---
-        "rocket-idle": {
-          "0%, 100%": { transform: "translate(0, 0) rotate(-135deg)" },
-          "25%": { transform: "translate(-1px, 1px) rotate(-134deg)" },
-          "50%": { transform: "translate(1px, -1px) rotate(-136deg)" },
-          "75%": { transform: "translate(-1px, -1px) rotate(-135deg)" },
-        },
-        "rocket-launch": {
-          "0%": { transform: "translate(0, 0) rotate(-135deg)", opacity: "1" },
-          "20%": { transform: "translate(0, -20px) rotate(-135deg)", opacity: "1" },
-          "100%": { transform: "translate(0, -600px) rotate(-135deg) scale(0.5)", opacity: "0" },
-        },
-        "thrust": {
-          "from": {
-            transform: "translate(var(--x), var(--y)) scale(var(--scale-start))",
-            opacity: "var(--opacity-start)",
-          },
-          "to": {
-            transform: "translate(var(--x), 50px) scale(var(--scale-end))",
-            opacity: "0",
-          },
-        },
-        "scan-line": {
-          "0%": { transform: "translateY(-100%)", opacity: "0" },
-          "10%": { opacity: "0.1" },
-          "50%": { transform: "translateY(150%)", opacity: "0.1" },
-          "100%": { transform: "translateY(300%)", opacity: "0" },
-        },
-        // --- END NEW KEYFRAMES ---
       },
       animation: {
-        // --- EXISTING ANIMATIONS ---
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fade-in": "fade-in 0.6s ease-out",
         "slide-up": "slide-up 0.5s ease-out",
         "scale-in": "scale-in 0.5s ease-out",
-        "typing": "typing 1.5s ease-out 1s 1 normal forwards, blink-caret .75s step-end 1s 4 normal forwards",
         
-        // --- NEW ROCKET ANIMATIONS ---
-        "rocket-idle": "rocket-idle 0.3s ease-in-out infinite",
-        "rocket-launch": "rocket-launch 1.2s ease-in forwards",
-        "thrust": "thrust var(--duration) ease-out forwards",
-        "scan-line": "scan-line 6s ease-in-out infinite",
-        // --- END NEW ANIMATIONS ---
+        // --- MODIFIED THIS LINE ---
+        // Changed "infinite" to "4" to make it blink 4 times total
+        // (2 during typing, 2 after) and then stop.
+        "typing": "typing 1.5s ease-out 1s 1 normal forwards, blink-caret .75s step-end 1s 4 normal forwards",
+        // --- END MODIFICATION ---
       },
     },
   },

@@ -26,17 +26,15 @@ const ProjectCard = ({ id, title, description, image }: ProjectCardProps) => {
         {/* Dark gradient for text readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         
-        {/* --- SHINE REMOVED --- */}
-
-        {/* --- ADDED: Simple black overlay on hover --- */}
+        {/* Simple black overlay on hover */}
         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
       </div>
       
       {/* Text overlay at bottom (MODIFIED to add new text on hover) */}
       <div className="absolute bottom-0 left-0 right-0 p-6 z-20 flex flex-col justify-end overflow-hidden">
-        {/* ADDED: "Click to learn" text (hidden by default) */}
-        <p className="text-lg font-bold text-white text-left opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-40 group-hover:mb-2 transition-all duration-300 ease-in-out">
-          {`Click to learn more about ${title}`}
+        {/* --- MODIFIED: "Click to learn" text (big, bold, and static) --- */}
+        <p className="text-2xl font-bold text-white text-left opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-40 group-hover:mb-2 transition-all duration-300 ease-in-out">
+          Click to learn more about
         </p>
 
         {/* ORIGINAL: Title and Description (now with transitions) */}

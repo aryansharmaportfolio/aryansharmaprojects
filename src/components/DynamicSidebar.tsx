@@ -94,8 +94,8 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
           )}
         >
           <div className={cn("absolute inset-0 animate-pulse-slow bg-white/10", isMobile && "rounded-r-lg")} />
-          <span className="[writing-mode:vertical-rl] transform rotate-180 text-white text-3xl font-black uppercase tracking-[0.4em] text-shadow-glow">
-            Portfolio
+          <span className="[writing-mode:vertical-rl] transform rotate-180 text-white text-3xl font-black uppercase tracking-widest text-shadow-glow">
+            Back to Portfolio
           </span>
         </div>
 

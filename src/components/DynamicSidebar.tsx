@@ -130,18 +130,26 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
               
               <div className="absolute top-1/2 left-1/2 transform translate-x-[12px] -translate-y-[12px]">
                 {smoke.map(puff => (
+                  // --- THIS IS THE FIX ---
+                  // 1. This OUTER div handles the POSITION from JavaScript
                   <div
                     key={puff.id}
-                    className="absolute w-6 h-6 rounded-full animate-smoke-puff"
+                    className="absolute"
                     style={{
-                      // This passes the variables to the animation
-                      // @ts-ignore
-                      '--x': `${puff.x}px`,
-                      '--y': `${puff.y}px`,
-                      '--start-scale': puff.scale,
-                      background: 'radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 70%)'
+                      transform: `translate(${puff.x}px, ${puff.y}px)`,
                     }}
-                  />
+                  >
+                    {/* 2. This INNER div handles the ANIMATION from CSS */}
+                    <div
+                      className="w-6 h-6 rounded-full animate-smoke-puff"
+                      style={{
+                        // @ts-ignore
+                        '--start-scale': puff.scale, // Pass scale to animation
+                        background: 'radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, rgba(255, 255, 255, 0) 70%)'
+                      }}
+                    />
+                  </div>
+                  // --- END FIX ---
                 ))}
               </div>
             </div>

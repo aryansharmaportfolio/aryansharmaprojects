@@ -50,9 +50,12 @@ const Hero = () => {
         className="relative z-10 text-center"
         style={{ opacity: textOpacity }}
       >
-        <h1 className="text-7xl md:text-8xl font-extrabold text-foreground tracking-tight">
+        {/* --- MODIFIED THIS H1 --- */}
+        <h1 className="text-7xl md:text-8xl font-extrabold text-foreground tracking-tight 
+                       animate-typing overflow-hidden whitespace-nowrap border-r-4 border-r-foreground">
           Project Portfolio
         </h1>
+        {/* --- END MODIFICATION --- */}
       </div>
     </section>
   );

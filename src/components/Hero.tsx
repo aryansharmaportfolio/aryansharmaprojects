@@ -51,8 +51,9 @@ const Hero = () => {
         style={{ opacity: textOpacity }}
       >
         {/* --- MODIFIED THIS H1 --- */}
+        {/* Changed border-r-4 to border-r-8 */}
         <h1 className="text-7xl md:text-8xl font-extrabold text-foreground tracking-tight 
-                       animate-typing overflow-hidden whitespace-nowrap border-r-4 border-r-foreground">
+                       animate-typing overflow-hidden whitespace-nowrap border-r-8 border-r-foreground">
           Project Portfolio
         </h1>
         {/* --- END MODIFICATION --- */}

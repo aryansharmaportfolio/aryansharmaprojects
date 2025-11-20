@@ -28,34 +28,30 @@ const Index = () => {
         const element = document.getElementById(sectionId);
         if (element) {
           // 1. Temporarily disable global CSS smooth scrolling to force an instant jump
-          // This prevents the "scroll from top" animation
           const originalScrollBehavior = document.documentElement.style.scrollBehavior;
           document.documentElement.style.scrollBehavior = 'auto';
 
           // 2. Instant jump to section
-          // 'block: center' puts the section in the middle of the viewport
           element.scrollIntoView({ behavior: 'auto', block: 'center' });
           
-          // 3. Trigger fade in animation *after* the jump has rendered
+          // 3. Trigger fade in animation
           requestAnimationFrame(() => {
-            // Double RAF ensures the browser has painted the scroll position
             requestAnimationFrame(() => {
               setPageOpacity(1);
               
-              // 4. Restore smooth scrolling and clean up state after the transition
+              // 4. Restore smooth scrolling ONLY (Do not clear state)
               setTimeout(() => {
                 document.documentElement.style.scrollBehavior = originalScrollBehavior;
-                navigate(location.pathname, { replace: true, state: {} });
-              }, 500); // Wait for the fade-in (duration-1000) to be partially done
+              }, 500);
             });
           });
         } else {
-          // Fallback: just show page if element missing
+          // Fallback
           setPageOpacity(1);
         }
-      }, 100); // 100ms delay to ensure layout is ready
+      }, 100);
     }
-  }, [location, navigate]);
+  }, [location]); // Removed 'navigate' dependency as we don't use it anymore
 
   useEffect(() => {
     const handleSmartScroll = () => {
@@ -107,7 +103,6 @@ const Index = () => {
   }, [activeSection]);
 
   return (
-    // Applied transition and opacity style here
     <div 
       className="min-h-screen transition-opacity duration-700 ease-in-out" 
       style={{ opacity: pageOpacity }}

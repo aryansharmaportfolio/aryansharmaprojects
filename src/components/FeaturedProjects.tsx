@@ -1,4 +1,6 @@
 import ProjectCard from "./ProjectCard";
+import TypewriterHeader from "./TypewriterHeader";
+
 const FeaturedProjects = () => {
   const projects = [{
     id: "project-1",
@@ -11,12 +13,12 @@ const FeaturedProjects = () => {
     description: "Analysis of unmanned aerial vehicle control systems",
     image: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=800"
   }];
-  return <section id="projects" className="py-24 px-6 bg-background/95 backdrop-blur-sm">
+
+  return (
+    <section id="projects" className="py-24 px-6 bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-5xl font-bold text-foreground mb-6 border-b-4 border-primary inline-block pb-2">
-            Featured Projects
-          </h2>
+          <TypewriterHeader text="Featured Projects" className="mb-6" />
           <p className="text-xl italic text-white">
             A showcase of hands-on projects. Click on a project to view a detailed overview of the design process and its outcome.
           </p>
@@ -26,6 +28,7 @@ const FeaturedProjects = () => {
           {projects.map(project => <ProjectCard key={project.id} {...project} />)}
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
 export default FeaturedProjects;

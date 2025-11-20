@@ -21,8 +21,8 @@ const AboutMe = () => {
     <section id="about" className="py-24 px-6 bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto max-w-6xl">
         
-        {/* MOVED: Progress Bar is now here, centered at the top of the section */}
-        <div className="mb-16 animate-fade-in">
+        {/* Progress Bar centered at the top of the section */}
+        <div className="w-full flex justify-center mb-20 animate-fade-in">
            <DegreeProgress />
         </div>
 

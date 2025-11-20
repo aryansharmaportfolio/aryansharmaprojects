@@ -270,15 +270,21 @@ MASTERPIECE ANIMATION SUITE
   }
 }
 
-@keyframes wave {
-  0% { transform: translateX(0); }
-  100% { transform: translateX(-50%); }
+@keyframes flow {
+  0% { background-position: 0 0; }
+  100% { background-position: 50px 0; } /* Moves texture horizontally */
 }
 
-.animate-wave {
-  animation: wave 3s linear infinite;
+.animate-flow {
+  animation: flow 2s linear infinite;
 }
 
-.animate-wave-slow {
-  animation: wave 5s linear infinite;
+/* Shimmer for the liquid surface */
+@keyframes shimmer-wave {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+.animate-shimmer {
+  animation: shimmer-wave 2.5s infinite;
 }

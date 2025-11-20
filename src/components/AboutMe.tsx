@@ -1,11 +1,8 @@
 import { Mail, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import profilePicture from "@/assets/profile-picture.jpg";
-import TypewriterHeader from "./TypewriterHeader";
-
 const AboutMe = () => {
-  return (
-    <section id="about" className="py-24 px-6 bg-background/95 backdrop-blur-sm">
+  return <section id="about" className="py-24 px-6 bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto max-w-6xl">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left Column - Profile */}
@@ -35,8 +32,9 @@ const AboutMe = () => {
 
           {/* Right Column - Bio */}
           <div className="space-y-6 animate-fade-in">
-            {/* Replaced static header with TypewriterHeader */}
-            <TypewriterHeader text="About Me" />
+            <h2 className="text-5xl font-bold text-foreground border-b-4 border-primary inline-block pb-2">
+              About Me
+            </h2>
             
             <div className="space-y-4 text-lg text-muted-foreground leading-relaxed">
               <p className="text-white my-0">
@@ -50,7 +48,6 @@ const AboutMe = () => {
           </div>
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
 export default AboutMe;

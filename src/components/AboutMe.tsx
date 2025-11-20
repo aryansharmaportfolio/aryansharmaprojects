@@ -21,20 +21,13 @@ const AboutMe = () => {
     <section id="about" className="py-24 px-6 bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto max-w-6xl">
         
-        {/* Grid Layout: 
-            - First col: 80px fixed width for the thin sidebar
-            - Rest: auto sized
-        */}
-        <div className="grid grid-cols-1 md:grid-cols-[80px_2fr_3fr] gap-8 items-start">
+        {/* Standard 2-column grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
           
-          {/* Sidebar Column: Degree Progress */}
-          <div className="hidden md:flex col-span-1 justify-center pt-10">
-             <DegreeProgress />
-          </div>
-
-          {/* Middle Column: Profile Picture */}
-          <div className="col-span-1 flex flex-col items-center space-y-6 animate-fade-in">
+          {/* Left Column - Profile */}
+          <div className="flex flex-col items-center space-y-6 animate-fade-in">
             
+            {/* Wrapper for Image and Speech Bubble */}
             <div 
               className="relative group cursor-pointer" 
               onMouseLeave={handleMouseLeave}
@@ -74,15 +67,13 @@ const AboutMe = () => {
                 </a>
               </Button>
             </div>
-            
-            {/* Mobile-only Progress Bar (shows below image on small screens) */}
-            <div className="md:hidden w-full flex justify-center mt-8">
-               {/* You could create a horizontal version here if needed, or just hide it */}
-            </div>
+
+            {/* Degree Progress added here */}
+            <DegreeProgress />
           </div>
 
-          {/* Right Column: Bio Text */}
-          <div className="col-span-1 space-y-6 animate-fade-in">
+          {/* Right Column - Bio */}
+          <div className="space-y-6 animate-fade-in">
             <TypewriterHeader text="About Me" />
             
             <div className="space-y-4 text-lg text-muted-foreground leading-relaxed">

@@ -4,9 +4,9 @@ const DegreeProgress = () => {
   const [progress, setProgress] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
-
+  
   // The specific percentage you requested
-  const TARGET_PERCENTAGE = 26.7;
+  const TARGET_PERCENTAGE = 26.7; 
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -15,7 +15,7 @@ const DegreeProgress = () => {
           setIsVisible(true);
         }
       },
-      { threshold: 0.1 } // Trigger as soon as it peeks into view
+      { threshold: 0.1 }
     );
 
     if (containerRef.current) {
@@ -27,7 +27,6 @@ const DegreeProgress = () => {
 
   useEffect(() => {
     if (isVisible) {
-      // Add a small delay for dramatic effect
       const timer = setTimeout(() => {
         setProgress(TARGET_PERCENTAGE);
       }, 300);
@@ -36,72 +35,60 @@ const DegreeProgress = () => {
   }, [isVisible]);
 
   return (
-    <div ref={containerRef} className="relative z-20 flex items-center justify-center h-[400px] w-28">
-      {/* Outer container for layout, allowing us to center the rotated bar */}
-
-      {/* The main rotated progress bar container */}
-      <div className="relative w-[400px] h-28 flex items-center justify-center">
-        {/* Rotate the entire content of the bar for vertical display */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 
-                        w-[400px] h-28 rounded-full flex flex-col items-center justify-center 
-                        transform rotate-90 origin-center space-y-2">
-          
-          {/* Top Labels - Rotated back for readability, positioned relative to the overall vertical bar */}
-          <div className="absolute top-[-50px] left-1/2 -translate-x-1/2 -rotate-90 transform-gpu flex flex-col items-center whitespace-nowrap">
-             <span className="text-zinc-500 text-xs uppercase tracking-widest font-semibold">Current Status</span>
-             <span className="text-white text-sm font-medium mt-1">
-               I have completed <span className="text-white font-bold border-b border-white/30 pb-0.5"><Counter value={progress} />%</span> of my degree
-             </span>
-          </div>
-
-          {/* The Bar Container - Now essentially the "track" of the vertical bar */}
-          <div className="h-16 w-[400px] bg-zinc-900/80 border border-zinc-800 rounded-full relative overflow-hidden shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]">
-            {/* Background Grid Lines for "Scientific/Engineering" feel */}
-            <div className="absolute inset-0 opacity-20"
-                 style={{
-                   backgroundImage: 'linear-gradient(90deg, transparent 98%, #555 98%)',
-                   backgroundSize: '10% 100%'
-                 }}
-            />
-
-            {/* The Fluid Fill - Adjusting its rotation and origin to fill vertically */}
-            <div
-              className="absolute top-1 bottom-1 left-1 rounded-full bg-white transition-all duration-[2500ms] ease-out overflow-hidden"
-              style={{ width: `${progress}%` }}
-            >
-              {/* Liquid Texture Layer 1 (Fast) */}
-              <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] animate-flow" />
-
-              {/* Liquid Texture Layer 2 (Slow & Reversed - creates interference pattern) */}
-              <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')]"
-                   style={{ backgroundPosition: 'center', transform: 'scaleX(-1)' }}
-              />
-
-              {/* The "Waving" Leading Edge Highlight */}
-              <div className="absolute top-0 right-0 w-[40px] h-full bg-gradient-to-l from-white via-zinc-200 to-transparent opacity-50 blur-sm" />
-
-              {/* Shimmer/Reflection on the liquid surface */}
-              <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/40 to-transparent rounded-t-full" />
-            </div>
-
-            {/* Target Marker Line (Optional - marks the goal or 100%) */}
-            <div className="absolute right-4 top-1/2 -translate-y-1/2 w-px h-8 bg-zinc-700" />
-            <div className="absolute right-4 top-10 text-[10px] text-zinc-600 font-mono">100%</div>
-          </div>
-          
-          {/* Bottom Label - Rotated back for readability */}
-          <div className="absolute bottom-[-50px] left-1/2 -translate-x-1/2 -rotate-90 transform-gpu whitespace-nowrap">
-            <span className="text-zinc-600 text-[10px] uppercase tracking-widest">
-              Bachelor of Science in Aerospace Engineering
-            </span>
-          </div>
+    // Outer container holds the space in the grid
+    <div ref={containerRef} className="relative z-20 h-[450px] w-24 flex items-center justify-center">
+      
+      {/* ROTATION WRAPPER:
+         We rotate this -90deg. 
+         Because we use Flexbox inside, the text and bar will never overlap.
+         Width here becomes the visual Height on screen.
+      */}
+      <div className="w-[400px] flex flex-col gap-4 items-center justify-center transform -rotate-90 origin-center">
+        
+        {/* "Top" Label (Visually on the left/top depending on head tilt) */}
+        <div className="flex flex-col items-center transform rotate-180">
+           <span className="text-zinc-500 text-[10px] uppercase tracking-widest font-semibold">Current Status</span>
+           <div className="text-white text-xs font-medium mt-0.5">
+             Completed <span className="text-white font-bold border-b border-white/30"><Counter value={progress} />%</span>
+           </div>
         </div>
+
+        {/* THE BAR: Made thinner (h-3) */}
+        <div className="h-3 w-full bg-zinc-900/80 border border-zinc-800 rounded-full relative overflow-hidden shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]">
+          
+          {/* Grid Background */}
+          <div className="absolute inset-0 opacity-20" 
+               style={{ 
+                 backgroundImage: 'linear-gradient(90deg, transparent 98%, #555 98%)', 
+                 backgroundSize: '10% 100%' 
+               }} 
+          />
+
+          {/* Fluid Fill */}
+          <div 
+            className="absolute top-0.5 bottom-0.5 left-0.5 rounded-full bg-white transition-all duration-[2500ms] ease-out overflow-hidden"
+            style={{ width: `${progress}%` }}
+          >
+            <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] animate-flow" />
+            <div className="absolute top-0 right-0 w-[20px] h-full bg-gradient-to-l from-white via-zinc-200 to-transparent opacity-50 blur-sm" />
+          </div>
+          
+          {/* 100% Marker Line */}
+          <div className="absolute right-4 top-1/2 -translate-y-1/2 w-px h-full bg-zinc-700/50" />
+        </div>
+        
+        {/* "Bottom" Label */}
+        <div className="flex justify-center transform rotate-180">
+          <span className="text-zinc-600 text-[9px] uppercase tracking-widest whitespace-nowrap">
+            BS Aerospace Engineering
+          </span>
+        </div>
+
       </div>
     </div>
   );
 };
 
-// Helper component for the number counting animation
 const Counter = ({ value }: { value: number }) => {
   const [count, setCount] = useState(0);
 
@@ -109,10 +96,7 @@ const Counter = ({ value }: { value: number }) => {
     let start = 0;
     const end = value;
     if (start === end) return;
-
-    const duration = 2500; // match bar duration
-    const incrementTime = (duration / end) * 10;
-
+    const duration = 2500;
     const timer = setInterval(() => {
       start += 0.1;
       if (start >= end) {
@@ -121,8 +105,7 @@ const Counter = ({ value }: { value: number }) => {
       } else {
         setCount(start);
       }
-    }, 10); // Updates frequently for smoothness
-
+    }, 10);
     return () => clearInterval(timer);
   }, [value]);
 

@@ -28,10 +28,11 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  const addSmokePuff = (isLaunch = false) => {
+  // MODIFIED: Accepts xOffset to spawn smoke where the rocket currently is
+  const addSmokePuff = (isLaunch = false, xOffset = 0) => {
     const newPuff: SmokePuff = {
       id: Date.now() + Math.random(),
-      x: Math.random() * -10 - (isLaunch ? 5 : 0),
+      x: xOffset + Math.random() * -10 - (isLaunch ? 5 : 0),
       y: Math.random() * 10 + (isLaunch ? 5 : 0),
       scale: Math.random() * 0.5 + (isLaunch ? 0.8 : 0.4),
     };
@@ -50,19 +51,35 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
     }
   };
 
+  // MODIFIED: Calculates rocket position during flight to spawn smoke trails
   const handleLaunch = () => {
     if (isLaunching) return;
 
     setIsLaunching(true);
     if (smokeIntervalRef.current) clearInterval(smokeIntervalRef.current);
 
-    const launchSmokeInterval = setInterval(() => addSmokePuff(true), 40);
+    const startTime = Date.now();
+    const duration = 800; // Matches CSS animation duration
+
+    const launchSmokeInterval = setInterval(() => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+
+      // Approximate the CSS 'ease-in' curve (t * t)
+      // This ensures the smoke follows the rocket's acceleration
+      const easeIn = progress * progress;
+      
+      // -350px is the translation distance defined in CSS
+      const currentX = -350 * easeIn;
+
+      addSmokePuff(true, currentX);
+    }, 40);
 
     setTimeout(() => {
       clearInterval(launchSmokeInterval);
       navigate("/", { state: { section: returnSection } });
       setTimeout(() => setIsLaunching(false), 200);
-    }, 800);
+    }, duration);
   };
 
   const toggleSidebar = (open: boolean) => {
@@ -100,7 +117,6 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
           </span>
         </div>
 
-        {/* --- MODIFIED THIS DIV --- */}
         <div
           onClick={handleLaunch}
           className={cn(

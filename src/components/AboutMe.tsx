@@ -1,17 +1,52 @@
+import { useState } from "react";
 import { Mail, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import profilePicture from "@/assets/profile-picture.jpg";
 import TypewriterHeader from "./TypewriterHeader";
 
 const AboutMe = () => {
+  const [messageIndex, setMessageIndex] = useState(0);
+  
+  const messages = [
+    "I love aerospace 🚀", 
+    "I hope you like my portfolio 🚀"
+  ];
+
+  const handleMouseLeave = () => {
+    // Cycle to the next message when the mouse leaves, 
+    // so it's ready for the next hover.
+    setMessageIndex((prev) => (prev + 1) % messages.length);
+  };
+
   return (
     <section id="about" className="py-24 px-6 bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto max-w-6xl">
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left Column - Profile */}
           <div className="flex flex-col items-center space-y-6 animate-fade-in">
-            <div className="w-64 h-64 rounded-full overflow-hidden border-4 border-primary shadow-2xl">
-              <img src={profilePicture} alt="Aryan Sharma" className="w-full h-full object-cover" />
+            
+            {/* Wrapper for Image and Speech Bubble */}
+            <div 
+              className="relative group" 
+              onMouseLeave={handleMouseLeave}
+            >
+              {/* Speech Bubble */}
+              <div className="absolute -top-16 -right-8 z-20 pointer-events-none">
+                <div className="relative bg-white text-background px-4 py-2 rounded-xl shadow-xl 
+                              transform scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 
+                              transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom-left">
+                  <p className="text-sm font-bold whitespace-nowrap">
+                    {messages[messageIndex]}
+                  </p>
+                  {/* Little triangle tail for the bubble */}
+                  <div className="absolute -bottom-1.5 left-4 w-3 h-3 bg-white transform rotate-45"></div>
+                </div>
+              </div>
+
+              {/* Profile Image */}
+              <div className="w-64 h-64 rounded-full overflow-hidden border-4 border-primary shadow-2xl relative z-10 transition-transform duration-300 group-hover:scale-[1.02]">
+                <img src={profilePicture} alt="Aryan Sharma" className="w-full h-full object-cover" />
+              </div>
             </div>
             
             <h2 className="text-3xl font-bold text-foreground">Aryan Sharma</h2>

@@ -10,6 +10,7 @@ const TypewriterHeader = ({ text, className }: TypewriterHeaderProps) => {
   const [displayText, setDisplayText] = useState("");
   const [isVisible, setIsVisible] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
+  const [showCursor, setShowCursor] = useState(true);
   const elementRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -37,6 +38,13 @@ const TypewriterHeader = ({ text, className }: TypewriterHeaderProps) => {
       }, 50); // Typing speed
 
       return () => clearTimeout(timeout);
+    } else if (isVisible && displayText.length === text.length) {
+      // Text is fully typed. Wait for ~2.5 seconds (approx 2 blinks) then hide cursor.
+      const timeout = setTimeout(() => {
+        setShowCursor(false);
+      }, 2500);
+      
+      return () => clearTimeout(timeout);
     }
   }, [isVisible, displayText, text]);
 
@@ -44,7 +52,7 @@ const TypewriterHeader = ({ text, className }: TypewriterHeaderProps) => {
     <div ref={elementRef} className={cn("inline-block", className)}>
       <h2 className="text-5xl font-bold text-foreground border-b-4 border-primary pb-2">
         {displayText}
-        <span className="animate-pulse text-primary">_</span>
+        <span className={cn("animate-pulse text-primary", !showCursor && "hidden")}>_</span>
       </h2>
     </div>
   );

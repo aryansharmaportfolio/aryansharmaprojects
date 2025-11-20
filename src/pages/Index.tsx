@@ -21,25 +21,39 @@ const Index = () => {
 
   useEffect(() => {
     if (location.state?.section) {
-      // Small timeout to ensure DOM is ready
+      const sectionId = location.state.section;
+
+      // Small timeout to ensure the DOM elements are fully mounted and height is calculated
       setTimeout(() => {
-        const element = document.getElementById(location.state.section);
+        const element = document.getElementById(sectionId);
         if (element) {
-          // Instant jump to section (no smooth scroll)
+          // 1. Temporarily disable global CSS smooth scrolling to force an instant jump
+          // This prevents the "scroll from top" animation
+          const originalScrollBehavior = document.documentElement.style.scrollBehavior;
+          document.documentElement.style.scrollBehavior = 'auto';
+
+          // 2. Instant jump to section
+          // 'block: center' puts the section in the middle of the viewport
           element.scrollIntoView({ behavior: 'auto', block: 'center' });
           
-          // Trigger fade in animation
+          // 3. Trigger fade in animation *after* the jump has rendered
           requestAnimationFrame(() => {
-            setPageOpacity(1);
+            // Double RAF ensures the browser has painted the scroll position
+            requestAnimationFrame(() => {
+              setPageOpacity(1);
+              
+              // 4. Restore smooth scrolling and clean up state after the transition
+              setTimeout(() => {
+                document.documentElement.style.scrollBehavior = originalScrollBehavior;
+                navigate(location.pathname, { replace: true, state: {} });
+              }, 500); // Wait for the fade-in (duration-1000) to be partially done
+            });
           });
-          
-          // Clean up state
-          navigate(location.pathname, { replace: true, state: {} });
         } else {
           // Fallback: just show page if element missing
           setPageOpacity(1);
         }
-      }, 50);
+      }, 100); // 100ms delay to ensure layout is ready
     }
   }, [location, navigate]);
 
@@ -95,12 +109,11 @@ const Index = () => {
   return (
     // Applied transition and opacity style here
     <div 
-      className="min-h-screen transition-opacity duration-1000 ease-in-out" 
+      className="min-h-screen transition-opacity duration-700 ease-in-out" 
       style={{ opacity: pageOpacity }}
     >
       <Header activeSection={activeSection} />
       <Hero />
-      {/* The headers are now handled INSIDE these components to prevent duplication */}
       <AnimatedSection>
         <AboutMe />
       </AnimatedSection>

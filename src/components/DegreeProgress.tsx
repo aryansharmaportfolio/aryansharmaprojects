@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef } from "react";
-import { cn } from "@/lib/utils";
 
 const DegreeProgress = () => {
   const [progress, setProgress] = useState(0);
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   
-  // Data derived from your chart: 100% - 73.3% remaining = 26.7% completed
+  // The specific percentage you requested
   const TARGET_PERCENTAGE = 26.7; 
 
   useEffect(() => {
@@ -16,7 +15,7 @@ const DegreeProgress = () => {
           setIsVisible(true);
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.1 } // Trigger as soon as it peeks into view
     );
 
     if (containerRef.current) {
@@ -28,93 +27,97 @@ const DegreeProgress = () => {
 
   useEffect(() => {
     if (isVisible) {
+      // Add a small delay for dramatic effect
       const timer = setTimeout(() => {
         setProgress(TARGET_PERCENTAGE);
-      }, 200); // Slight delay before filling starts
+      }, 300);
       return () => clearTimeout(timer);
     }
   }, [isVisible]);
 
   return (
-    <div ref={containerRef} className="w-full mb-8 space-y-3">
-      {/* Glass container for the bar */}
-      <div className="h-12 w-full bg-black/40 backdrop-blur-md rounded-full border border-white/10 relative overflow-hidden shadow-inner">
-        
-        {/* The Fluid Fill Container */}
-        <div 
-          className="absolute top-0 left-0 h-full bg-primary/20 transition-all duration-[2000ms] ease-out border-r border-primary/50"
-          style={{ width: `${progress}%` }}
-        >
-          {/* Wave 1 (Back) */}
-          <div 
-            className="absolute top-0 left-0 w-[200%] h-full opacity-40 animate-wave-slow"
-            style={{ 
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 800 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 50C200 50 200 10 400 10C600 10 600 50 800 50V100H0V50Z' fill='white'/%3E%3C/svg%3E")`,
-              backgroundSize: '50% 100%',
-              backgroundRepeat: 'repeat-x',
-              transform: 'scaleY(0.5)'
-            }}
-          />
-          
-          {/* Wave 2 (Front) */}
-          <div 
-            className="absolute top-2 left-0 w-[200%] h-full opacity-60 animate-wave"
-            style={{ 
-              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 800 100' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 50C200 50 200 90 400 90C600 90 600 50 800 50V100H0V50Z' fill='white'/%3E%3C/svg%3E")`,
-              backgroundSize: '50% 100%',
-              backgroundRepeat: 'repeat-x',
-              mixBlendMode: 'overlay'
-            }}
-          />
-          
-          {/* Solid fill gradient for the body of the liquid */}
-          <div className="absolute inset-0 bg-gradient-to-r from-primary/40 to-primary/80" />
+    <div ref={containerRef} className="w-full max-w-3xl mx-auto py-12 relative z-20">
+      
+      {/* Top Labels */}
+      <div className="flex justify-between items-end mb-3 px-2">
+        <div className="flex flex-col">
+           <span className="text-zinc-500 text-xs uppercase tracking-widest font-semibold">Current Status</span>
+           <span className="text-white text-sm font-medium mt-1">
+             I have completed <span className="text-white font-bold border-b border-white/30 pb-0.5"><Counter value={progress} />%</span> of my degree
+           </span>
         </div>
-
-        {/* Percentage Text inside the bar (Mixed Blend Mode for cool effect) */}
-        <div className="absolute inset-0 flex items-center justify-end px-4 z-10 pointer-events-none">
-          <span className={cn(
-            "font-bold font-mono transition-opacity duration-500", 
-            progress > 5 ? "opacity-100" : "opacity-0"
-          )}>
-             <Counter value={progress} />%
-          </span>
-        </div>
+        <span className="text-3xl font-black text-white tracking-tighter">
+          <Counter value={progress} />%
+        </span>
       </div>
 
-      {/* Text Label Below */}
-      <div className="flex justify-between items-center text-sm">
-         <p className="text-white/60 italic">
-           Degree Progress <span className="text-primary/50 text-xs ml-2">(Based on Credit Hours)</span>
-         </p>
-         <p className="text-white font-medium">
-           I have completed <span className="text-primary font-bold"><Counter value={progress} />%</span> of my degree!
-         </p>
+      {/* The Bar Container */}
+      <div className="h-16 w-full bg-zinc-900/80 border border-zinc-800 rounded-full relative overflow-hidden shadow-[inset_0_2px_10px_rgba(0,0,0,0.5)]">
+        
+        {/* Background Grid Lines for "Scientific/Engineering" feel */}
+        <div className="absolute inset-0 opacity-20" 
+             style={{ 
+               backgroundImage: 'linear-gradient(90deg, transparent 98%, #555 98%)', 
+               backgroundSize: '10% 100%' 
+             }} 
+        />
+
+        {/* The Fluid Fill */}
+        <div 
+          className="absolute top-1 bottom-1 left-1 rounded-full bg-white transition-all duration-[2500ms] ease-out overflow-hidden"
+          style={{ width: `${progress}%` }}
+        >
+          {/* Liquid Texture Layer 1 (Fast) */}
+          <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')] animate-flow" />
+          
+          {/* Liquid Texture Layer 2 (Slow & Reversed - creates interference pattern) */}
+          <div className="absolute inset-0 opacity-10 bg-[url('https://www.transparenttextures.com/patterns/diagmonds-light.png')]" 
+               style={{ backgroundPosition: 'center', transform: 'scaleX(-1)' }} 
+          />
+
+          {/* The "Waving" Leading Edge Highlight */}
+          <div className="absolute top-0 right-0 w-[40px] h-full bg-gradient-to-l from-white via-zinc-200 to-transparent opacity-50 blur-sm" />
+          
+          {/* Shimmer/Reflection on the liquid surface */}
+          <div className="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-white/40 to-transparent rounded-t-full" />
+        </div>
+        
+        {/* Target Marker Line (Optional - marks the goal or 100%) */}
+        <div className="absolute right-4 top-1/2 -translate-y-1/2 w-px h-8 bg-zinc-700" />
+        <div className="absolute right-4 top-10 text-[10px] text-zinc-600 font-mono">100%</div>
+      </div>
+      
+      {/* Bottom Label */}
+      <div className="flex justify-start mt-2 px-2">
+        <span className="text-zinc-600 text-[10px] uppercase tracking-widest">
+          Bachelor of Science in Aerospace Engineering
+        </span>
       </div>
     </div>
   );
 };
 
-// Helper component to count the number up smoothly
+// Helper component for the number counting animation
 const Counter = ({ value }: { value: number }) => {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    const duration = 2000; // 2 seconds to count
-    const steps = 60;
-    const increment = value / steps;
-    const stepTime = duration / steps;
-    
-    let current = 0;
+    let start = 0;
+    const end = value;
+    if (start === end) return;
+
+    const duration = 2500; // match bar duration
+    const incrementTime = (duration / end) * 10;
+
     const timer = setInterval(() => {
-      current += increment;
-      if (current >= value) {
-        setCount(value);
+      start += 0.1;
+      if (start >= end) {
+        setCount(end);
         clearInterval(timer);
       } else {
-        setCount(current);
+        setCount(start);
       }
-    }, stepTime);
+    }, 10); // Updates frequently for smoothness
 
     return () => clearInterval(timer);
   }, [value]);

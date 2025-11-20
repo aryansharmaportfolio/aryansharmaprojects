@@ -269,3 +269,16 @@ MASTERPIECE ANIMATION SUITE
     animation: rocket-idle 0.3s infinite ease-in-out;
   }
 }
+
+@keyframes wave {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-wave {
+  animation: wave 3s linear infinite;
+}
+
+.animate-wave-slow {
+  animation: wave 5s linear infinite;
+}

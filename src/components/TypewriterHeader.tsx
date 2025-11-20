@@ -12,6 +12,9 @@ const TypewriterHeader = ({ text, className }: TypewriterHeaderProps) => {
   const [hasAnimated, setHasAnimated] = useState(false);
   const elementRef = useRef<HTMLDivElement>(null);
 
+  // The total time (in ms) the typing animation should take
+  const ANIMATION_DURATION = 500; // 0.5 seconds
+
   useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
@@ -32,9 +35,13 @@ const TypewriterHeader = ({ text, className }: TypewriterHeaderProps) => {
 
   useEffect(() => {
     if (isVisible && displayText.length < text.length) {
+      // Calculate speed per character: Total Duration / Character Count
+      // Longer text = faster typing; Shorter text = slower typing
+      const typingSpeed = ANIMATION_DURATION / text.length;
+
       const timeout = setTimeout(() => {
         setDisplayText(text.slice(0, displayText.length + 1));
-      }, 50); // Typing speed
+      }, typingSpeed);
 
       return () => clearTimeout(timeout);
     }

@@ -12,7 +12,7 @@ import WorkDetail from "@/pages/WorkDetail";
 import NotFound from "@/pages/NotFound";
 
 function ScrollToAnchor() {
-  const { pathname, hash } = useLocation();
+  const { pathname, hash, state } = useLocation();
 
   useEffect(() => {
     // If there's an anchor (e.g. #portfolio)
@@ -29,11 +29,12 @@ function ScrollToAnchor() {
           });
         }
       }, 0);
-    } else {
-      // No hash → just go to top of page
+    } else if (!state?.section) {
+      // No hash AND no section in state → just go to top of page
+      // We check state?.section to prevent scrolling to top when returning from a project
       window.scrollTo(0, 0);
     }
-  }, [pathname, hash]);
+  }, [pathname, hash, state]);
 
   return null;
 }

@@ -36,7 +36,7 @@ const DegreeProgress = () => {
   }, [isVisible]);
 
   return (
-    <div ref={containerRef} className="w-full max-w-3xl mx-auto py-12 relative z-20">
+    <div ref={containerRef} className="w-full max-w-3xl mx-auto relative z-20">
       
       {/* Top Labels */}
       <div className="flex justify-between items-end mb-3 px-2">

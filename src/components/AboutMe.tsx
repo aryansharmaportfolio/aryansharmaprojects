@@ -3,7 +3,7 @@ import { Mail, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import profilePicture from "@/assets/profile-picture.jpg";
 import TypewriterHeader from "./TypewriterHeader";
-import DegreeProgress from "./DegreeProgress"; // Import the new component
+import DegreeProgress from "./DegreeProgress";
 
 const AboutMe = () => {
   const [messageIndex, setMessageIndex] = useState(0);
@@ -14,14 +14,18 @@ const AboutMe = () => {
   ];
 
   const handleMouseLeave = () => {
-    // Cycle to the next message when the mouse leaves, 
-    // so it's ready for the next hover.
     setMessageIndex((prev) => (prev + 1) % messages.length);
   };
 
   return (
     <section id="about" className="py-24 px-6 bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto max-w-6xl">
+        
+        {/* MOVED: Progress Bar is now here, centered at the top of the section */}
+        <div className="mb-16 animate-fade-in">
+           <DegreeProgress />
+        </div>
+
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left Column - Profile */}
           <div className="flex flex-col items-center space-y-6 animate-fade-in">
@@ -39,7 +43,6 @@ const AboutMe = () => {
                   <p className="text-sm font-bold whitespace-nowrap text-black">
                     {messages[messageIndex]}
                   </p>
-                  {/* Little triangle tail for the bubble */}
                   <div className="absolute -bottom-2 left-6 w-4 h-4 bg-white transform rotate-45"></div>
                 </div>
               </div>
@@ -72,11 +75,6 @@ const AboutMe = () => {
           {/* Right Column - Bio */}
           <div className="space-y-6 animate-fade-in">
             <TypewriterHeader text="About Me" />
-            
-            {/* Inserted Progress Bar Here */}
-            <div className="py-2">
-              <DegreeProgress />
-            </div>
             
             <div className="space-y-4 text-lg text-muted-foreground leading-relaxed">
               <p className="text-white my-0">

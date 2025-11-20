@@ -36,20 +36,20 @@ const DegreeProgress = () => {
 
   return (
     <div ref={containerRef} className="flex flex-col items-center text-center mt-8 animate-fade-in">
-       {/* Label */}
-       <span className="text-zinc-400 text-xs uppercase tracking-widest font-semibold mb-2">
+       {/* Label: Made WHITE and BIGGER */}
+       <span className="text-white text-sm md:text-base uppercase tracking-widest font-semibold mb-1">
          BS Aerospace Engineering
        </span>
        
-       {/* Big Percentage Number */}
+       {/* Big Percentage Number: Made slightly SMALLER */}
        <div className="relative flex items-baseline justify-center my-1">
-         <span className="text-6xl md:text-7xl font-black text-white tracking-tighter text-shadow-glow transition-all duration-500 hover:scale-110 cursor-default">
+         <span className="text-5xl md:text-6xl font-black text-white tracking-tighter text-shadow-glow transition-all duration-500 hover:scale-110 cursor-default">
            <Counter value={progress} />%
          </span>
        </div>
        
        {/* Context text */}
-       <span className="text-white/60 text-sm font-medium">
+       <span className="text-white/80 text-sm font-medium">
          Degree Completed
        </span>
     </div>

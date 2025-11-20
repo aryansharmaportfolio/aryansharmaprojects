@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card";
 import { useNavigate } from "react-router-dom";
-import DynamicSidebar from "./DynamicSidebar";
 
 interface ProjectCardProps {
   id: string;
@@ -17,12 +16,10 @@ const ProjectCard = ({ id, title, description, image }: ProjectCardProps) => {
   };
 
   return (
-    <>
-      <DynamicSidebar returnSection="projects" />
-      <Card
-        onClick={handleClick}
-        className="group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-80"
-      >
+    <Card
+      onClick={handleClick}
+      className="group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-80"
+    >
       {/* Full-bleed image with gradient overlay */}
       <div className="absolute inset-0">
         <img src={image} alt={title} className="w-full h-full object-cover" />
@@ -45,7 +42,6 @@ const ProjectCard = ({ id, title, description, image }: ProjectCardProps) => {
         <p className="text-white/90 drop-shadow-lg text-left transition-all duration-300 ease-in-out">{description}</p>
       </div>
     </Card>
-    </>
   );
 };
 

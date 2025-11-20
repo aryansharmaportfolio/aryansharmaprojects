@@ -3,6 +3,7 @@ import { Mail, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import profilePicture from "@/assets/profile-picture.jpg";
 import TypewriterHeader from "./TypewriterHeader";
+import DegreeProgress from "./DegreeProgress"; // Import the new component
 
 const AboutMe = () => {
   const [messageIndex, setMessageIndex] = useState(0);
@@ -71,6 +72,11 @@ const AboutMe = () => {
           {/* Right Column - Bio */}
           <div className="space-y-6 animate-fade-in">
             <TypewriterHeader text="About Me" />
+            
+            {/* Inserted Progress Bar Here */}
+            <div className="py-2">
+              <DegreeProgress />
+            </div>
             
             <div className="space-y-4 text-lg text-muted-foreground leading-relaxed">
               <p className="text-white my-0">

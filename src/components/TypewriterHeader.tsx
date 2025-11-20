@@ -41,10 +41,10 @@ const TypewriterHeader = ({ text, className }: TypewriterHeaderProps) => {
   }, [isVisible, displayText, text]);
 
   return (
-    <div ref={elementRef} className={cn("mb-8", className)}>
-      <h2 className="text-3xl font-bold text-white inline-block">
+    <div ref={elementRef} className={cn("inline-block", className)}>
+      <h2 className="text-5xl font-bold text-foreground border-b-4 border-primary pb-2">
         {displayText}
-        <span className="animate-pulse text-primary ml-1">_</span>
+        <span className="animate-pulse text-primary">_</span>
       </h2>
     </div>
   );

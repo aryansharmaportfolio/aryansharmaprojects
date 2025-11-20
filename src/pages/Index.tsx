@@ -8,6 +8,7 @@ import CurrentWork from "@/components/CurrentWork";
 import Clubs from "@/components/Clubs";
 import Footer from "@/components/Footer";
 import AnimatedSection from "@/components/AnimatedSection";
+import TypewriterHeader from "@/components/TypewriterHeader";
 
 const Index = () => {
   const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
@@ -33,10 +34,12 @@ const Index = () => {
       if (isSnapping.current || location.state?.section) return;
       if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
       scrollTimeout.current = setTimeout(() => {
+        // Query all sections to find the closest one for snapping
         const sections = Array.from(document.querySelectorAll('section'));
         const viewportCenter = window.innerHeight / 2;
         let closestSection: HTMLElement | null = null;
         let smallestDistance = Infinity;
+        
         sections.forEach(section => {
           const rect = section.getBoundingClientRect();
           const sectionCenter = rect.top + rect.height / 2;
@@ -46,6 +49,7 @@ const Index = () => {
             closestSection = section;
           }
         });
+
         if (closestSection && smallestDistance > 5 && smallestDistance < window.innerHeight / 2.5) {
           isSnapping.current = true;
           closestSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -80,19 +84,40 @@ const Index = () => {
   return (
     <div className="min-h-screen">
       <Header activeSection={activeSection} />
-      <Hero />
+      
+      {/* Hero Section (ID='home' is handled in Header logic usually, or top of page) */}
+      <section id="home">
+        <Hero />
+      </section>
+
       <AnimatedSection>
-        <AboutMe />
+        <section id="about" className="container mx-auto px-6 py-20">
+          <TypewriterHeader text="About Me" />
+          <AboutMe />
+        </section>
       </AnimatedSection>
+
       <AnimatedSection>
-        <FeaturedProjects />
+        <section id="projects" className="container mx-auto px-6 py-20">
+          <TypewriterHeader text="Featured Projects" />
+          <FeaturedProjects />
+        </section>
       </AnimatedSection>
+
       <AnimatedSection>
-        <CurrentWork />
+        <section id="current-work" className="container mx-auto px-6 py-20">
+          <TypewriterHeader text="Current & Ongoing Work" />
+          <CurrentWork />
+        </section>
       </AnimatedSection>
+
       <AnimatedSection>
-        <Clubs />
+        <section id="clubs" className="container mx-auto px-6 py-20">
+          <TypewriterHeader text="Clubs & Organizations" />
+          <Clubs />
+        </section>
       </AnimatedSection>
+
       <Footer />
     </div>
   );

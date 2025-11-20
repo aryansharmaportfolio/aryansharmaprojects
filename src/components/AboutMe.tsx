@@ -27,24 +27,24 @@ const AboutMe = () => {
             
             {/* Wrapper for Image and Speech Bubble */}
             <div 
-              className="relative group" 
+              className="relative group cursor-pointer" 
               onMouseLeave={handleMouseLeave}
             >
               {/* Speech Bubble */}
-              <div className="absolute -top-16 -right-8 z-20 pointer-events-none">
-                <div className="relative bg-white text-background px-4 py-2 rounded-xl shadow-xl 
+              <div className="absolute -top-20 -right-10 z-50 pointer-events-none select-none">
+                <div className="relative bg-white text-background px-5 py-3 rounded-2xl shadow-2xl 
                               transform scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 
-                              transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom-left">
-                  <p className="text-sm font-bold whitespace-nowrap">
+                              transition-all duration-300 ease-out origin-bottom-left">
+                  <p className="text-sm font-bold whitespace-nowrap text-black">
                     {messages[messageIndex]}
                   </p>
                   {/* Little triangle tail for the bubble */}
-                  <div className="absolute -bottom-1.5 left-4 w-3 h-3 bg-white transform rotate-45"></div>
+                  <div className="absolute -bottom-2 left-6 w-4 h-4 bg-white transform rotate-45"></div>
                 </div>
               </div>
 
               {/* Profile Image */}
-              <div className="w-64 h-64 rounded-full overflow-hidden border-4 border-primary shadow-2xl relative z-10 transition-transform duration-300 group-hover:scale-[1.02]">
+              <div className="w-64 h-64 rounded-full overflow-hidden border-4 border-primary shadow-2xl relative z-10 transition-transform duration-300 group-hover:scale-105">
                 <img src={profilePicture} alt="Aryan Sharma" className="w-full h-full object-cover" />
               </div>
             </div>

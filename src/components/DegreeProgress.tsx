@@ -35,13 +35,22 @@ const DegreeProgress = () => {
   }, [isVisible]);
 
   return (
-    <div ref={containerRef} className="flex flex-col items-center text-center mt-6 space-y-2 animate-fade-in">
-       {/* Changed text-zinc-500 to text-white and text-xs to text-sm */}
-       <span className="text-white text-sm uppercase tracking-widest font-semibold">
+    <div ref={containerRef} className="flex flex-col items-center text-center mt-8 animate-fade-in">
+       {/* Label */}
+       <span className="text-zinc-400 text-xs uppercase tracking-widest font-semibold mb-2">
          BS Aerospace Engineering
        </span>
-       <span className="text-white text-lg font-medium">
-         Completed <span className="text-primary font-bold border-b border-primary/30"><Counter value={progress} />%</span> of degree
+       
+       {/* Big Percentage Number */}
+       <div className="relative flex items-baseline justify-center my-1">
+         <span className="text-6xl md:text-7xl font-black text-white tracking-tighter text-shadow-glow transition-all duration-500 hover:scale-110 cursor-default">
+           <Counter value={progress} />%
+         </span>
+       </div>
+       
+       {/* Context text */}
+       <span className="text-white/80 text-sm font-medium">
+         Degree Completed
        </span>
     </div>
   );
@@ -63,7 +72,7 @@ const Counter = ({ value }: { value: number }) => {
       } else {
         setCount(start);
       }
-    }, 10);
+    }, 10); // Speed of counting
     
     return () => clearInterval(timer);
   }, [value]);

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
@@ -10,8 +10,6 @@ import Footer from "@/components/Footer";
 import AnimatedSection from "@/components/AnimatedSection";
 
 const Index = () => {
-  const scrollTimeout = useRef<NodeJS.Timeout | null>(null);
-  const isSnapping = useRef(false);
   const location = useLocation();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('');
@@ -51,43 +49,16 @@ const Index = () => {
         }
       }, 100);
     }
-  }, [location]); // Removed 'navigate' dependency as we don't use it anymore
+  }, [location]);
 
-  useEffect(() => {
-    const handleSmartScroll = () => {
-      if (isSnapping.current || location.state?.section) return;
-      if (scrollTimeout.current) clearTimeout(scrollTimeout.current);
-      scrollTimeout.current = setTimeout(() => {
-        const sections = Array.from(document.querySelectorAll('section'));
-        const viewportCenter = window.innerHeight / 2;
-        let closestSection: HTMLElement | null = null;
-        let smallestDistance = Infinity;
-        sections.forEach(section => {
-          const rect = section.getBoundingClientRect();
-          const sectionCenter = rect.top + rect.height / 2;
-          const distance = Math.abs(viewportCenter - sectionCenter);
-          if (distance < smallestDistance) {
-            smallestDistance = distance;
-            closestSection = section;
-          }
-        });
-        if (closestSection && smallestDistance > 5 && smallestDistance < window.innerHeight / 2.5) {
-          isSnapping.current = true;
-          closestSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          setTimeout(() => { isSnapping.current = false; }, 1000);
-        }
-      }, 150);
-    };
-    window.addEventListener('scroll', handleSmartScroll);
-    return () => window.removeEventListener('scroll', handleSmartScroll);
-  }, [location.state]);
-
+  // Logic to update the active section in the header based on scroll position
   useEffect(() => {
     const handleScrollHighlight = () => {
       const sections = document.querySelectorAll('section');
       let currentSectionId = '';
       for (const section of sections) {
         const rect = section.getBoundingClientRect();
+        // If the section is roughly in the middle of the screen
         if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
           currentSectionId = section.id;
           break;
@@ -98,7 +69,7 @@ const Index = () => {
       }
     };
     window.addEventListener('scroll', handleScrollHighlight);
-    handleScrollHighlight();
+    handleScrollHighlight(); // Run once on mount
     return () => window.removeEventListener('scroll', handleScrollHighlight);
   }, [activeSection]);
 

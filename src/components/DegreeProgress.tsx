@@ -49,7 +49,7 @@ const DegreeProgress = () => {
        </div>
        
        {/* Context text */}
-       <span className="text-white/80 text-sm font-medium">
+       <span className="text-white/60 text-sm font-medium">
          Degree Completed
        </span>
     </div>

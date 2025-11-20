@@ -35,6 +35,7 @@ const AboutMe = () => {
 
           {/* Right Column - Bio */}
           <div className="space-y-6 animate-fade-in">
+            {/* Replaced static header with TypewriterHeader */}
             <TypewriterHeader text="About Me" />
             
             <div className="space-y-4 text-lg text-muted-foreground leading-relaxed">

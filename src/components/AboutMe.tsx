@@ -7,48 +7,60 @@ import DegreeProgress from "./DegreeProgress";
 
 const AboutMe = () => {
   const [messageIndex, setMessageIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
   
   const messages = [
     "I love aerospace 🚀", 
     "I hope you like my portfolio 🚀"
   ];
 
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
   const handleMouseLeave = () => {
-    setMessageIndex((prev) => (prev + 1) % messages.length);
+    setIsHovered(false);
+    // Wait for the fade-out animation (300ms) to finish before switching text
+    // This prevents the user from seeing the text jump while it's disappearing
+    setTimeout(() => {
+      setMessageIndex((prev) => (prev + 1) % messages.length);
+    }, 300);
   };
 
   return (
     <section id="about" className="py-24 px-6 bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto max-w-6xl">
-        
-        {/* MOVED: Progress Bar is now here, centered at the top of the section */}
-        <div className="mb-16 animate-fade-in">
-           <DegreeProgress />
-        </div>
-
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left Column - Profile */}
-          <div className="flex flex-col items-center space-y-6 animate-fade-in">
+          <div className="flex flex-col items-center space-y-6 animate-fade-in relative z-10">
             
             {/* Wrapper for Image and Speech Bubble */}
             <div 
-              className="relative group cursor-pointer" 
+              className="relative cursor-pointer" 
+              onMouseEnter={handleMouseEnter}
               onMouseLeave={handleMouseLeave}
             >
               {/* Speech Bubble */}
-              <div className="absolute -top-20 -right-10 z-50 pointer-events-none select-none">
-                <div className="relative bg-white text-background px-5 py-3 rounded-2xl shadow-2xl 
-                              transform scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 
-                              transition-all duration-300 ease-out origin-bottom-left">
+              {/* Using React State for visibility ensures the animation plays reliably */}
+              <div 
+                className={`absolute -top-24 -right-20 z-50 pointer-events-none select-none 
+                          transition-all duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)] origin-bottom-left
+                          ${isHovered 
+                            ? "scale-100 opacity-100 translate-y-0" 
+                            : "scale-0 opacity-0 translate-y-4"
+                          }`}
+              >
+                <div className="relative bg-white text-background px-6 py-3 rounded-2xl shadow-2xl border-2 border-primary/20">
                   <p className="text-sm font-bold whitespace-nowrap text-black">
                     {messages[messageIndex]}
                   </p>
-                  <div className="absolute -bottom-2 left-6 w-4 h-4 bg-white transform rotate-45"></div>
+                  {/* Little triangle tail for the bubble */}
+                  <div className="absolute -bottom-2 left-6 w-4 h-4 bg-white border-b-2 border-r-2 border-primary/20 transform rotate-45"></div>
                 </div>
               </div>
 
               {/* Profile Image */}
-              <div className="w-64 h-64 rounded-full overflow-hidden border-4 border-primary shadow-2xl relative z-10 transition-transform duration-300 group-hover:scale-105">
+              <div className={`w-64 h-64 rounded-full overflow-hidden border-4 border-primary shadow-2xl relative z-10 transition-transform duration-500 ease-out ${isHovered ? "scale-105" : "scale-100"}`}>
                 <img src={profilePicture} alt="Aryan Sharma" className="w-full h-full object-cover" />
               </div>
             </div>
@@ -75,6 +87,11 @@ const AboutMe = () => {
           {/* Right Column - Bio */}
           <div className="space-y-6 animate-fade-in">
             <TypewriterHeader text="About Me" />
+            
+            {/* Inserted Progress Bar Here */}
+            <div className="py-2">
+              <DegreeProgress />
+            </div>
             
             <div className="space-y-4 text-lg text-muted-foreground leading-relaxed">
               <p className="text-white my-0">

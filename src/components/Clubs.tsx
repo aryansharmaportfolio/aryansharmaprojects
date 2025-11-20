@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import ClubCard from "./ClubCard";
+import TypewriterHeader from "./TypewriterHeader";
+
 interface Club {
   id: string;
   name: string;
@@ -30,13 +32,12 @@ const Clubs = () => {
       logo: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?auto=format&fit=crop&w=800",
     },
   ];
+  
   return (
     <section id="clubs" className="py-24 px-6 bg-background relative overflow-hidden">
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-16 animate-fade-in">
-          <h2 className="text-5xl font-bold text-foreground mb-6 border-b-4 border-primary inline-block pb-2">
-            Clubs & Organizations
-          </h2>
+          <TypewriterHeader text="Clubs & Organizations" className="mb-6" />
           <p className="text-xl italic text-white">
             Actively contributing to aerospace and engineering communities through hands-on collaboration.
           </p>

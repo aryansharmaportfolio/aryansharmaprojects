@@ -15,16 +15,31 @@ const Index = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('');
+  
+  // Initialize opacity: 0 if we have a target section (to hide the jump), 1 otherwise
+  const [pageOpacity, setPageOpacity] = useState(location.state?.section ? 0 : 1);
 
   useEffect(() => {
     if (location.state?.section) {
-      requestAnimationFrame(() => {
+      // Small timeout to ensure DOM is ready
+      setTimeout(() => {
         const element = document.getElementById(location.state.section);
         if (element) {
+          // Instant jump to section (no smooth scroll)
           element.scrollIntoView({ behavior: 'auto', block: 'center' });
+          
+          // Trigger fade in animation
+          requestAnimationFrame(() => {
+            setPageOpacity(1);
+          });
+          
+          // Clean up state
           navigate(location.pathname, { replace: true, state: {} });
+        } else {
+          // Fallback: just show page if element missing
+          setPageOpacity(1);
         }
-      });
+      }, 50);
     }
   }, [location, navigate]);
 
@@ -78,7 +93,11 @@ const Index = () => {
   }, [activeSection]);
 
   return (
-    <div className="min-h-screen">
+    // Applied transition and opacity style here
+    <div 
+      className="min-h-screen transition-opacity duration-1000 ease-in-out" 
+      style={{ opacity: pageOpacity }}
+    >
       <Header activeSection={activeSection} />
       <Hero />
       {/* The headers are now handled INSIDE these components to prevent duplication */}

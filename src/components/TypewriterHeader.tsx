@@ -9,7 +9,7 @@ interface TypewriterHeaderProps {
 const TypewriterHeader = ({ text, className }: TypewriterHeaderProps) => {
   const [displayText, setDisplayText] = useState("");
   const [isVisible, setIsVisible] = useState(false);
-  const [hasAnimated, setHasAnimated] = useState(false); // Ensure it only animates once
+  const [hasAnimated, setHasAnimated] = useState(false);
   const elementRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -17,10 +17,10 @@ const TypewriterHeader = ({ text, className }: TypewriterHeaderProps) => {
       ([entry]) => {
         if (entry.isIntersecting && !hasAnimated) {
           setIsVisible(true);
-          setHasAnimated(true);
+          setHasAnimated(true); // Lock it so it doesn't re-type when scrolling up/down
         }
       },
-      { threshold: 0.1 } // Trigger when 10% of the element is visible
+      { threshold: 0.1 }
     );
 
     if (elementRef.current) {
@@ -34,18 +34,25 @@ const TypewriterHeader = ({ text, className }: TypewriterHeaderProps) => {
     if (isVisible && displayText.length < text.length) {
       const timeout = setTimeout(() => {
         setDisplayText(text.slice(0, displayText.length + 1));
-      }, 50); // Typing speed (adjust as needed)
+      }, 50); // Adjust typing speed here (lower is faster)
 
       return () => clearTimeout(timeout);
     }
   }, [isVisible, displayText, text]);
 
   return (
-    <div ref={elementRef} className={cn("inline-block", className)}>
-      <h2 className="text-3xl font-bold mb-8 text-white">
+    <div ref={elementRef} className={cn("mb-12", className)}>
+      <h2 className="text-4xl md:text-5xl font-bold text-foreground inline-block">
         {displayText}
-        <span className="animate-pulse text-primary">_</span>
+        <span className="animate-pulse text-primary ml-1">_</span>
       </h2>
+      {/* Optional: Underline decoration that appears after typing */}
+      <div 
+        className={cn(
+          "h-1 bg-primary mt-4 transition-all duration-1000 ease-out",
+          isVisible && displayText === text ? "w-24 opacity-100" : "w-0 opacity-0"
+        )} 
+      />
     </div>
   );
 };

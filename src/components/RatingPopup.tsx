@@ -4,14 +4,22 @@ import { cn } from "@/lib/utils";
 
 const RatingPopup = () => {
   const [isVisible, setIsVisible] = useState(false);
-  const [isClosing, setIsClosing] = useState(false); // New state for exit animation
+  const [isClosing, setIsClosing] = useState(false);
   const [hasRated, setHasRated] = useState(false);
   const [hoveredRating, setHoveredRating] = useState<number | null>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
 
   useEffect(() => {
-    // Delay the popup appearing
+    // 1. CHECK: Has the user already interacted with this?
+    const alreadySeen = localStorage.getItem("portfolio_rated");
+    
+    if (alreadySeen) {
+      // If yes, do not show the popup at all
+      return;
+    }
+
+    // If no, start the timer to show it
     const timer = setTimeout(() => {
       setIsVisible(true);
     }, 4000);
@@ -21,7 +29,11 @@ const RatingPopup = () => {
 
   const handleClose = () => {
     setIsClosing(true);
-    // Wait for animation to finish before unmounting (500ms matches duration-500)
+    
+    // 2. SAVE: Mark as seen so it doesn't show again (even if they just closed it)
+    localStorage.setItem("portfolio_rated", "true");
+
+    // Wait for animation to finish before unmounting
     setTimeout(() => {
       setIsVisible(false);
     }, 500);
@@ -30,6 +42,9 @@ const RatingPopup = () => {
   const handleRate = (score: number) => {
     setSelectedRating(score);
     setHasRated(true);
+    
+    // 3. SAVE: Mark as rated immediately
+    localStorage.setItem("portfolio_rated", "true");
     
     // Show success message for 3 seconds, then fade out
     setTimeout(() => {
@@ -102,7 +117,7 @@ const RatingPopup = () => {
                     
                     {/* Number: Bigger, bolder, white, and centered on the rocket body */}
                     <span className={cn(
-                      "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pt-1", // pt-1 nudges it slightly down into the rocket body
+                      "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pt-1",
                       "text-xs font-black text-white select-none transition-all duration-300",
                       isHighlighted 
                         ? "scale-110 drop-shadow-md" 

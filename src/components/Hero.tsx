@@ -5,8 +5,6 @@ import { cn } from "@/lib/utils";
 const Hero = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [scrollY, setScrollY] = useState(0);
-  
-  // We only need one state: is the video ready?
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
 
   const handleScroll = () => {
@@ -39,7 +37,7 @@ const Hero = () => {
         muted
         playsInline
         preload="auto"
-        // This is the key: We wait for this event to fire before showing ANYTHING
+        // Triggers the fade-in for both video and text once data is ready
         onLoadedData={() => setIsVideoLoaded(true)}
         className={cn(
           "absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out",
@@ -62,11 +60,14 @@ const Hero = () => {
         className="relative z-20 text-center"
         style={{ opacity: textOpacity }}
       >
+        {/* MODIFIED H1:
+           - Removed 'animate-typing', 'border-r', 'w-0', etc.
+           - Added 'transition-all duration-1000' for smooth fade.
+           - Added a subtle 'translate-y-8' -> 'translate-y-0' movement for a creative "pop in" effect.
+        */}
         <h1 
           className={cn(
             "text-7xl md:text-8xl font-extrabold text-foreground tracking-tight pb-2 transition-all duration-1000 ease-out",
-            // We switched this back to use `isVideoLoaded`. 
-            // Now the text waits for the video, so they appear together.
             isVideoLoaded 
               ? "opacity-100 translate-y-0" 
               : "opacity-0 translate-y-8"

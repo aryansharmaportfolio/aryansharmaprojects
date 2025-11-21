@@ -34,7 +34,7 @@ const ProjectDetail = () => {
       name: 'Tripoli L1/L2 Certified Rocket ("Zoomer")',
       description: "Built a rocket from scratch that achieved both an L1 and L2 certification from Tripoli.",
       // UPDATED: Direct path
-      logo: "/zoomer-thumbnail.jpg",
+      logo: "/zoomer-thumbnail.png",
       achievements: [
         "Constructed a scratch-built high-power rocket designed to withstand significant aerodynamic forces.",
         "Successfully planned and executed a Level 1 certification flight, demonstrating stable flight dynamics.",

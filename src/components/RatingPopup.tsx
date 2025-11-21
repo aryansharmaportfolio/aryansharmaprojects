@@ -2,6 +2,12 @@ import { useState, useEffect } from "react";
 import { X, Rocket } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// GLOBAL VARIABLE:
+// This lives in the browser's memory (RAM) for the current page session.
+// - It STAYS true when you navigate to a project and click "Back to Portfolio" (Client-side nav).
+// - It RESETS to false when you Reload (F5) or Close/Reopen the tab (Memory cleared).
+let sessionHasSeenPopup = false;
+
 const RatingPopup = () => {
   const [isVisible, setIsVisible] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
@@ -11,15 +17,12 @@ const RatingPopup = () => {
   const [selectedRating, setSelectedRating] = useState<number | null>(null);
 
   useEffect(() => {
-    // 1. CHECK: Has the user already interacted with this?
-    const alreadySeen = localStorage.getItem("portfolio_rated");
-    
-    if (alreadySeen) {
-      // If yes, do not show the popup at all
+    // 1. CHECK: If the user has already seen/closed this in the current session, do nothing.
+    if (sessionHasSeenPopup) {
       return;
     }
 
-    // If no, start the timer to show it
+    // 2. If not, start the timer to show it.
     const timer = setTimeout(() => {
       setIsVisible(true);
     }, 4000);
@@ -30,8 +33,8 @@ const RatingPopup = () => {
   const handleClose = () => {
     setIsClosing(true);
     
-    // 2. SAVE: Mark as seen so it doesn't show again (even if they just closed it)
-    localStorage.setItem("portfolio_rated", "true");
+    // 3. MARK AS SEEN: This prevents it from showing again until the page is reloaded.
+    sessionHasSeenPopup = true;
 
     // Wait for animation to finish before unmounting
     setTimeout(() => {
@@ -43,8 +46,8 @@ const RatingPopup = () => {
     setSelectedRating(score);
     setHasRated(true);
     
-    // 3. SAVE: Mark as rated immediately
-    localStorage.setItem("portfolio_rated", "true");
+    // Mark as seen immediately so it doesn't pop up again if they navigate away and back
+    sessionHasSeenPopup = true;
     
     // Show success message for 3 seconds, then fade out
     setTimeout(() => {
@@ -59,13 +62,13 @@ const RatingPopup = () => {
       "fixed bottom-8 right-8 z-50 transition-all duration-500 ease-[cubic-bezier(0.32,0.72,0,1)]",
       // Entry animation (only when not closing)
       !isClosing && "animate-fade-in-up opacity-100 translate-y-0",
-      // Exit animation
+      // Exit animation (fade away downwards)
       isClosing && "opacity-0 translate-y-10 pointer-events-none",
       // Disable pointer events after rating while showing success message
       hasRated && !isClosing && "pointer-events-auto" 
     )}>
       {/* Glassmorphism Card Container */}
-      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/80 p-5 shadow-2xl backdrop-blur-xl w-[280px]">
+      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/80 p-5 shadow-2xl backdrop-blur-xl w-[300px]">
         
         {/* Close Button */}
         {!hasRated && (
@@ -117,7 +120,7 @@ const RatingPopup = () => {
                     
                     {/* Number: Bigger, bolder, white, and centered on the rocket body */}
                     <span className={cn(
-                      "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pt-1",
+                      "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pt-1", 
                       "text-xs font-black text-white select-none transition-all duration-300",
                       isHighlighted 
                         ? "scale-110 drop-shadow-md" 

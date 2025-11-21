@@ -24,7 +24,6 @@ const Hero = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollOpacity = Math.max(0, 1 - scrollY / 600);
   const videoScale = Math.max(0.8, 1 - scrollY / 3000);
   const textOpacity = Math.max(0, 1 - scrollY / 300);
 
@@ -48,7 +47,8 @@ const Hero = () => {
           isVideoLoaded ? "opacity-100" : "opacity-0"
         )}
         style={{
-          opacity: isVideoLoaded ? scrollOpacity : 0,
+          // Opacity is now fixed to 1 once loaded, removing the scroll fade effect
+          opacity: isVideoLoaded ? 1 : 0,
           transform: `scale(${videoScale})`,
           filter: "brightness(0.7)",
         }}

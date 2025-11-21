@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X } from "lucide-react";
+import { X, Rocket } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const RatingPopup = () => {
@@ -35,8 +35,8 @@ const RatingPopup = () => {
       "fixed bottom-8 right-8 z-50 animate-fade-in-up transition-all duration-500 ease-out",
       hasRated && "pointer-events-none"
     )}>
-      {/* Glassmorphism Card Container - Made smaller (w-[300px]) and tighter padding (p-5) */}
-      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/80 p-5 shadow-2xl backdrop-blur-xl w-[300px]">
+      {/* Glassmorphism Card Container - Tighter width (280px) */}
+      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/80 p-5 shadow-2xl backdrop-blur-xl w-[280px]">
         
         {/* Close Button */}
         <button 
@@ -53,17 +53,19 @@ const RatingPopup = () => {
               <h3 className="font-bold text-white text-lg tracking-wide">
                 Rate this portfolio
               </h3>
-              {/* Made text white as requested */}
+              {/* Subtext is now explicitly white */}
               <p className="text-xs text-white mt-1 font-medium">
                 How was your flight? <span className="inline-block animate-bounce">🚀</span>
               </p>
             </div>
             
-            {/* Interactive Rating Circles - Redesigned for maximum impressiveness */}
+            {/* Interactive Rocket Rating Icons */}
             <div className="flex justify-center gap-2">
               {[1, 2, 3, 4, 5].map((score) => {
-                // Calculate if this specific star is active based on hover state
-                const isActive = hoveredRating !== null ? score <= hoveredRating : false;
+                // Highlight rockets up to the hovered one, or the selected one if not hovering
+                const isHighlighted = hoveredRating !== null 
+                  ? score <= hoveredRating 
+                  : (selectedRating !== null && score <= selectedRating);
                 
                 return (
                   <button
@@ -71,17 +73,17 @@ const RatingPopup = () => {
                     onMouseEnter={() => setHoveredRating(score)}
                     onMouseLeave={() => setHoveredRating(null)}
                     onClick={() => handleRate(score)}
-                    className={cn(
-                      "w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all duration-300",
-                      // Use a spring-like bezier curve for a bouncy feel
-                      "ease-[cubic-bezier(0.34,1.56,0.64,1)]", 
-                      "focus:outline-none",
-                      isActive
-                        ? "bg-gradient-to-br from-primary via-primary/80 to-accent text-white shadow-[0_0_20px_rgba(var(--primary),0.6)] scale-110 -translate-y-1"
-                        : "bg-white/5 text-white/50 border border-white/10 hover:bg-white/20 hover:text-white hover:scale-125 hover:-translate-y-1 hover:shadow-[0_0_15px_rgba(255,255,255,0.2)] hover:border-primary/30"
-                    )}
+                    className="group focus:outline-none transition-transform duration-200 hover:scale-110 active:scale-95"
                   >
-                    {score}
+                    <Rocket
+                      className={cn(
+                        "w-8 h-8 transition-all duration-300",
+                        isHighlighted
+                          ? "fill-primary text-primary drop-shadow-[0_0_10px_rgba(var(--primary),0.6)]" 
+                          : "text-white/20 group-hover:text-white/50"
+                      )}
+                      strokeWidth={1.5}
+                    />
                   </button>
                 );
               })}

@@ -1,9 +1,22 @@
 import { useParams, useNavigate } from "react-router-dom";
 import DynamicSidebar from "@/components/DynamicSidebar";
+import { useState, useEffect } from "react";
 
 const ClubDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  
+  // Initialize opacity to 0 for the fade-in effect
+  const [opacity, setOpacity] = useState(0);
+
+  // Trigger the transition to opacity 1 after mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setOpacity(1);
+    }, 50); // Small delay to ensure the browser registers the initial state
+    return () => clearTimeout(timer);
+  }, []);
+
   const clubData: Record<string, any> = {
     aeromavs: {
       name: "Aero Mavs",
@@ -54,7 +67,10 @@ const ClubDetail = () => {
   return (
     <>
       <DynamicSidebar returnSection="clubs" />
-      <div className="min-h-screen bg-background">
+      <div 
+        className="min-h-screen bg-background transition-opacity duration-700 ease-in-out"
+        style={{ opacity }}
+      >
         <div className="container mx-auto px-6 py-12">
           <div className="relative h-96 bg-cover bg-center mb-12 rounded-xl overflow-hidden mt-16">
             <img src={club.logo} alt={club.name} className="w-full h-full object-cover" />

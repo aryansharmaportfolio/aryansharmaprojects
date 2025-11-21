@@ -6,10 +6,9 @@ interface ProjectCardProps {
   title: string;
   description: string;
   image: string;
-  date: string;
 }
 
-const ProjectCard = ({ id, title, description, image, date }: ProjectCardProps) => {
+const ProjectCard = ({ id, title, description, image }: ProjectCardProps) => {
   const navigate = useNavigate();
 
   const handleClick = () => {
@@ -30,24 +29,15 @@ const ProjectCard = ({ id, title, description, image, date }: ProjectCardProps) 
         {/* Simple black overlay on hover */}
         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
       </div>
-
-      {/* Date Display - Top Left Glass Badge */}
-      <div className="absolute top-4 left-4 z-30 pointer-events-none">
-        <div className="bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full">
-          <p className="text-xs font-bold text-white uppercase tracking-wider drop-shadow-md">
-            {date}
-          </p>
-        </div>
-      </div>
       
-      {/* Text overlay at bottom */}
-      <div className="absolute bottom-0 left-0 right-0 p-6 z-20 flex flex-col justify-end overflow-hidden pointer-events-none">
-        {/* Click to learn text */}
+      {/* Text overlay at bottom (MODIFIED to add new text on hover) */}
+      <div className="absolute bottom-0 left-0 right-0 p-6 z-20 flex flex-col justify-end overflow-hidden">
+        {/* --- MODIFIED: "Click to learn" text (big, bold, and static) --- */}
         <p className="text-2xl font-bold text-white text-left opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-40 group-hover:mb-2 transition-all duration-300 ease-in-out">
           Click to learn more about
         </p>
 
-        {/* Title and Description */}
+        {/* ORIGINAL: Title and Description (now with transitions) */}
         <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg text-left transition-all duration-300 ease-in-out">{title}</h3>
         <p className="text-white/90 drop-shadow-lg text-left transition-all duration-300 ease-in-out">{description}</p>
       </div>

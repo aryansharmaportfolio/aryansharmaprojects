@@ -2,17 +2,22 @@ import ProjectCard from "./ProjectCard";
 import TypewriterHeader from "./TypewriterHeader";
 
 const FeaturedProjects = () => {
-  const projects = [{
-    id: "project-1",
-    title: "Rocket Propulsion System",
-    description: "Design and testing of high-powered rocket engines",
-    image: "https://images.unsplash.com/photo-1581822261290-991b38693d1b?auto=format&fit=crop&w=800"
-  }, {
-    id: "project-2",
-    title: "UAV Flight Dynamics",
-    description: "Analysis of unmanned aerial vehicle control systems",
-    image: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=800"
-  }];
+  const projects = [
+    {
+      id: "falcon-9-model",
+      title: "Falcon 9-Inspired 3D Model",
+      description: "Created a multi-part 3D model of a rocket inspired by Falcon 9 using SolidWorks.",
+      image: "https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=800", // Kept rocket themed image
+      date: "Mar 2025 - Apr 2025"
+    }, 
+    {
+      id: "zoomer-rocket",
+      title: 'Tripoli L1/L2 Certified Rocket ("Zoomer")',
+      description: "Built a rocket from scratch that achieved both an L1 and L2 certification from Tripoli.",
+      image: "https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?auto=format&fit=crop&w=800", // Kept drone/flight themed image
+      date: "Sep 2025 - Nov 2025"
+    }
+  ];
 
   return (
     <section id="projects" className="py-24 px-6 bg-background/95 backdrop-blur-sm">

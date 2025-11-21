@@ -19,7 +19,7 @@ const Header = ({ activeSection }: { activeSection: string }) => {
       const scrollY = window.scrollY;
       const totalHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
       
-      setIsScrolled(scrollY > 10);
+      setIsScrolled(scrollY > 50); // Trigger earlier for the floating effect
       
       if (scrollY > lastScrollY.current) {
         setScrollDirection("down");
@@ -75,80 +75,87 @@ const Header = ({ activeSection }: { activeSection: string }) => {
 
   const navLinks = [
       { label: "Home", id: "home" },
-      { label: "About Me", id: "about" },
+      { label: "About", id: "about" },
       { label: "Projects", id: "projects" },
-      { label: "Current Work", id: "current-work" },
+      { label: "Experience", id: "current-work" },
       { label: "Clubs", id: "clubs" },
   ];
 
-  const rocketRotation = scrollDirection === "down" 
-    ? "rotate(45deg)" 
-    : "rotate(-135deg)";
+  const rocketRotation = scrollDirection === "down" ? "rotate(45deg)" : "rotate(-135deg)";
 
   return (
-    <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? "bg-background/95 backdrop-blur-sm shadow-lg" : "bg-transparent"
-      }`}
-    >
-      <div className="container mx-auto px-6 py-4 flex items-center justify-between">
-        <button
-          onClick={() => scrollToSection("home")}
-          className="text-2xl font-bold text-foreground hover:text-primary transition-colors"
-        >
-          Aryan Sharma
-        </button>
-
-        <nav className="flex gap-8">
-          {navLinks.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => scrollToSection(item.id)}
-              className={cn(
-                "text-foreground font-medium transition-all duration-200 hover:text-white hover:font-bold hover:scale-105",
-                (activeSection === item.id || (item.id === 'home' && !activeSection)) && "font-bold text-white"
-              )}
-            >
-              {item.label}
-            </button>
-          ))}
-        </nav>
-      </div>
-      <div
-        className={`absolute bottom-0 left-0 h-px w-full transition-opacity duration-300 ${
-          isScrolled ? "opacity-100" : "opacity-0 pointer-events-none"
-        }`}
+    <>
+      {/* Floating Glass Navbar */}
+      <header
+        className={cn(
+          "fixed top-6 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 ease-out",
+          isScrolled 
+            ? "w-[90%] max-w-5xl rounded-full glass-panel px-8 py-3 border-white/10 bg-black/40" 
+            : "w-full max-w-7xl px-6 py-6 bg-transparent border-none shadow-none"
+        )}
       >
-        <div className="relative h-full w-full">
+        <div className="flex items-center justify-between">
+          <button
+            onClick={() => scrollToSection("home")}
+            className={cn(
+              "text-2xl font-bold transition-all duration-300 hover:text-primary tracking-tighter",
+              isScrolled ? "text-white text-xl" : "text-white"
+            )}
+          >
+            Aryan Sharma<span className="text-primary">.</span>
+          </button>
+
+          <nav className="hidden md:flex items-center gap-1">
+            {navLinks.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => scrollToSection(item.id)}
+                className={cn(
+                  "relative px-4 py-2 text-sm font-medium transition-all duration-300 rounded-full hover:text-white group",
+                  activeSection === item.id ? "text-white bg-white/10" : "text-white/60"
+                )}
+              >
+                {item.label}
+                {/* Subtle underline effect */}
+                <span className={cn(
+                  "absolute bottom-1.5 left-1/2 -translate-x-1/2 w-1 h-1 bg-primary rounded-full opacity-0 transition-all duration-300 group-hover:opacity-100",
+                  activeSection === item.id && "opacity-100"
+                )} />
+              </button>
+            ))}
+          </nav>
+        </div>
+      </header>
+
+      {/* Rocket Progress Tracker - Fixed to bottom or top depending on preference, keeping existing logic */}
+      <div
+        className={cn(
+          "fixed top-0 left-0 h-1 w-full z-50 pointer-events-none transition-opacity duration-300",
+          isScrolled ? "opacity-100" : "opacity-0"
+        )}
+      >
+        <div className="relative w-full h-full">
+          {/* Smoke Particles */}
           {smoke.map((puff) => (
             <div
               key={puff.id}
-              className="absolute top-0 w-4 h-4 rounded-full -translate-y-1/2 -translate-x-1/2 animate-[fadeOut_1.2s_ease-out_forwards]"
-              style={{ 
-                left: `${puff.left}%`,
-                background: 'radial-gradient(circle, rgba(150, 150, 150, 0.4) 0%, rgba(150, 150, 150, 0) 70%)'
-              }}
+              className="absolute top-4 w-3 h-3 rounded-full -translate-y-1/2 -translate-x-1/2 animate-smoke-puff bg-white/30 blur-[2px]"
+              style={{ left: `${puff.left}%` }}
             />
           ))}
+          {/* Rocket Icon */}
           <div
-            className="absolute top-0 -translate-y-1/2 -translate-x-1/2"
+            className="absolute top-4 -translate-y-1/2 -translate-x-1/2 transition-transform duration-100 will-change-transform"
             style={{ 
               left: `${scrollProgress}%`,
+              transform: `translateX(-50%) ${rocketRotation}`
             }}
           >
-            <span 
-              className="text-2xl transition-transform duration-200"
-              style={{ 
-                display: "inline-block",
-                transform: rocketRotation,
-              }}
-            >
-              🚀
-            </span>
+            <span className="text-2xl filter drop-shadow-[0_0_10px_rgba(59,130,246,0.5)]">🚀</span>
           </div>
         </div>
       </div>
-    </header>
+    </>
   );
 };
 

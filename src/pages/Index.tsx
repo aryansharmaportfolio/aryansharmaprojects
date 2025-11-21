@@ -8,6 +8,7 @@ import CurrentWork from "@/components/CurrentWork";
 import Clubs from "@/components/Clubs";
 import Footer from "@/components/Footer";
 import AnimatedSection from "@/components/AnimatedSection";
+import RatingPopup from "@/components/RatingPopup";
 
 const Index = () => {
   const location = useLocation();
@@ -93,6 +94,9 @@ const Index = () => {
         <Clubs />
       </AnimatedSection>
       <Footer />
+      
+      {/* Added Rating Popup here to float above other content */}
+      <RatingPopup />
     </div>
   );
 };

@@ -21,7 +21,7 @@ const FeaturedProjects = () => {
       title: 'Tripoli L1/L2 Certified Rocket ("Zoomer")',
       description: "Built a rocket from scratch that achieved both an L1 and L2 certification from Tripoli.",
       // UPDATED: Pointing directly to the file in your public folder
-      image: "/zoomer-thumbnail.jpg",
+      image: "/zoomer-thumbnail.png",
       date: "Sep 2025 - Nov 2025",
       imageFit: "cover" as const
     }

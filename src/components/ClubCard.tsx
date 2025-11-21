@@ -5,7 +5,7 @@ interface ClubCardProps {
   name: string;
   role: string;
   logo: string;
-  date: string; // Added prop
+  date: string;
   onClick: () => void;
   isExpanded: boolean;
 }
@@ -33,22 +33,24 @@ const ClubCard = ({
         <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
       </div>
       
-      {/* Date Display - Bottom Right */}
-      <div className="absolute bottom-6 right-6 z-30 pointer-events-none">
-        <p className="text-sm font-bold text-white drop-shadow-lg text-right">
-          {date}
-        </p>
+      {/* Date Display - Top Left Glass Badge */}
+      <div className="absolute top-4 left-4 z-30 pointer-events-none">
+        <div className="bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full">
+          <p className="text-xs font-bold text-white uppercase tracking-wider drop-shadow-md">
+            {date}
+          </p>
+        </div>
       </div>
       
-      {/* Text overlay at bottom (MODIFIED to add new text on hover) */}
+      {/* Text overlay at bottom */}
       <div className="absolute bottom-0 left-0 right-0 p-6 z-20 flex flex-col justify-end overflow-hidden pointer-events-none">
-        {/* --- MODIFIED: "Click to learn" text (big, bold, and static) --- */}
+        {/* Click to learn text */}
         <p className="text-2xl font-bold text-white text-left opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-40 group-hover:mb-2 transition-all duration-300 ease-in-out">
           Click to learn more about
         </p>
 
-        {/* ORIGINAL: Title and Description (now with transitions) */}
-        <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg text-left transition-all duration-300 ease-in-out pr-16">{name}</h3>
+        {/* Title and Description */}
+        <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg text-left transition-all duration-300 ease-in-out">{name}</h3>
         <p className="text-white/90 drop-shadow-lg text-left transition-all duration-300 ease-in-out">{role}</p>
       </div>
     </Card>

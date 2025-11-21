@@ -11,17 +11,18 @@ const FeaturedProjects = () => {
       id: "falcon-9-model",
       title: "Falcon 9-Inspired 3D Model",
       description: "Created a multi-part 3D model of a rocket inspired by Falcon 9 using SolidWorks.",
-      image: falconThumbnail, // Using local image
+      image: falconThumbnail,
       date: "Mar 2025 - Apr 2025",
-      imageFit: "contain" as const // Ensures the full 3D model is visible
+      // SWITCHED BACK TO "cover" to fill the card completely
+      imageFit: "cover" as const 
     }, 
     {
       id: "zoomer-rocket",
       title: 'Tripoli L1/L2 Certified Rocket ("Zoomer")',
       description: "Built a rocket from scratch that achieved both an L1 and L2 certification from Tripoli.",
-      image: zoomerThumbnail, // Using local image
+      image: zoomerThumbnail,
       date: "Sep 2025 - Nov 2025",
-      imageFit: "cover" as const // Fills the card nicely
+      imageFit: "cover" as const
     }
   ];
 

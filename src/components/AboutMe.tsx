@@ -78,7 +78,7 @@ const AboutMe = () => {
             
             <div className="space-y-4 text-lg text-muted-foreground leading-relaxed">
               <p className="text-white my-0">
-                I'm a student majoring in <span className="font-semibold text-foreground">Aerospace Engineering</span> at the University of Texas at Arlington, passionate about turning complex theories into a tangible reality. My path is rooted in hands-on application, from analyzing flight dynamics on the Design-Build-Fly team to constructing high-powered rockets with UTA's AeroMavs. My dedication to aerospace took flight when I co-founded my high school's first aerospace club, growing it to over 115 members.
+                I'm a student majoring in <span className="font-semibold text-foreground">Aerospace Engineering</span> at the University of Texas at Arlington, passionate about turning complex theories into a tangible reality. My path is rooted in hands-on application, from analyzing aircraft structural design on the Design-Build-Fly team to constructing high-powered rockets with UTA's AeroMavs. My dedication to aerospace took flight when I co-founded my high school's first aerospace club, growing it to over 115 members.
               </p>
               
               <p className="text-white">

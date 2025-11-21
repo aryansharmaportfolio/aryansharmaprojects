@@ -20,7 +20,7 @@ const ClubDetail = () => {
   const clubData: Record<string, any> = {
     aeromavs: {
       name: "Aero Mavs",
-      role: "Project Lead",
+      role: "Manufacturing",
       logo: "https://images.unsplash.com/photo-1581822261290-991b38693d1b?auto=format&fit=crop&w=800",
       achievements: [
         "Designing and modeling a fully assembled H-motor high-powered rocket in SolidWorks, validating architecture against stability and performance parameters simulated in OpenRocket.",
@@ -31,8 +31,8 @@ const ClubDetail = () => {
       skills: ["SolidWorks", "Computational Fluid Dynamics (CFD)", "MATLAB", "3D Printing"],
     },
     aiaa: {
-      name: "AIAA",
-      role: "Design-Build-Fly Team",
+      name: "UTA Design-Build-Fly Team",
+      role: "Structures/Manufacturing",
       logo: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=800",
       achievements: [
         "Designed and fabricated custom aircraft components for competition",

@@ -5,17 +5,15 @@ import { cn } from "@/lib/utils";
 const Hero = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [scrollY, setScrollY] = useState(0);
+  
+  // We only need one state: is the video ready?
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
 
   const handleScroll = () => {
     setScrollY(window.scrollY);
   };
 
   useEffect(() => {
-    // Trigger text animation immediately upon component mount
-    setIsMounted(true);
-
     if (videoRef.current) {
       videoRef.current.playbackRate = 0.5;
     }
@@ -41,7 +39,7 @@ const Hero = () => {
         muted
         playsInline
         preload="auto"
-        // Video fades in only when it is actually ready to play
+        // This is the key: We wait for this event to fire before showing ANYTHING
         onLoadedData={() => setIsVideoLoaded(true)}
         className={cn(
           "absolute top-0 left-0 w-full h-full object-cover transition-opacity duration-1000 ease-in-out",
@@ -67,8 +65,9 @@ const Hero = () => {
         <h1 
           className={cn(
             "text-7xl md:text-8xl font-extrabold text-foreground tracking-tight pb-2 transition-all duration-1000 ease-out",
-            // Text now appears immediately (isMounted) instead of waiting for video (isVideoLoaded)
-            isMounted
+            // We switched this back to use `isVideoLoaded`. 
+            // Now the text waits for the video, so they appear together.
+            isVideoLoaded 
               ? "opacity-100 translate-y-0" 
               : "opacity-0 translate-y-8"
           )}

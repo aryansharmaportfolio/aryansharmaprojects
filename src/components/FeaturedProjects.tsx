@@ -1,26 +1,23 @@
 import ProjectCard from "./ProjectCard";
 import TypewriterHeader from "./TypewriterHeader";
 
-// Importing your custom local images
-import falconThumbnail from "@/assets/Falcon Model Thumbnail.png";
-import zoomerThumbnail from "@/assets/Zoomer Thumbnail.jpg";
-
 const FeaturedProjects = () => {
   const projects = [
     {
       id: "falcon-9-model",
       title: "Falcon 9-Inspired 3D Model",
       description: "Created a multi-part 3D model of a rocket inspired by Falcon 9 using SolidWorks.",
-      image: falconThumbnail,
+      // UPDATED: Direct path to the file in the public folder
+      image: "/falcon-thumbnail.png", 
       date: "Mar 2025 - Apr 2025",
-      // SWITCHED BACK TO "cover" to fill the card completely
       imageFit: "cover" as const 
     }, 
     {
       id: "zoomer-rocket",
       title: 'Tripoli L1/L2 Certified Rocket ("Zoomer")',
       description: "Built a rocket from scratch that achieved both an L1 and L2 certification from Tripoli.",
-      image: zoomerThumbnail,
+      // UPDATED: Direct path to the file in the public folder
+      image: "/zoomer-thumbnail.jpg",
       date: "Sep 2025 - Nov 2025",
       imageFit: "cover" as const
     }

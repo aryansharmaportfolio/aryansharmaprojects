@@ -7,7 +7,7 @@ const FeaturedProjects = () => {
       id: "falcon-9-model",
       title: "Falcon 9-Inspired 3D Model",
       description: "Created a multi-part 3D model of a rocket inspired by Falcon 9 using SolidWorks.",
-      // UPDATED: Direct path to the file in the public folder
+      // Make sure 'falcon-thumbnail.png' is in your PUBLIC folder
       image: "/falcon-thumbnail.png", 
       date: "Mar 2025 - Apr 2025",
       imageFit: "cover" as const 
@@ -16,7 +16,7 @@ const FeaturedProjects = () => {
       id: "zoomer-rocket",
       title: 'Tripoli L1/L2 Certified Rocket ("Zoomer")',
       description: "Built a rocket from scratch that achieved both an L1 and L2 certification from Tripoli.",
-      // UPDATED: Direct path to the file in the public folder
+      // UPDATED: Matches your new renamed file in the PUBLIC folder
       image: "/zoomer-thumbnail.jpg",
       date: "Sep 2025 - Nov 2025",
       imageFit: "cover" as const

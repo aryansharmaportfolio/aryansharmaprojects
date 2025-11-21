@@ -2,6 +2,10 @@ import { useParams, useLocation } from "react-router-dom";
 import DynamicSidebar from "@/components/DynamicSidebar";
 import { useState, useEffect } from "react";
 
+// Import same images for the detail view
+import falconThumbnail from "@/assets/Falcon Model Thumbnail.png";
+import zoomerThumbnail from "@/assets/Zoomer Thumbnail.jpg";
+
 const ProjectDetail = () => {
   const { id } = useParams();
   const location = useLocation();
@@ -22,7 +26,7 @@ const ProjectDetail = () => {
     "falcon-9-model": {
       name: "Falcon 9-Inspired 3D Model",
       description: "Created a multi-part 3D model of a rocket inspired by Falcon 9 using SolidWorks.",
-      logo: "https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=800",
+      logo: falconThumbnail, // Updated to use custom image
       achievements: [
         "Designed a detailed scale model of the Falcon 9 launch vehicle, focusing on accuracy and printability.",
         "Utilized advanced SolidWorks features including lofting and shelling to create complex aerodynamic surfaces.",
@@ -34,7 +38,7 @@ const ProjectDetail = () => {
     "zoomer-rocket": {
       name: 'Tripoli L1/L2 Certified Rocket ("Zoomer")',
       description: "Built a rocket from scratch that achieved both an L1 and L2 certification from Tripoli.",
-      logo: "https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?auto=format&fit=crop&w=800",
+      logo: zoomerThumbnail, // Updated to use custom image
       achievements: [
         "Constructed a scratch-built high-power rocket designed to withstand significant aerodynamic forces.",
         "Successfully planned and executed a Level 1 certification flight, demonstrating stable flight dynamics.",

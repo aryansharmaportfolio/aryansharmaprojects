@@ -1,9 +1,9 @@
 import ProjectCard from "./ProjectCard";
 import TypewriterHeader from "./TypewriterHeader";
 
-// TEMPORARILY COMMENTED OUT LOCAL IMPORTS
-// import falconThumbnail from "@/assets/Falcon Model Thumbnail.png";
-// import zoomerThumbnail from "@/assets/Zoomer Thumbnail.jpg";
+// Importing your custom local images
+import falconThumbnail from "@/assets/Falcon Model Thumbnail.png";
+import zoomerThumbnail from "@/assets/Zoomer Thumbnail.jpg";
 
 const FeaturedProjects = () => {
   const projects = [
@@ -11,19 +11,17 @@ const FeaturedProjects = () => {
       id: "falcon-9-model",
       title: "Falcon 9-Inspired 3D Model",
       description: "Created a multi-part 3D model of a rocket inspired by Falcon 9 using SolidWorks.",
-      // USE ONLINE URL TEMPORARILY
-      image: "https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=800",
+      image: falconThumbnail, // Using local image
       date: "Mar 2025 - Apr 2025",
-      imageFit: "contain" as const 
+      imageFit: "contain" as const // Ensures the full 3D model is visible
     }, 
     {
       id: "zoomer-rocket",
       title: 'Tripoli L1/L2 Certified Rocket ("Zoomer")',
       description: "Built a rocket from scratch that achieved both an L1 and L2 certification from Tripoli.",
-      // USE ONLINE URL TEMPORARILY
-      image: "https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?auto=format&fit=crop&w=800",
+      image: zoomerThumbnail, // Using local image
       date: "Sep 2025 - Nov 2025",
-      imageFit: "cover" as const
+      imageFit: "cover" as const // Fills the card nicely
     }
   ];
 

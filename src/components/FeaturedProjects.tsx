@@ -1,13 +1,17 @@
 import ProjectCard from "./ProjectCard";
 import TypewriterHeader from "./TypewriterHeader";
 
+// REMOVED the imports because we are using the public folder now
+// import falconThumbnail from "@/assets/Falcon Model Thumbnail.png";
+// import zoomerThumbnail from "@/assets/Zoomer Thumbnail.jpg";
+
 const FeaturedProjects = () => {
   const projects = [
     {
       id: "falcon-9-model",
       title: "Falcon 9-Inspired 3D Model",
       description: "Created a multi-part 3D model of a rocket inspired by Falcon 9 using SolidWorks.",
-      // Make sure 'falcon-thumbnail.png' is in your PUBLIC folder
+      // UPDATED: Pointing directly to the file in your public folder
       image: "/falcon-thumbnail.png", 
       date: "Mar 2025 - Apr 2025",
       imageFit: "cover" as const 
@@ -16,7 +20,7 @@ const FeaturedProjects = () => {
       id: "zoomer-rocket",
       title: 'Tripoli L1/L2 Certified Rocket ("Zoomer")',
       description: "Built a rocket from scratch that achieved both an L1 and L2 certification from Tripoli.",
-      // UPDATED: Matches your new renamed file in the PUBLIC folder
+      // UPDATED: Pointing directly to the file in your public folder
       image: "/zoomer-thumbnail.jpg",
       date: "Sep 2025 - Nov 2025",
       imageFit: "cover" as const

@@ -7,6 +7,7 @@ interface Club {
   name: string;
   role: string;
   logo: string;
+  date: string; // Added date field
 }
 
 const Clubs = () => {
@@ -18,18 +19,21 @@ const Clubs = () => {
       name: "Aero Mavs",
       role: "Project Lead",
       logo: "https://images.unsplash.com/photo-1581822261290-991b38693d1b?auto=format&fit=crop&w=800",
+      date: "September 2025 - Present",
     },
     {
       id: "aiaa",
       name: "AIAA",
       role: "Design-Build-Fly Team",
       logo: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=800",
+      date: "October 2025 - Present",
     },
     {
       id: "chs-aerospace",
       name: "Coppell High School Aerospace Club",
       role: "Co-Founder/Executive",
       logo: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?auto=format&fit=crop&w=800",
+      date: "August 2024 - May 2025",
     },
   ];
   

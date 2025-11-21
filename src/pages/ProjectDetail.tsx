@@ -20,6 +20,7 @@ const ProjectDetail = () => {
     "falcon-9-model": {
       name: "Falcon 9-Inspired 3D Model",
       description: "Created a multi-part 3D model of a rocket inspired by Falcon 9 using SolidWorks.",
+      // UPDATED: Direct path
       logo: "/falcon-thumbnail.png", 
       achievements: [
         "Designed a detailed scale model of the Falcon 9 launch vehicle, focusing on accuracy and printability.",
@@ -32,7 +33,7 @@ const ProjectDetail = () => {
     "zoomer-rocket": {
       name: 'Tripoli L1/L2 Certified Rocket ("Zoomer")',
       description: "Built a rocket from scratch that achieved both an L1 and L2 certification from Tripoli.",
-      // UPDATED: Matches your new renamed file
+      // UPDATED: Direct path
       logo: "/zoomer-thumbnail.jpg",
       achievements: [
         "Constructed a scratch-built high-power rocket designed to withstand significant aerodynamic forces.",

@@ -1,20 +1,26 @@
 import ProjectCard from "./ProjectCard";
 import TypewriterHeader from "./TypewriterHeader";
 
+// Import your custom images
+// Note: It is generally better practice to avoid spaces in filenames (e.g. falcon-model.png), 
+// but this will work as long as the filename matches exactly.
+import falconThumbnail from "@/assets/Falcon Model Thumbnail.png";
+import zoomerThumbnail from "@/assets/Zoomer Thumbnail.jpg";
+
 const FeaturedProjects = () => {
   const projects = [
     {
       id: "falcon-9-model",
       title: "Falcon 9-Inspired 3D Model",
       description: "Created a multi-part 3D model of a rocket inspired by Falcon 9 using SolidWorks.",
-      image: "https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=800", // Kept rocket themed image
+      image: falconThumbnail, // Using the imported image variable
       date: "Mar 2025 - Apr 2025"
     }, 
     {
       id: "zoomer-rocket",
       title: 'Tripoli L1/L2 Certified Rocket ("Zoomer")',
       description: "Built a rocket from scratch that achieved both an L1 and L2 certification from Tripoli.",
-      image: "https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?auto=format&fit=crop&w=800", // Kept drone/flight themed image
+      image: zoomerThumbnail, // Using the imported image variable
       date: "Sep 2025 - Nov 2025"
     }
   ];

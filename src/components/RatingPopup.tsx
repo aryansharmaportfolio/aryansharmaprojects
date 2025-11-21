@@ -35,8 +35,8 @@ const RatingPopup = () => {
       "fixed bottom-8 right-8 z-50 animate-fade-in-up transition-all duration-500 ease-out",
       hasRated && "pointer-events-none"
     )}>
-      {/* Glassmorphism Card Container - Tighter width (280px) */}
-      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/80 p-5 shadow-2xl backdrop-blur-xl w-[280px]">
+      {/* Glassmorphism Card Container - Tighter width */}
+      <div className="relative overflow-hidden rounded-2xl border border-white/10 bg-black/80 p-5 shadow-2xl backdrop-blur-xl w-[300px]">
         
         {/* Close Button */}
         <button 
@@ -53,13 +53,12 @@ const RatingPopup = () => {
               <h3 className="font-bold text-white text-lg tracking-wide">
                 Rate this portfolio
               </h3>
-              {/* Subtext is now explicitly white */}
               <p className="text-xs text-white mt-1 font-medium">
                 How was your flight? <span className="inline-block animate-bounce">🚀</span>
               </p>
             </div>
             
-            {/* Interactive Rocket Rating Icons */}
+            {/* Interactive Rocket Rating Icons with Numbers Inside */}
             <div className="flex justify-center gap-2">
               {[1, 2, 3, 4, 5].map((score) => {
                 // Highlight rockets up to the hovered one, or the selected one if not hovering
@@ -73,17 +72,31 @@ const RatingPopup = () => {
                     onMouseEnter={() => setHoveredRating(score)}
                     onMouseLeave={() => setHoveredRating(null)}
                     onClick={() => handleRate(score)}
-                    className="group focus:outline-none transition-transform duration-200 hover:scale-110 active:scale-95"
+                    className="group relative focus:outline-none transition-transform duration-200 hover:scale-110 active:scale-95 w-10 h-10 flex items-center justify-center"
                   >
+                    {/* Rocket Icon - Rotated to point upwards for better number placement */}
                     <Rocket
                       className={cn(
-                        "w-8 h-8 transition-all duration-300",
+                        "w-full h-full transition-all duration-300 transform -rotate-45",
                         isHighlighted
                           ? "fill-primary text-primary drop-shadow-[0_0_10px_rgba(var(--primary),0.6)]" 
                           : "text-white/20 group-hover:text-white/50"
                       )}
                       strokeWidth={1.5}
                     />
+                    
+                    {/* Number centered on the rocket body */}
+                    <span className={cn(
+                      "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[10px] font-extrabold transition-colors duration-300 pt-1",
+                      isHighlighted 
+                        // When highlighted (filled), use a dark text color or white depending on your primary color brightness. 
+                        // Assuming primary is bright/blue, white often works well or a dark shade. 
+                        // Let's stick to white for high contrast on most "filled" states, or primary-foreground if available.
+                        ? "text-primary-foreground drop-shadow-md" 
+                        : "text-white/60 group-hover:text-white"
+                    )}>
+                      {score}
+                    </span>
                   </button>
                 );
               })}

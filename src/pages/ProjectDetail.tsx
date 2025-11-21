@@ -1,34 +1,47 @@
 import { useParams, useLocation } from "react-router-dom";
 import DynamicSidebar from "@/components/DynamicSidebar";
+import { useState, useEffect } from "react";
 
 const ProjectDetail = () => {
   const { id } = useParams();
   const location = useLocation();
+  const returnSection = location.state?.from || 'projects';
 
-  const returnSection = location.state?.from || 'featured-projects';
+  // Initialize opacity to 0 for the fade-in effect
+  const [opacity, setOpacity] = useState(0);
+
+  // Trigger the transition to opacity 1 after mount
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setOpacity(1);
+    }, 50); 
+    return () => clearTimeout(timer);
+  }, []);
 
   const projectData: Record<string, any> = {
-    "sentinel-vision": {
-      name: "Sentinel Vision",
-      description: "AI-powered aerial surveillance for wildfire detection.",
-      logo: "https://images.unsplash.com/photo-1562300554-4896011316b1?auto=format&fit=crop&w=800",
+    "falcon-9-model": {
+      name: "Falcon 9-Inspired 3D Model",
+      description: "Created a multi-part 3D model of a rocket inspired by Falcon 9 using SolidWorks.",
+      logo: "https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=800",
       achievements: [
-        "Developed a deep learning model to analyze aerial imagery in real-time.",
-        "Integrated GPS data to pinpoint wildfire locations with high accuracy.",
-        "Designed a cloud-based alert system for emergency responders."
+        "Designed a detailed scale model of the Falcon 9 launch vehicle, focusing on accuracy and printability.",
+        "Utilized advanced SolidWorks features including lofting and shelling to create complex aerodynamic surfaces.",
+        "Engineered the assembly to be modular, allowing for the separation of stages and payload fairing.",
+        "Prepared detailed technical drawings and renders to visualize the final assembly."
       ],
-      skills: ["Python", "TensorFlow", "Computer Vision", "AWS", "GIS"]
+      skills: ["SolidWorks", "CAD Modeling", "3D Printing", "Engineering Design", "Prototyping"]
     },
-    "orbital-mechanics-simulator": {
-      name: "Orbital Mechanics Simulator",
-      description: "A web-based tool for simulating satellite orbits.",
-      logo: "https://images.unsplash.com/photo-1534796636912-3b95b3ab5986?auto=format&fit=crop&w=800",
+    "zoomer-rocket": {
+      name: 'Tripoli L1/L2 Certified Rocket ("Zoomer")',
+      description: "Built a rocket from scratch that achieved both an L1 and L2 certification from Tripoli.",
+      logo: "https://images.unsplash.com/photo-1516849841032-87cbac4d88f7?auto=format&fit=crop&w=800",
       achievements: [
-        "Implemented n-body physics simulations using JavaScript.",
-        "Created an interactive 3D visualization with Three.js.",
-        "Allowed users to define custom orbital parameters and celestial bodies."
+        "Constructed a scratch-built high-power rocket designed to withstand significant aerodynamic forces.",
+        "Successfully planned and executed a Level 1 certification flight, demonstrating stable flight dynamics.",
+        "Upgraded avionics and recovery systems to dual-deployment configuration for Level 2 certification.",
+        "Analyzed flight data post-launch to verify altitude predictions and descent rates."
       ],
-      skills: ["JavaScript", "Three.js", "Physics Engine", "React", "HTML Canvas"]
+      skills: ["High-Power Rocketry", "Composite Fabrication", "Avionics", "Risk Assessment", "Flight Safety"]
     },
   };
 
@@ -45,7 +58,10 @@ const ProjectDetail = () => {
   return (
     <>
       <DynamicSidebar returnSection={returnSection} />
-      <div className="min-h-screen bg-background">
+      <div 
+        className="min-h-screen bg-background transition-opacity duration-700 ease-in-out"
+        style={{ opacity }}
+      >
         <div className="container mx-auto px-6 py-12">
           <div className="relative h-96 bg-cover bg-center mb-12 rounded-xl overflow-hidden mt-16">
             <img src={project.logo} alt={project.name} className="w-full h-full object-cover" />

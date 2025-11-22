@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { X, Download, ZoomIn, ZoomOut, RotateCcw, FileText } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 // Import both files from assets to ensure they load correctly
 import resumeImage from "@/assets/resume.png"; 
 import resumePdf from "@/assets/resume.pdf";

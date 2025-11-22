@@ -1,21 +1,17 @@
 import { useState, useRef, useEffect } from "react";
-import { X, Download, ZoomIn, ZoomOut, RotateCcw, FileText } from "lucide-react";
+import { X, Download, ZoomIn, ZoomOut, RotateCcw, FileText, Maximize2 } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
-interface ResumeViewerProps {
-  trigger?: React.ReactNode;
-}
-
-const ResumeViewer = ({ trigger }: ResumeViewerProps) => {
+const ResumeViewer = () => {
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Reset zoom when closed/opened
+  // Reset view when closed
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       setTimeout(() => {
@@ -25,13 +21,15 @@ const ResumeViewer = ({ trigger }: ResumeViewerProps) => {
     }
   };
 
-  const handleZoomIn = () => setScale((prev) => Math.min(prev + 0.2, 3));
-  const handleZoomOut = () => setScale((prev) => Math.max(prev - 0.2, 0.5));
+  // Zoom controls with boundaries
+  const handleZoomIn = () => setScale((prev) => Math.min(prev + 0.25, 4));
+  const handleZoomOut = () => setScale((prev) => Math.max(prev - 0.25, 0.5));
   const handleReset = () => {
     setScale(1);
     setPosition({ x: 0, y: 0 });
   };
 
+  // Drag Physics
   const onMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -48,16 +46,16 @@ const ResumeViewer = ({ trigger }: ResumeViewerProps) => {
 
   const onMouseUp = () => setIsDragging(false);
 
-  // Add wheel support for zooming
+  // Wheel Zoom Support
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
 
     const handleWheel = (e: WheelEvent) => {
-      if (e.ctrlKey) {
+      if (e.ctrlKey || e.metaKey) {
         e.preventDefault();
         const delta = e.deltaY * -0.01;
-        setScale((prev) => Math.min(Math.max(prev + delta, 0.5), 3));
+        setScale((prev) => Math.min(Math.max(prev + delta, 0.5), 4));
       }
     };
 
@@ -68,78 +66,88 @@ const ResumeViewer = ({ trigger }: ResumeViewerProps) => {
   return (
     <Dialog onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        {trigger || (
-          <Button variant="outline" className="gap-2 group border-2 border-foreground text-foreground hover:border-primary hover:text-primary hover:bg-primary/10 transition-all duration-300">
-            <FileText className="w-5 h-5 group-hover:scale-110 transition-transform" />
-            Resume
-          </Button>
-        )}
+        <Button 
+          variant="outline" 
+          className="gap-2 border-2 border-foreground text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300"
+        >
+          <FileText className="w-5 h-5" />
+          Resume
+        </Button>
       </DialogTrigger>
-      <DialogContent className="max-w-[95vw] w-full h-[90vh] p-0 border-none bg-transparent shadow-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
-        
-        {/* Accessibility Titles (Hidden visually but required) */}
+      
+      <DialogContent className="max-w-[95vw] w-full h-[92vh] p-0 border-none bg-transparent shadow-none outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
         <DialogTitle className="sr-only">Resume Viewer</DialogTitle>
-        <DialogDescription className="sr-only">An interactive view of Aryan Sharma's resume</DialogDescription>
+        <DialogDescription className="sr-only">Interactive zoomable resume</DialogDescription>
 
-        {/* Main Viewer Container */}
-        <div className="relative w-full h-full flex flex-col items-center justify-center">
+        <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden">
           
-          {/* Toolbar */}
-          <div className="absolute top-4 z-50 flex items-center gap-2 p-2 rounded-full bg-black/80 backdrop-blur-md border border-white/10 shadow-2xl animate-fade-in-up">
-            <Button variant="ghost" size="icon" onClick={handleZoomOut} className="text-white hover:bg-white/20 rounded-full h-10 w-10">
-              <ZoomOut size={18} />
+          {/* --- HEADS UP DISPLAY (Toolbar) --- */}
+          <div className="absolute top-6 z-50 flex items-center gap-1 p-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl animate-fade-in-up ring-1 ring-white/5">
+            
+            <Button variant="ghost" size="icon" onClick={handleZoomOut} className="text-white/90 hover:bg-white/20 hover:text-white rounded-full h-9 w-9 transition-colors">
+              <ZoomOut size={16} />
             </Button>
-            <span className="text-white/80 text-xs font-mono w-12 text-center">
+            
+            <span className="text-white font-mono text-xs w-12 text-center font-medium tabular-nums select-none">
               {Math.round(scale * 100)}%
             </span>
-            <Button variant="ghost" size="icon" onClick={handleZoomIn} className="text-white hover:bg-white/20 rounded-full h-10 w-10">
-              <ZoomIn size={18} />
+            
+            <Button variant="ghost" size="icon" onClick={handleZoomIn} className="text-white/90 hover:bg-white/20 hover:text-white rounded-full h-9 w-9 transition-colors">
+              <ZoomIn size={16} />
             </Button>
-            <div className="w-px h-4 bg-white/20 mx-1" />
-            <Button variant="ghost" size="icon" onClick={handleReset} className="text-white hover:bg-white/20 rounded-full h-10 w-10" title="Reset View">
-              <RotateCcw size={18} />
+
+            <div className="w-px h-4 bg-white/20 mx-1.5" />
+
+            <Button variant="ghost" size="icon" onClick={handleReset} className="text-white/90 hover:bg-white/20 hover:text-white rounded-full h-9 w-9 transition-colors" title="Reset View">
+              <RotateCcw size={16} />
             </Button>
-            <a href="/resume.pdf" download="Aryan_Sharma_Resume.pdf">
-              <Button variant="default" size="icon" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full h-10 w-10 ml-1">
-                <Download size={18} />
+
+            {/* Download PDF Button - Ensure you have resume.pdf in public too for this link */}
+            <a href="/resume.pdf" download="Aryan_Sharma_Resume.pdf" title="Download PDF">
+              <Button variant="default" size="icon" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full h-9 w-9 ml-1 shadow-lg shadow-primary/20">
+                <Download size={16} />
               </Button>
             </a>
-            <div className="w-px h-4 bg-white/20 mx-1" />
-            {/* Custom Close Button inside toolbar */}
+
+            <div className="w-px h-4 bg-white/20 mx-1.5" />
+
             <DialogTrigger asChild>
-              <Button variant="destructive" size="icon" className="rounded-full h-10 w-10 opacity-80 hover:opacity-100">
-                <X size={18} />
+              <Button variant="destructive" size="icon" className="rounded-full h-9 w-9 opacity-90 hover:opacity-100 shadow-lg">
+                <X size={16} />
               </Button>
             </DialogTrigger>
           </div>
 
-          {/* Image Area */}
+          {/* --- VIEWPORT --- */}
           <div 
             ref={containerRef}
-            className="w-full h-full overflow-hidden bg-black/90 rounded-xl border border-white/10 backdrop-blur-sm cursor-grab active:cursor-grabbing flex items-center justify-center"
+            className="w-full h-full overflow-hidden rounded-xl border border-white/10 bg-black/80 backdrop-blur-sm cursor-grab active:cursor-grabbing flex items-center justify-center relative group"
             onMouseDown={onMouseDown}
             onMouseMove={onMouseMove}
             onMouseUp={onMouseUp}
             onMouseLeave={onMouseUp}
           >
+            {/* Grid Background Pattern */}
+            <div className="absolute inset-0 pointer-events-none opacity-20 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
+
+            {/* The Resume Image */}
             <div
-              className="transition-transform duration-75 ease-linear will-change-transform shadow-2xl"
+              className="transition-transform duration-100 ease-out will-change-transform shadow-2xl origin-center"
               style={{
                 transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
               }}
             >
-              {/* Replace with your actual Resume Image path */}
               <img 
                 src="/resume.png" 
-                alt="Aryan Sharma Resume" 
-                className="max-h-[85vh] w-auto object-contain rounded-sm shadow-[0_0_50px_rgba(0,0,0,0.5)] bg-white"
-                draggable={false}
+                alt="Resume" 
+                className="max-w-[85vw] max-h-[85vh] h-auto w-auto object-contain rounded shadow-[0_0_50px_rgba(0,0,0,0.5)] bg-white select-none pointer-events-none" 
               />
             </div>
-          </div>
-          
-          <div className="absolute bottom-6 text-white/40 text-xs font-light tracking-widest uppercase pointer-events-none animate-pulse">
-            Scroll to Zoom • Drag to Pan
+            
+            {/* Hint Overlay */}
+            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-black/40 backdrop-blur-md border border-white/5 text-white/50 text-[10px] font-medium tracking-widest uppercase pointer-events-none transition-opacity duration-500 group-hover:opacity-0">
+              Scroll to Zoom • Drag to Pan
+            </div>
           </div>
         </div>
       </DialogContent>

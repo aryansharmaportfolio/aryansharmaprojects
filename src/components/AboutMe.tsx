@@ -53,7 +53,7 @@ const AboutMe = () => {
             
             <h2 className="text-3xl font-bold text-foreground">Aryan Sharma</h2>
             
-            <div className="flex gap-4 flex-wrap justify-center">
+            <div className="flex flex-wrap gap-4 justify-center">
               <Button variant="outline" className="gap-2 border-2 border-foreground text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all" asChild>
                 <a href="mailto:aryansharmaus2021@gmail.com">
                   <Mail className="w-5 h-5" />
@@ -61,7 +61,7 @@ const AboutMe = () => {
                 </a>
               </Button>
               
-              {/* Interactive Resume Viewer */}
+              {/* Resume Viewer Button */}
               <ResumeViewer />
 
               <Button variant="outline" className="gap-2 border-2 border-foreground text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all" asChild>

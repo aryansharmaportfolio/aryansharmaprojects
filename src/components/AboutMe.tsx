@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import profilePicture from "@/assets/profile-picture.jpg";
 import TypewriterHeader from "./TypewriterHeader";
 import DegreeProgress from "./DegreeProgress";
+import ResumeViewer from "./ResumeViewer";
 
 const AboutMe = () => {
   const [messageIndex, setMessageIndex] = useState(0);
@@ -52,7 +53,7 @@ const AboutMe = () => {
             
             <h2 className="text-3xl font-bold text-foreground">Aryan Sharma</h2>
             
-            <div className="flex gap-4">
+            <div className="flex gap-4 flex-wrap justify-center">
               <Button variant="outline" className="gap-2 border-2 border-foreground text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all" asChild>
                 <a href="mailto:aryansharmaus2021@gmail.com">
                   <Mail className="w-5 h-5" />
@@ -60,6 +61,9 @@ const AboutMe = () => {
                 </a>
               </Button>
               
+              {/* Interactive Resume Viewer */}
+              <ResumeViewer />
+
               <Button variant="outline" className="gap-2 border-2 border-foreground text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all" asChild>
                 <a href="https://www.linkedin.com/in/aryan-in-aerospace/" target="_blank" rel="noopener noreferrer">
                   <Linkedin className="w-5 h-5" />
@@ -68,7 +72,7 @@ const AboutMe = () => {
               </Button>
             </div>
 
-            {/* Degree Progress added here */}
+            {/* Degree Progress */}
             <DegreeProgress />
           </div>
 

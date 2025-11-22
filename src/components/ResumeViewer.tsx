@@ -174,14 +174,25 @@ const ResumeViewer = () => {
         className={cn(
           "max-w-[95vw] w-full h-[95vh] p-0 border-none bg-transparent shadow-none outline-none",
           "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-          // Styles for the default top-right Close button
-          "[&>button]:top-6 [&>button]:right-6",
-          "[&>button]:text-white [&>button]:opacity-70 hover:[&>button]:opacity-100", 
-          "[&>button]:w-10 [&>button]:h-10 [&>button]:rounded-full",
-          "[&>button]:bg-black/20 hover:[&>button]:bg-white/20",
-          "[&>button]:transition-all [&>button]:duration-300",
-          "[&>button_svg]:w-6 [&>button_svg]:h-6",
-          "[&>button]:shadow-[0_0_15px_rgba(255,255,255,0.5)] hover:[&>button]:shadow-[0_0_25px_rgba(255,255,255,0.8)]"
+          
+          // --- CUSTOM CLOSE BUTTON STYLES ---
+          // 1. Position & Basic Reset
+          "[&>button]:!top-8 [&>button]:!right-8", 
+          "[&>button]:!opacity-100", // Force full visibility (no dimming)
+          "[&>button]:!bg-transparent hover:[&>button]:!bg-transparent", // Remove circular background
+          "[&>button]:!border-none [&>button]:!ring-0 [&>button]:!outline-none", // Remove borders/rings
+          
+          // 2. Icon Styling (The "Glow" & Thickness)
+          "[&>button]:text-white",
+          "[&>button>svg]:!w-8 [&>button>svg]:!h-8", // Bigger X icon (32px)
+          "[&>button>svg]:!stroke-[3px]", // Thicker lines (Bold)
+          
+          // 3. The Glow Effect (Drop Shadow Filter)
+          "[&>button]:drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]", // Static glow
+          "hover:[&>button]:drop-shadow-[0_0_15px_rgba(255,255,255,1)]", // Stronger glow on hover
+          
+          // 4. Interaction
+          "[&>button]:transition-transform [&>button]:duration-300 hover:[&>button]:scale-110"
         )}
       >
         <DialogTitle className="sr-only">Resume Viewer</DialogTitle>
@@ -227,18 +238,6 @@ const ResumeViewer = () => {
                 <Download size={16} />
               </Button>
             </a>
-
-            <div className="w-px h-4 bg-white/20 mx-1.5" />
-
-            {/* Custom close button in toolbar */}
-            <Button 
-              variant="destructive" 
-              size="icon" 
-              className="rounded-full h-9 w-9 opacity-90 hover:opacity-100 shadow-lg"
-              onClick={() => handleOpenChange(false)}
-            >
-              <X size={16} />
-            </Button>
           </div>
 
           {/* Viewport with transparent background */}

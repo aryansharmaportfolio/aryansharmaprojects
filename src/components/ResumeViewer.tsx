@@ -1,3 +1,7 @@
+{
+type: uploaded file
+fileName: aryansharmaportfolio/aryansharmaprojects/aryansharmaprojects-fd6e7b691010b6c760a09eb1216b67842a5688f5/src/components/ResumeViewer.tsx
+fullContent:
 import { useState, useRef, useEffect } from "react";
 import { X, Download, ZoomIn, ZoomOut, RotateCcw, FileText } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog";
@@ -8,6 +12,7 @@ import resumeImage from "@/assets/resume.png";
 import resumePdf from "@/assets/resume.pdf";
 
 const ResumeViewer = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const [scale, setScale] = useState(1); 
   const [position, setPosition] = useState({ x: 0, y: 0 });
   const [isDragging, setIsDragging] = useState(false);
@@ -28,6 +33,7 @@ const ResumeViewer = () => {
 
   // Reset view when closed
   const handleOpenChange = (open: boolean) => {
+    setIsOpen(open);
     if (!open) {
       setTimeout(() => {
         setScale(1);
@@ -81,7 +87,8 @@ const ResumeViewer = () => {
 
   // Drag Logic
   const onMouseDown = (e: React.MouseEvent) => {
-    if (scale <= 1) return; // Lock drag at 100%
+    // Only allow dragging if zoomed in
+    if (scale <= 1) return; 
     
     e.preventDefault();
     setIsDragging(true);
@@ -107,6 +114,14 @@ const ResumeViewer = () => {
   };
 
   const onMouseUp = () => setIsDragging(false);
+
+  // Click handler to close modal when clicking the background
+  const handleBackgroundClick = (e: React.MouseEvent) => {
+    // Only close if we are strictly clicking the container background, not the image or toolbar
+    if (e.target === containerRef.current) {
+      setIsOpen(false);
+    }
+  };
 
   // Wheel Zoom - Attach to dialog content for reliable scroll detection
   useEffect(() => {
@@ -148,7 +163,7 @@ const ResumeViewer = () => {
   }, []);
 
   return (
-    <Dialog onOpenChange={handleOpenChange}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
@@ -160,11 +175,18 @@ const ResumeViewer = () => {
       </DialogTrigger>
       
       <DialogContent 
-        className="max-w-[95vw] w-full h-[95vh] p-0 border-none bg-transparent shadow-none outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
-        onPointerDownOutside={(e) => {
-          // Allow closing by clicking outside the resume image
-          e.preventDefault();
-        }}
+        className={cn(
+          "max-w-[95vw] w-full h-[95vh] p-0 border-none bg-transparent shadow-none outline-none",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          // Styles for the default top-right Close button
+          "[&>button]:top-6 [&>button]:right-6",
+          "[&>button]:text-white [&>button]:opacity-70 hover:[&>button]:opacity-100", 
+          "[&>button]:w-10 [&>button]:h-10 [&>button]:rounded-full",
+          "[&>button]:bg-black/20 hover:[&>button]:bg-white/20",
+          "[&>button]:transition-all [&>button]:duration-300",
+          "[&>button_svg]:w-6 [&>button_svg]:h-6",
+          "[&>button]:shadow-[0_0_15px_rgba(255,255,255,0.5)] hover:[&>button]:shadow-[0_0_25px_rgba(255,255,255,0.8)]"
+        )}
       >
         <DialogTitle className="sr-only">Resume Viewer</DialogTitle>
         <DialogDescription className="sr-only">Interactive zoomable resume</DialogDescription>
@@ -212,11 +234,15 @@ const ResumeViewer = () => {
 
             <div className="w-px h-4 bg-white/20 mx-1.5" />
 
-            <DialogTrigger asChild>
-              <Button variant="destructive" size="icon" className="rounded-full h-9 w-9 opacity-90 hover:opacity-100 shadow-lg">
-                <X size={16} />
-              </Button>
-            </DialogTrigger>
+            {/* Custom close button in toolbar */}
+            <Button 
+              variant="destructive" 
+              size="icon" 
+              className="rounded-full h-9 w-9 opacity-90 hover:opacity-100 shadow-lg"
+              onClick={() => handleOpenChange(false)}
+            >
+              <X size={16} />
+            </Button>
           </div>
 
           {/* Viewport with transparent background */}
@@ -230,6 +256,7 @@ const ResumeViewer = () => {
             onMouseMove={onMouseMove}
             onMouseUp={onMouseUp}
             onMouseLeave={onMouseUp}
+            onClick={handleBackgroundClick}
           >
             <div
               className="will-change-transform shadow-2xl origin-center transition-transform duration-75 ease-out"
@@ -261,3 +288,4 @@ const ResumeViewer = () => {
 };
 
 export default ResumeViewer;
+}

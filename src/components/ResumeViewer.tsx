@@ -108,7 +108,7 @@ const ResumeViewer = () => {
 
   const onMouseUp = () => setIsDragging(false);
 
-  // Wheel Zoom - Fixed: No dependencies array to prevent listener flickering
+  // Wheel Zoom - Self-contained with refs to avoid stale closures
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -118,11 +118,24 @@ const ResumeViewer = () => {
       e.stopPropagation();
 
       const currentScale = scaleRef.current;
+      const currentPos = positionRef.current;
       const delta = e.deltaY * -0.002; 
-      const nextScale = currentScale + delta;
+      const nextScale = Math.min(Math.max(currentScale + delta, 1), 4);
 
-      // Pass to unified zoom handler
-      applyZoom(nextScale);
+      // Calculate boundaries for new scale
+      if (!containerRef.current || !imgRef.current) return;
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const imgWidth = imgRef.current.offsetWidth * nextScale;
+      const imgHeight = imgRef.current.offsetHeight * nextScale;
+      const overflowX = Math.max(0, (imgWidth - containerRect.width) / 2);
+      const overflowY = Math.max(0, (imgHeight - containerRect.height) / 2);
+
+      // Clamp position to new boundaries
+      const clampedX = Math.max(-overflowX, Math.min(overflowX, currentPos.x));
+      const clampedY = Math.max(-overflowY, Math.min(overflowY, currentPos.y));
+
+      setScale(nextScale);
+      setPosition(nextScale === 1 ? { x: 0, y: 0 } : { x: clampedX, y: clampedY });
     };
 
     container.addEventListener('wheel', handleWheel, { passive: false });
@@ -130,8 +143,7 @@ const ResumeViewer = () => {
     return () => {
       container.removeEventListener('wheel', handleWheel);
     };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); 
+  }, []);
 
   return (
     <Dialog onOpenChange={handleOpenChange}>
@@ -145,14 +157,14 @@ const ResumeViewer = () => {
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="max-w-[95vw] w-full h-[92vh] p-0 border-none bg-transparent shadow-none outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
+      <DialogContent className="max-w-[95vw] w-full h-[95vh] p-0 border-none bg-transparent shadow-none outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
         <DialogTitle className="sr-only">Resume Viewer</DialogTitle>
         <DialogDescription className="sr-only">Interactive zoomable resume</DialogDescription>
 
-        <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden">
+        <div className="relative w-full h-full flex flex-col items-center justify-start gap-4 pt-4">
           
-          {/* Toolbar */}
-          <div className="absolute top-6 z-50 flex items-center gap-1 p-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl animate-fade-in-up ring-1 ring-white/5">
+          {/* Toolbar - Above resume */}
+          <div className="z-50 flex items-center gap-1 p-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl animate-fade-in-up ring-1 ring-white/5">
             
             <Button 
               variant="ghost" 
@@ -199,11 +211,11 @@ const ResumeViewer = () => {
             </DialogTrigger>
           </div>
 
-          {/* Viewport */}
+          {/* Viewport with transparent background */}
           <div 
             ref={containerRef}
             className={cn(
-              "w-full h-full overflow-hidden rounded-xl border border-white/10 bg-black/80 backdrop-blur-sm flex items-center justify-center relative group select-none",
+              "flex-1 w-full max-w-[90vw] overflow-hidden rounded-xl border border-white/10 flex items-center justify-center relative group select-none",
               scale > 1 ? "cursor-grab active:cursor-grabbing" : "cursor-default"
             )}
             onMouseDown={onMouseDown}
@@ -211,9 +223,6 @@ const ResumeViewer = () => {
             onMouseUp={onMouseUp}
             onMouseLeave={onMouseUp}
           >
-            {/* Grid Pattern */}
-            <div className="absolute inset-0 pointer-events-none opacity-20 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
-
             <div
               className="will-change-transform shadow-2xl origin-center transition-transform duration-75 ease-out"
               style={{
@@ -224,12 +233,12 @@ const ResumeViewer = () => {
                 ref={imgRef}
                 src={resumeImage} 
                 alt="Resume" 
-                className="max-w-[85vw] max-h-[85vh] w-auto h-auto object-contain rounded shadow-[0_0_50px_rgba(0,0,0,0.5)] bg-white select-none pointer-events-none" 
+                className="max-w-[85vw] max-h-[80vh] w-auto h-auto object-contain rounded shadow-[0_0_50px_rgba(0,0,0,0.5)] bg-white select-none pointer-events-none" 
                 draggable={false}
               />
             </div>
             
-            {/* Pulse Hint - Always visible initially */}
+            {/* Pulse Hint */}
             <div className={cn(
               "absolute bottom-8 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] font-semibold tracking-widest uppercase pointer-events-none shadow-xl z-40",
               "animate-pulse" 

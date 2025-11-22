@@ -1,8 +1,4 @@
-{
-type: uploaded file
-fileName: aryansharmaportfolio/aryansharmaprojects/aryansharmaprojects-fd6e7b691010b6c760a09eb1216b67842a5688f5/src/components/ResumeViewer.tsx
-fullContent:
-import { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { X, Download, ZoomIn, ZoomOut, RotateCcw, FileText } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -288,4 +284,3 @@ const ResumeViewer = () => {
 };
 
 export default ResumeViewer;
-}

@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from "react";
-import { X, Download, ZoomIn, ZoomOut, RotateCcw, FileText, Maximize2 } from "lucide-react";
+import { X, Download, ZoomIn, ZoomOut, RotateCcw, FileText } from "lucide-react";
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+// Import the image from assets so the path is guaranteed to be correct
+import resumeImage from "@/assets/resume.png"; 
 
 const ResumeViewer = () => {
   const [scale, setScale] = useState(1);
@@ -11,7 +12,6 @@ const ResumeViewer = () => {
   const [startPos, setStartPos] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Reset view when closed
   const handleOpenChange = (open: boolean) => {
     if (!open) {
       setTimeout(() => {
@@ -21,7 +21,6 @@ const ResumeViewer = () => {
     }
   };
 
-  // Zoom controls with boundaries
   const handleZoomIn = () => setScale((prev) => Math.min(prev + 0.25, 4));
   const handleZoomOut = () => setScale((prev) => Math.max(prev - 0.25, 0.5));
   const handleReset = () => {
@@ -29,7 +28,6 @@ const ResumeViewer = () => {
     setPosition({ x: 0, y: 0 });
   };
 
-  // Drag Physics
   const onMouseDown = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsDragging(true);
@@ -46,7 +44,6 @@ const ResumeViewer = () => {
 
   const onMouseUp = () => setIsDragging(false);
 
-  // Wheel Zoom Support
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
@@ -81,7 +78,7 @@ const ResumeViewer = () => {
 
         <div className="relative w-full h-full flex flex-col items-center justify-center overflow-hidden">
           
-          {/* --- HEADS UP DISPLAY (Toolbar) --- */}
+          {/* Toolbar */}
           <div className="absolute top-6 z-50 flex items-center gap-1 p-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl animate-fade-in-up ring-1 ring-white/5">
             
             <Button variant="ghost" size="icon" onClick={handleZoomOut} className="text-white/90 hover:bg-white/20 hover:text-white rounded-full h-9 w-9 transition-colors">
@@ -102,7 +99,8 @@ const ResumeViewer = () => {
               <RotateCcw size={16} />
             </Button>
 
-            {/* Download PDF Button - Ensure you have resume.pdf in public too for this link */}
+            {/* Note: This still points to public/resume.pdf for the download action. 
+                Keep your resume.pdf in the public folder! */}
             <a href="/resume.pdf" download="Aryan_Sharma_Resume.pdf" title="Download PDF">
               <Button variant="default" size="icon" className="bg-primary text-primary-foreground hover:bg-primary/90 rounded-full h-9 w-9 ml-1 shadow-lg shadow-primary/20">
                 <Download size={16} />
@@ -118,7 +116,7 @@ const ResumeViewer = () => {
             </DialogTrigger>
           </div>
 
-          {/* --- VIEWPORT --- */}
+          {/* Viewer Area */}
           <div 
             ref={containerRef}
             className="w-full h-full overflow-hidden rounded-xl border border-white/10 bg-black/80 backdrop-blur-sm cursor-grab active:cursor-grabbing flex items-center justify-center relative group"
@@ -127,24 +125,23 @@ const ResumeViewer = () => {
             onMouseUp={onMouseUp}
             onMouseLeave={onMouseUp}
           >
-            {/* Grid Background Pattern */}
+            {/* Grid Pattern Background */}
             <div className="absolute inset-0 pointer-events-none opacity-20 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:24px_24px]" />
 
-            {/* The Resume Image */}
             <div
               className="transition-transform duration-100 ease-out will-change-transform shadow-2xl origin-center"
               style={{
                 transform: `translate(${position.x}px, ${position.y}px) scale(${scale})`,
               }}
             >
+              {/* The actual Image - using the imported variable now */}
               <img 
-                src="/resume.png" 
+                src={resumeImage} 
                 alt="Resume" 
                 className="max-w-[85vw] max-h-[85vh] h-auto w-auto object-contain rounded shadow-[0_0_50px_rgba(0,0,0,0.5)] bg-white select-none pointer-events-none" 
               />
             </div>
             
-            {/* Hint Overlay */}
             <div className="absolute bottom-8 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-black/40 backdrop-blur-md border border-white/5 text-white/50 text-[10px] font-medium tracking-widest uppercase pointer-events-none transition-opacity duration-500 group-hover:opacity-0">
               Scroll to Zoom • Drag to Pan
             </div>

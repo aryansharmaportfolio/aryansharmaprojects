@@ -71,15 +71,17 @@ const ClubDetail = () => {
         className="min-h-screen bg-background transition-opacity duration-700 ease-in-out"
         style={{ opacity }}
       >
-        <div className="container mx-auto px-6 py-12">
-          <div className="relative h-96 bg-cover bg-center mb-12 rounded-xl overflow-hidden mt-16">
-            <img src={club.logo} alt={club.name} className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-12">
-              <h1 className="text-5xl font-bold text-foreground mb-2">{club.name}</h1>
-              <p className="text-2xl text-white font-semibold my-[4px] py-[4px]">{club.role}</p>
-            </div>
+        {/* Hero image - respects sidebar on left */}
+        <div className="relative h-[500px] overflow-hidden ml-16">
+          <img src={club.logo} alt={club.name} className="w-full h-full object-cover" />
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+          <div className="absolute bottom-0 left-0 right-0 p-12">
+            <h1 className="text-5xl font-bold text-foreground mb-2">{club.name}</h1>
+            <p className="text-2xl text-white font-semibold my-[4px] py-[4px]">{club.role}</p>
           </div>
+        </div>
+
+        <div className="container mx-auto px-6 py-12">
 
           <div className="grid md:grid-cols-2 gap-12">
             <div className="space-y-6">

@@ -60,8 +60,8 @@ const ProjectDetail = () => {
         className="min-h-screen bg-background transition-opacity duration-700 ease-in-out"
         style={{ opacity }}
       >
-        {/* Full-bleed hero image - edge to edge */}
-        <div className="relative h-[500px] overflow-hidden">
+        {/* Hero image - respects sidebar on left */}
+        <div className="relative h-[500px] overflow-hidden ml-16">
           <img src={project.logo} alt={project.name} className="w-full h-full object-cover" />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
           <div className="absolute bottom-0 left-0 right-0 p-12">

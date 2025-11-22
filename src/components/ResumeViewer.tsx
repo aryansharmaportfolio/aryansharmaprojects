@@ -108,12 +108,13 @@ const ResumeViewer = () => {
 
   const onMouseUp = () => setIsDragging(false);
 
-  // Wheel Zoom - Self-contained with refs to avoid stale closures
+  // Wheel Zoom - Attach to dialog content for reliable scroll detection
   useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
     const handleWheel = (e: WheelEvent) => {
+      // Only handle wheel events when hovering over the viewport
+      const target = e.target as HTMLElement;
+      if (!containerRef.current?.contains(target)) return;
+
       e.preventDefault();
       e.stopPropagation();
 
@@ -138,10 +139,11 @@ const ResumeViewer = () => {
       setPosition(nextScale === 1 ? { x: 0, y: 0 } : { x: clampedX, y: clampedY });
     };
 
-    container.addEventListener('wheel', handleWheel, { passive: false });
+    // Attach to document to catch all wheel events
+    document.addEventListener('wheel', handleWheel, { passive: false });
     
     return () => {
-      container.removeEventListener('wheel', handleWheel);
+      document.removeEventListener('wheel', handleWheel);
     };
   }, []);
 
@@ -157,14 +159,20 @@ const ResumeViewer = () => {
         </Button>
       </DialogTrigger>
       
-      <DialogContent className="max-w-[95vw] w-full h-[95vh] p-0 border-none bg-transparent shadow-none outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0">
+      <DialogContent 
+        className="max-w-[95vw] w-full h-[95vh] p-0 border-none bg-transparent shadow-none outline-none data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0"
+        onPointerDownOutside={(e) => {
+          // Allow closing by clicking outside the resume image
+          e.preventDefault();
+        }}
+      >
         <DialogTitle className="sr-only">Resume Viewer</DialogTitle>
         <DialogDescription className="sr-only">Interactive zoomable resume</DialogDescription>
 
-        <div className="relative w-full h-full flex flex-col items-center justify-start gap-4 pt-4">
+        <div className="relative w-full h-full flex flex-col items-center justify-start gap-4 pt-4 pointer-events-none">
           
           {/* Toolbar - Above resume */}
-          <div className="z-50 flex items-center gap-1 p-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl animate-fade-in-up ring-1 ring-white/5">
+          <div className="z-50 flex items-center gap-1 p-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl animate-fade-in-up ring-1 ring-white/5 pointer-events-auto">
             
             <Button 
               variant="ghost" 
@@ -215,7 +223,7 @@ const ResumeViewer = () => {
           <div 
             ref={containerRef}
             className={cn(
-              "flex-1 w-full max-w-[90vw] overflow-hidden rounded-xl border border-white/10 flex items-center justify-center relative group select-none",
+              "flex-1 w-full max-w-[90vw] overflow-hidden rounded-xl border border-white/10 flex items-center justify-center relative group select-none pointer-events-auto",
               scale > 1 ? "cursor-grab active:cursor-grabbing" : "cursor-default"
             )}
             onMouseDown={onMouseDown}

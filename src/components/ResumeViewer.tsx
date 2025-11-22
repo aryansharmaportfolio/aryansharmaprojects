@@ -174,25 +174,8 @@ const ResumeViewer = () => {
         className={cn(
           "max-w-[95vw] w-full h-[95vh] p-0 border-none bg-transparent shadow-none outline-none",
           "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
-          
-          // --- CUSTOM CLOSE BUTTON STYLES ---
-          // 1. Position & Basic Reset
-          "[&>button]:!top-8 [&>button]:!right-8", 
-          "[&>button]:!opacity-100", // Force full visibility (no dimming)
-          "[&>button]:!bg-transparent hover:[&>button]:!bg-transparent", // Remove circular background
-          "[&>button]:!border-none [&>button]:!ring-0 [&>button]:!outline-none", // Remove borders/rings
-          
-          // 2. Icon Styling (The "Glow" & Thickness)
-          "[&>button]:text-white",
-          "[&>button>svg]:!w-8 [&>button>svg]:!h-8", // Bigger X icon (32px)
-          "[&>button>svg]:!stroke-[3px]", // Thicker lines (Bold)
-          
-          // 3. The Glow Effect (Drop Shadow Filter)
-          "[&>button]:drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]", // Static glow
-          "hover:[&>button]:drop-shadow-[0_0_15px_rgba(255,255,255,1)]", // Stronger glow on hover
-          
-          // 4. Interaction
-          "[&>button]:transition-transform [&>button]:duration-300 hover:[&>button]:scale-110"
+          // FORCE HIDE the default Shadcn Close button
+          "[&>button]:hidden" 
         )}
       >
         <DialogTitle className="sr-only">Resume Viewer</DialogTitle>
@@ -200,6 +183,22 @@ const ResumeViewer = () => {
 
         <div className="relative w-full h-full flex flex-col items-center justify-start gap-4 pt-4 pointer-events-none">
           
+          {/* 1. Explicit Custom Close Button - Top Right */}
+          {/* This is now a real element, so it won't be hidden by dev tools wrappers */}
+          <button 
+            onClick={() => handleOpenChange(false)}
+            className={cn(
+              "absolute top-8 right-8 z-[60] pointer-events-auto", // High z-index
+              "text-white transition-transform duration-300 hover:scale-110 focus:outline-none",
+              // Glow Effect
+              "drop-shadow-[0_0_10px_rgba(255,255,255,0.8)] hover:drop-shadow-[0_0_15px_rgba(255,255,255,1)]"
+            )}
+            aria-label="Close resume viewer"
+          >
+            {/* Bigger, Thicker X Icon */}
+            <X className="w-8 h-8 stroke-[3px]" />
+          </button>
+
           {/* Toolbar - Above resume */}
           <div className="z-50 flex items-center gap-1 p-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl animate-fade-in-up ring-1 ring-white/5 pointer-events-auto">
             

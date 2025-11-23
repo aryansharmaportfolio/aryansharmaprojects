@@ -1,6 +1,7 @@
 import { useParams, useLocation } from "react-router-dom";
 import DynamicSidebar from "@/components/DynamicSidebar";
 import { useState, useEffect } from "react";
+import FalconViewer from "@/components/FalconViewer";
 
 const ProjectDetail = () => {
   const { id } = useParams();
@@ -20,6 +21,7 @@ const ProjectDetail = () => {
     "falcon-9-model": {
       name: "Falcon 9-Inspired 3D Model",
       description: "Created a multi-part 3D model of a rocket inspired by Falcon 9 using SolidWorks.",
+      // Note: Logo is not needed for this specific project since we render the 3D viewer
       logo: "/falcon-thumbnail.png", 
       achievements: [
         "Designed a detailed scale model of the Falcon 9 launch vehicle, focusing on accuracy and printability.",
@@ -61,13 +63,25 @@ const ProjectDetail = () => {
         style={{ opacity }}
       >
         {/* Hero image - respects sidebar on left */}
-        <div className="relative h-[500px] overflow-hidden ml-16">
-          <img src={project.logo} alt={project.name} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-12">
-            <h1 className="text-5xl font-bold text-foreground mb-2">{project.name}</h1>
-            <p className="text-2xl text-white font-semibold my-[4px] py-[4px]">{project.description}</p>
-          </div>
+        <div className="relative h-[600px] overflow-hidden ml-16">
+          
+          {/* --- CONDITIONAL RENDERING LOGIC --- */}
+          {id === "falcon-9-model" ? (
+            <div className="absolute inset-0 z-10">
+              <FalconViewer />
+            </div>
+          ) : (
+            <>
+              <img src={project.logo} alt={project.name} className="w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+              <div className="absolute bottom-0 left-0 right-0 p-12">
+                <h1 className="text-5xl font-bold text-foreground mb-2">{project.name}</h1>
+                <p className="text-2xl text-white font-semibold my-[4px] py-[4px]">{project.description}</p>
+              </div>
+            </>
+          )}
+          {/* ----------------------------------- */}
+
         </div>
 
         <div className="container mx-auto px-6 py-12">

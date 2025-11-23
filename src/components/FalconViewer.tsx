@@ -236,8 +236,8 @@ export default function FalconViewer() {
         />
       </div>
 
-      {/* 5. DRAG INDICATOR */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 pointer-events-none flex items-center gap-2 bg-black text-white px-4 py-2 rounded-full shadow-xl opacity-90">
+      {/* 5. DRAG INDICATOR - Moved to Bottom Left */}
+      <div className="absolute bottom-8 left-8 z-40 pointer-events-none flex items-center gap-2 bg-black text-white px-4 py-2 rounded-full shadow-xl opacity-90">
         <Move className="w-3 h-3" />
         <span className="text-[10px] font-bold uppercase tracking-wider">Drag to look around</span>
       </div>
@@ -261,10 +261,6 @@ export default function FalconViewer() {
 
             <ContactShadows resolution={1024} scale={300} blur={2} opacity={0.2} far={100} color="#000000" />
             
-            {/* CAMERA CONTROLS 
-               - maxDistance allowed slightly more (600) so you can freely rotate 
-               without hitting a wall immediately at 500
-            */}
             <CameraControls 
               ref={cameraControlsRef} 
               minPolarAngle={0} 

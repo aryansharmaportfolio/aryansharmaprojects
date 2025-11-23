@@ -1,35 +1,35 @@
 import { useState, useRef, useMemo, Suspense, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, CameraControls, Html, Center, ContactShadows, useProgress, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { easing } from "maath";
+import { Search, Move } from "lucide-react"; // Import icons if available, or use text
 
 // --- 1. CONFIGURATION ---
 const ROCKET_STACK = {
   top: {
     file: "/rocket-parts/part_top.glb", 
-    explodeY: 25, 
+    explodeY: 40, // Moves WAY up to reveal the engine bell inside the interstage
     baseMaterial: "white"
   },
   middle: {
     file: "/rocket-parts/part_middle.glb",
-    explodeY: 10, 
+    explodeY: 0, // Stays attached to the bottom (First Stage)
     baseMaterial: "black"
   },
   bottom: {
     file: "/rocket-parts/part_bottom.glb",
     explodeY: 0, 
-    baseMaterial: "black"
+    baseMaterial: "white", // Main body is white
+    accentMaterial: "black" // Engines/Fins are black
   }
 };
 
-// DRASTICALLY INCREASED DISTANCES (approx 4x previous)
 const ZOOM_ZONES = {
-  // Huge distance to ensure full view
-  overview:   { pos: [180, 40, 300], look: [0, 5, 0] }, 
-  fairing:    { pos: [20, 30, 30],   look: [0, 18, 0] },
+  overview:   { pos: [120, 20, 180], look: [0, 5, 0] }, // Adjusted for 100% view
+  fairing:    { pos: [20, 40, 30],   look: [0, 30, 0] },
   interstage: { pos: [20, 15, 25],   look: [0, 10, 0] }, 
-  engines:    { pos: [20, -10, 25],  look: [0, -4, 0] },
+  engines:    { pos: [20, -10, 25],  look: [0, -8, 0] },
 };
 
 // --- LOADER ---
@@ -37,7 +37,7 @@ function Loader() {
   const { progress } = useProgress();
   return (
     <Html center>
-      <div className="text-black font-mono text-sm bg-white/80 p-4 rounded border border-black/10 shadow-lg backdrop-blur">
+      <div className="text-black font-mono text-sm bg-white/90 p-4 rounded border border-black/10 shadow-lg backdrop-blur">
         Loading Model... {progress.toFixed(0)}%
       </div>
     </Html>
@@ -60,18 +60,35 @@ function RocketSection({ config, exploded, setHovered }: any) {
           node.geometry.computeVertexNormals();
         }
 
-        if (config.baseMaterial === "white") {
+        // --- MATERIAL LOGIC ---
+        // 1. Top Part (Fairing/2nd Stage) -> White
+        if (config.baseMaterial === "white" && !config.accentMaterial) {
           node.material = new THREE.MeshStandardMaterial({
-            color: "#ffffff", 
-            roughness: 0.3, 
-            metalness: 0.1,
+            color: "#ffffff", roughness: 0.3, metalness: 0.1,
           });
-        } else if (config.baseMaterial === "black") {
+        } 
+        // 2. Middle Part (Interstage) -> Black
+        else if (config.baseMaterial === "black") {
           node.material = new THREE.MeshStandardMaterial({
-            color: "#151515",
-            roughness: 0.4, 
-            metalness: 0.3,
+            color: "#151515", roughness: 0.4, metalness: 0.3,
           });
+        }
+        // 3. Bottom Part (Booster) -> Mixed White Body / Black Engines
+        else if (config.baseMaterial === "white" && config.accentMaterial === "black") {
+          // Heuristic: Check mesh names for engine-related terms
+          const name = node.name.toLowerCase();
+          const isEngineOrFin = name.includes("engine") || name.includes("fin") || name.includes("nozzle") || name.includes("leg") || name.includes("grid");
+          
+          if (isEngineOrFin) {
+             node.material = new THREE.MeshStandardMaterial({
+              color: "#151515", roughness: 0.5, metalness: 0.5,
+            });
+          } else {
+            // Default Body Tube
+            node.material = new THREE.MeshStandardMaterial({
+              color: "#ffffff", roughness: 0.3, metalness: 0.1,
+            });
+          }
         }
       }
     });
@@ -91,6 +108,33 @@ function RocketSection({ config, exploded, setHovered }: any) {
     >
       <primitive object={scene} />
     </group>
+  );
+}
+
+// --- ZOOM INDICATOR COMPONENT ---
+function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
+  const [zoomPct, setZoomPct] = useState(100);
+  const { camera } = useThree();
+  
+  // Base distance for "100%" (approximate distance of overview)
+  const BASE_DIST = 200; 
+
+  useFrame(() => {
+    if (!controlsRef.current) return;
+    // Calculate distance from camera to target
+    const dist = camera.position.distanceTo(controlsRef.current.getTarget(new THREE.Vector3()));
+    // Invert: Closer = Higher %
+    const pct = Math.round((BASE_DIST / dist) * 100);
+    setZoomPct(pct);
+  });
+
+  return (
+    <Html position={[0, 0, 0]} style={{ pointerEvents: 'none' }} zIndexRange={[100, 0]}>
+      <div className="fixed top-20 right-8 flex items-center gap-2 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full shadow-sm border border-black/5">
+        <Search className="w-3 h-3 text-neutral-500" />
+        <span className="text-xs font-mono font-bold text-neutral-700">{zoomPct}%</span>
+      </div>
+    </Html>
   );
 }
 
@@ -114,16 +158,16 @@ export default function FalconViewer() {
   const cameraControlsRef = useRef<CameraControls>(null);
 
   return (
-    <div className="w-full h-[600px] relative bg-white border border-neutral-200 overflow-hidden shadow-sm">
+    <div className="w-full h-[700px] relative bg-white border border-neutral-200 overflow-hidden shadow-sm group">
       
       {/* 1. HEADER OVERLAY */}
-      <div className="absolute top-6 left-6 z-10 pointer-events-none">
+      <div className="absolute top-8 left-8 z-10 pointer-events-none">
         <h1 className="text-4xl font-black text-neutral-900 tracking-tighter">FALCON 9</h1>
-        <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest mt-1">Interactive CAD View</p>
+        <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest mt-1">Interactive 3D Schematic</p>
       </div>
 
-      {/* 2. ZOOM CONTROLS */}
-      <div className="absolute right-6 top-1/2 -translate-y-1/2 z-10 flex flex-col gap-2">
+      {/* 2. ZOOM BUTTONS */}
+      <div className="absolute right-8 top-1/2 -translate-y-1/2 z-10 flex flex-col gap-2">
         {Object.keys(ZOOM_ZONES).map((zone) => (
           <button
             key={zone}
@@ -140,38 +184,43 @@ export default function FalconViewer() {
         ))}
       </div>
 
-      {/* 3. SLIDER CONTROL */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-3 w-72 bg-white/90 p-4 rounded-xl border border-neutral-100 shadow-sm backdrop-blur-sm">
+      {/* 3. STAGE SEPARATION SLIDER */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-3 w-80 bg-white/90 p-5 rounded-2xl border border-neutral-100 shadow-lg backdrop-blur-md">
         <div className="flex justify-between w-full text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
-          <span>Assembled</span>
-          <span>Exploded</span>
+          <span>Stowed</span>
+          <span>Stage Separation</span>
         </div>
         <input 
           type="range" 
           min="0" max="1" step="0.01" 
           value={exploded}
           onChange={(e) => setExploded(parseFloat(e.target.value))}
-          className="w-full h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-neutral-900"
+          className="w-full h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-neutral-900 hover:accent-neutral-700 transition-colors"
         />
       </div>
 
-      {/* 4. 3D CANVAS */}
-      {/* - far: 10000 ensures the model doesn't get clipped/disappear at long distances 
-         - position: Default camera position set very far back
-      */}
-      <Canvas shadows dpr={[1, 2]} camera={{ fov: 45, position: [180, 40, 300], far: 10000 }}>
-        
+      {/* 4. DRAG INDICATOR */}
+      <div className="absolute bottom-28 left-1/2 -translate-x-1/2 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none flex items-center gap-2 bg-black/80 text-white px-4 py-1.5 rounded-full backdrop-blur-sm">
+        <Move className="w-3 h-3" />
+        <span className="text-[10px] font-bold uppercase tracking-wider">Drag to look around</span>
+      </div>
+
+      {/* 3D CANVAS */}
+      <Canvas shadows dpr={[1, 2]} camera={{ fov: 45, position: [120, 20, 180], far: 2000 }}>
         <color attach="background" args={['#ffffff']} />
         
         <Suspense fallback={<Loader />}>
             <Environment preset="studio" />
-            <ambientLight intensity={0.5} />
+            <ambientLight intensity={0.6} />
             <directionalLight position={[50, 50, 25]} intensity={1.5} castShadow />
 
             <Center top>
               <group rotation={[0, 0, 0]}>
+                  {/* Top: Moves Up */}
                   <RocketSection type="top" config={ROCKET_STACK.top} exploded={exploded} setHovered={setHovered} />
+                  {/* Middle: Stays with Bottom (Simulating Interstage attached to Booster) */}
                   <RocketSection type="middle" config={ROCKET_STACK.middle} exploded={exploded} setHovered={setHovered} />
+                  {/* Bottom: Static */}
                   <RocketSection type="bottom" config={ROCKET_STACK.bottom} exploded={exploded} setHovered={setHovered} />
               </group>
             </Center>
@@ -179,17 +228,18 @@ export default function FalconViewer() {
             <ContactShadows resolution={1024} scale={100} blur={2} opacity={0.25} far={50} color="#000000" />
             
             {/* CAMERA CONTROLS 
-               - maxDistance increased to 600 so you can zoom way out
-               - minDistance at 10 to prevent clipping inside
+               - minDistance={20}: Prevents clipping into model
+               - maxDistance={400}: Allows zooming out but stops before model vanishes
             */}
             <CameraControls 
               ref={cameraControlsRef} 
               minPolarAngle={0} 
               maxPolarAngle={Math.PI / 1.6} 
-              minDistance={10} 
-              maxDistance={600} 
+              minDistance={20} 
+              maxDistance={400} 
             />
             
+            <ZoomIndicator controlsRef={cameraControlsRef} />
             <SceneController currentZone={currentZone} cameraControlsRef={cameraControlsRef} />
         </Suspense>
       </Canvas>

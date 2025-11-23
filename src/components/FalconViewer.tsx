@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, Suspense, useEffect } from "react"; // Added useEffect
+import { useState, useRef, useMemo, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { useGLTF, useTexture, Decal, Environment, OrbitControls, Html, Center, ContactShadows, useProgress } from "@react-three/drei";
 import * as THREE from "three";
@@ -46,24 +46,26 @@ function Loader() {
 
 function RocketSection({ type, config, exploded, setHovered }: any) {
   const { scene } = useGLTF(config.file);
-  const ref = useRef<THREE.Group>(null);
-  const [decalTarget, setDecalTarget] = useState<THREE.Mesh | null>(null); // State to store the mesh for decals
+  const groupRef = useRef<THREE.Group>(null);
   
   const logoTex = useTexture('/spacex.png'); 
   const flagTex = useTexture('/flag.png');
 
-  // Find the mesh to attach decals to
-  useEffect(() => {
-    if (config.hasDecals) {
-      scene.traverse((node: any) => {
-        // We look for the first mesh we encounter to attach the decal to.
-        // If your model has multiple meshes, you might need to check for a specific name (e.g., node.name === 'Fuselage')
-        if (node.isMesh && !decalTarget) {
-          setDecalTarget(node);
-        }
-      });
-    }
-  }, [scene, config.hasDecals, decalTarget]);
+  // Find the target mesh synchronously and memoize it
+  const targetMesh = useMemo(() => {
+    if (!config.hasDecals) return null;
+    let found: THREE.Mesh | null = null;
+    scene.traverse((node: any) => {
+      if (node.isMesh && !found) {
+        found = node;
+      }
+    });
+    return found;
+  }, [scene, config.hasDecals]);
+
+  // Wrap the mesh in a ref object because <Decal> expects a Ref (object with .current)
+  // We use useMemo to ensure the ref object identity is stable
+  const meshRef = useMemo(() => (targetMesh ? { current: targetMesh } : null), [targetMesh]);
 
   useMemo(() => {
     scene.traverse((node: any) => {
@@ -85,23 +87,23 @@ function RocketSection({ type, config, exploded, setHovered }: any) {
   }, [scene, config]);
 
   useFrame((state, delta) => {
-    if (!ref.current) return;
+    if (!groupRef.current) return;
     const targetY = exploded * config.explodeY;
-    easing.damp3(ref.current.position, [0, targetY, 0], 0.3, delta);
+    easing.damp3(groupRef.current.position, [0, targetY, 0], 0.3, delta);
   });
 
   return (
     <group 
-      ref={ref} 
+      ref={groupRef} 
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
     >
       <primitive object={scene} />
-      {/* Only render decals if we have a target mesh found */}
-      {config.hasDecals && decalTarget && (
+      {/* Only render decals if we have a valid mesh ref */}
+      {config.hasDecals && meshRef && (
         <>
-          <Decal mesh={decalTarget} position={[0, 3, 1.6]} rotation={[0, 0, -Math.PI/2]} scale={[5, 0.8, 1]} map={logoTex} />
-          <Decal mesh={decalTarget} position={[0, 8, 1.6]} rotation={[0, 0, 0]} scale={[0.8, 0.5, 1]} map={flagTex} />
+          <Decal mesh={meshRef} position={[0, 3, 1.6]} rotation={[0, 0, -Math.PI/2]} scale={[5, 0.8, 1]} map={logoTex} />
+          <Decal mesh={meshRef} position={[0, 8, 1.6]} rotation={[0, 0, 0]} scale={[0.8, 0.5, 1]} map={flagTex} />
         </>
       )}
     </group>

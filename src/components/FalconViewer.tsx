@@ -23,13 +23,13 @@ const ROCKET_STACK = {
   }
 };
 
-// DRASTICALLY INCREASED DISTANCES to fix "way too zoomed in" issue
+// DRASTICALLY INCREASED DISTANCES (approx 4x previous)
 const ZOOM_ZONES = {
-  // Moved camera way back (Z=80, X=50) to see the whole rocket comfortably
-  overview:   { pos: [150, 10, 200],  look: [0, 5, 0] }, 
-  fairing:    { pos: [10, 25, 25],  look: [0, 18, 0] },
-  interstage: { pos: [12, 15, 20],  look: [0, 10, 0] }, 
-  engines:    { pos: [12, -5, 20],  look: [0, -4, 0] },
+  // Huge distance to ensure full view
+  overview:   { pos: [180, 40, 300], look: [0, 5, 0] }, 
+  fairing:    { pos: [20, 30, 30],   look: [0, 18, 0] },
+  interstage: { pos: [20, 15, 25],   look: [0, 10, 0] }, 
+  engines:    { pos: [20, -10, 25],  look: [0, -4, 0] },
 };
 
 // --- LOADER ---
@@ -156,14 +156,17 @@ export default function FalconViewer() {
       </div>
 
       {/* 4. 3D CANVAS */}
-      <Canvas shadows dpr={[1, 2]} camera={{ fov: 45, position: [50, 10, 80] }}>
+      {/* - far: 10000 ensures the model doesn't get clipped/disappear at long distances 
+         - position: Default camera position set very far back
+      */}
+      <Canvas shadows dpr={[1, 2]} camera={{ fov: 45, position: [180, 40, 300], far: 10000 }}>
         
         <color attach="background" args={['#ffffff']} />
         
         <Suspense fallback={<Loader />}>
             <Environment preset="studio" />
             <ambientLight intensity={0.5} />
-            <directionalLight position={[10, 10, 5]} intensity={1.5} castShadow />
+            <directionalLight position={[50, 50, 25]} intensity={1.5} castShadow />
 
             <Center top>
               <group rotation={[0, 0, 0]}>
@@ -173,17 +176,18 @@ export default function FalconViewer() {
               </group>
             </Center>
 
-            <ContactShadows resolution={1024} scale={50} blur={2} opacity={0.25} far={10} color="#000000" />
+            <ContactShadows resolution={1024} scale={100} blur={2} opacity={0.25} far={50} color="#000000" />
             
             {/* CAMERA CONTROLS 
-              maxDistance increased from 45 -> 120 so you can zoom out freely
+               - maxDistance increased to 600 so you can zoom way out
+               - minDistance at 10 to prevent clipping inside
             */}
             <CameraControls 
               ref={cameraControlsRef} 
               minPolarAngle={0} 
               maxPolarAngle={Math.PI / 1.6} 
               minDistance={10} 
-              maxDistance={120} 
+              maxDistance={600} 
             />
             
             <SceneController currentZone={currentZone} cameraControlsRef={cameraControlsRef} />

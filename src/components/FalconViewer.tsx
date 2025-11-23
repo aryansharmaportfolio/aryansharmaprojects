@@ -9,8 +9,8 @@ import { Search, Move, AlertCircle } from "lucide-react";
 const ROCKET_STACK = {
   top: {
     file: "/rocket-parts/part_top.glb", 
-    // Changed to Z-axis (Depth/Outwards) based on user feedback
-    explodeOffset: 120, 
+    // FLIPPED DIRECTION: Negative value moves it the "opposite" way on the Z-axis
+    explodeOffset: -120, 
     explodeAxis: "z", 
     baseMaterial: "white"
   },
@@ -31,8 +31,8 @@ const ROCKET_STACK = {
 
 // --- ZOOM CONFIGURATION ---
 const ZOOM_ZONES = {
-  // Moved closer: Was [350, 60, 450] -> Now [250, 40, 350]
-  overview:             { pos: [250, 40, 350], look: [0, 10, 0] }, 
+  // Moved closer again to fill the screen (Was [250, 40, 350])
+  overview:             { pos: [180, 30, 250], look: [0, 10, 0] }, 
   
   fairing:              { pos: [50, 180, 50],  look: [0, 160, 0] },
   
@@ -40,11 +40,11 @@ const ZOOM_ZONES = {
   
   interstage:           { pos: [40, 50, 40],   look: [0, 30, 0] },
   
-  // Tilted down slightly to see fins better
-  gridfins:             { pos: [45, 65, 45],   look: [0, 55, 0] },
+  // Adjusted Grid Fins to be slightly more "top-down" to see the black lattice
+  gridfins:             { pos: [35, 75, 35],   look: [0, 55, 0] },
   
-  // "Zooms into the bottom of the rocket" - Moved Camera LOWER and CLOSER
-  "merlin 9 boosters":  { pos: [25, -70, 25],  look: [0, -50, 0] },
+  // Tucked tighter under the tail
+  "merlin 9 boosters":  { pos: [20, -70, 20],  look: [0, -45, 0] },
 };
 
 // --- LOADER ---
@@ -104,7 +104,7 @@ function RocketSection({ config, exploded, setHovered }: any) {
     });
   }, [scene, config]);
 
-  // --- ANIMATION LOGIC (Support X, Y, Z axes) ---
+  // --- ANIMATION LOGIC ---
   useFrame((_, delta) => {
     if (!groupRef.current) return;
     
@@ -114,9 +114,9 @@ function RocketSection({ config, exploded, setHovered }: any) {
     if (config.explodeAxis === "x") {
       targetPos[0] = offsetValue; 
     } else if (config.explodeAxis === "z") {
-      targetPos[2] = offsetValue; // Move "Outwards" (Depth)
+      targetPos[2] = offsetValue; // Moves on Depth Axis
     } else {
-      targetPos[1] = offsetValue; // Move Vertically (Default)
+      targetPos[1] = offsetValue; 
     }
 
     easing.damp3(groupRef.current.position, targetPos, 0.3, delta);
@@ -137,7 +137,7 @@ function RocketSection({ config, exploded, setHovered }: any) {
 function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
   const [zoomPct, setZoomPct] = useState(100);
   const { camera } = useThree();
-  const BASE_DIST = 450; // Calibrated to new overview distance
+  const BASE_DIST = 350; // Re-calibrated for new "100%"
 
   useFrame(() => {
     if (!controlsRef.current) return;
@@ -245,7 +245,7 @@ export default function FalconViewer() {
       </div>
 
       {/* 3D CANVAS */}
-      <Canvas shadows dpr={[1, 2]} camera={{ fov: 45, position: [250, 40, 350], far: 5000 }}>
+      <Canvas shadows dpr={[1, 2]} camera={{ fov: 45, position: [180, 30, 250], far: 5000 }}>
         <color attach="background" args={['#ffffff']} />
         
         <Suspense fallback={<Loader />}>
@@ -264,14 +264,14 @@ export default function FalconViewer() {
             <ContactShadows resolution={1024} scale={300} blur={2} opacity={0.2} far={100} color="#000000" />
             
             {/* CAMERA CONTROLS 
-               - maxDistance reduced to 500 (was 600) per request
+               - maxDistance reduced to 380 (Prevents zooming out too much)
             */}
             <CameraControls 
               ref={cameraControlsRef} 
               minPolarAngle={0} 
               maxPolarAngle={Math.PI / 1.6} 
               minDistance={150} 
-              maxDistance={500} 
+              maxDistance={380} 
             />
             
             <ZoomIndicator controlsRef={cameraControlsRef} />

@@ -135,7 +135,7 @@ function RocketSection({ config, exploded, setHovered }: any) {
 function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
   const [zoomPct, setZoomPct] = useState(100);
   const { camera } = useThree();
-  const BASE_DIST = 500; // Matches default view distance
+  const BASE_DIST = 300; // Matches default view distance
 
   useFrame(() => {
     if (!controlsRef.current) return;

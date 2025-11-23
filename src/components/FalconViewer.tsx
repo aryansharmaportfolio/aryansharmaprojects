@@ -3,9 +3,10 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, CameraControls, Html, Center, ContactShadows, useProgress, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { easing } from "maath";
-import { Search, Move, AlertCircle, MousePointerClick } from "lucide-react";
+import { Search, Move, AlertCircle, MousePointerClick, X, ChevronRight } from "lucide-react";
 
-// --- 1. CONFIGURATION ---
+// --- 1. DATA & CONFIGURATION ---
+
 const ROCKET_STACK = {
   top: {
     file: "/rocket-parts/part_top.glb", 
@@ -28,7 +29,72 @@ const ROCKET_STACK = {
   }
 };
 
-// --- ZOOM CONFIGURATION ---
+// Technical Data for Annotations
+const ANNOTATIONS = {
+  top: [
+    {
+      id: "fairing",
+      title: "Composite Fairing",
+      subtitle: "Payload Protection",
+      desc: "Made of carbon composite material, the fairing protects satellites during delivery to orbit. It is jettisoned approximately 3 minutes into flight once the rocket leaves the atmosphere.",
+      stats: ["Height: 13.1m", "Diameter: 5.2m", "Mass: 1900kg"],
+      pos: [0, 55, 5] // Local coordinates
+    },
+    {
+      id: "second-stage",
+      title: "Second Stage",
+      subtitle: "Orbital Insertion",
+      desc: "Powered by a single Merlin Vacuum Engine, this stage delivers the payload to its final orbit after stage separation. It carries its own fuel and oxidizer and is capable of multiple restarts.",
+      stats: ["Thrust: 981 kN", "Burn Time: 397s", "Fuel: LOX/RP-1"],
+      pos: [0, 15, 5]
+    }
+  ],
+  middle: [
+    {
+      id: "interstage",
+      title: "Interstage",
+      subtitle: "Pneumatic Pusher",
+      desc: "Connects the first and second stages. It houses the pneumatic pushers that physically push the stages apart during separation. The grid fins are also mounted to this structure.",
+      stats: ["Material: Carbon Fiber", "Separation: Pneumatic"],
+      pos: [0, 5, 5]
+    },
+    {
+      id: "gridfins",
+      title: "Titanium Grid Fins",
+      subtitle: "Hypersonic Control",
+      desc: "These heat-resistant titanium fins manipulate lift and drag during the booster's re-entry, steering it precisely to the landing zone.",
+      stats: ["Material: Cast Titanium", "Control: Hydraulic/Electric"],
+      pos: [0, 12, 5]
+    }
+  ],
+  bottom: [
+    {
+      id: "first-stage",
+      title: "First Stage",
+      subtitle: "Reusable Booster",
+      desc: "The main structural backbone of the rocket. It incorporates the propellant tanks for the 9 Merlin engines and landing gear for recovery.",
+      stats: ["Height: 41.2m", "Diameter: 3.7m", "Empty Mass: 25,600kg"],
+      pos: [0, 20, 5]
+    },
+    {
+      id: "landing-legs",
+      title: "Landing Legs",
+      subtitle: "Carbon Fiber Assembly",
+      desc: "Four legs made of carbon fiber with honeycomb aluminum core. They deploy moments before touchdown to support the rocket.",
+      stats: ["Span: 18m", "Deployment: Compressed Helium"],
+      pos: [0, -30, 5]
+    },
+    {
+      id: "merlin-engines",
+      title: "Octaweb / Merlin 1D",
+      subtitle: "Propulsion System",
+      desc: "Nine Merlin 1D engines arranged in an Octaweb structure. They provide 1.7 million pounds of thrust at liftoff.",
+      stats: ["Thrust (Sea Level): 845 kN", "ISP: 282s", "TWR: >150"],
+      pos: [0, -42, 5]
+    }
+  ]
+};
+
 const ZOOM_ZONES = {
   overview:             { pos: [300, 50, 400], look: [0, 10, 0] }, 
   fairing:              { pos: [50, 180, 50],  look: [0, 160, 0] },
@@ -50,8 +116,45 @@ function Loader() {
   );
 }
 
+// --- ANNOTATION COMPONENT ---
+function AnnotationMarker({ data, onClick, isSelected }: { data: any, onClick: () => void, isSelected: boolean }) {
+  return (
+    <Html position={data.pos} zIndexRange={[100, 0]}>
+      <div 
+        className="group relative cursor-pointer"
+        onClick={(e) => { e.stopPropagation(); onClick(); }}
+      >
+        {/* The Marker Circle */}
+        <div className={`
+          w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300
+          ${isSelected ? 'border-white bg-white/20 scale-125' : 'border-white/60 bg-black/20 hover:border-white hover:scale-110'}
+        `}>
+          <div className={`w-2 h-2 bg-white rounded-full ${isSelected ? 'animate-none' : 'animate-pulse'}`} />
+        </div>
+
+        {/* Line Connector */}
+        <div className={`
+          absolute left-full top-1/2 w-8 h-[1px] bg-white/50 origin-left transition-all duration-300
+          ${isSelected ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-100'}
+        `} />
+
+        {/* Floating Label (Visible on Hover or Selected) */}
+        <div className={`
+          absolute left-[calc(100%+2rem)] top-1/2 -translate-y-1/2 whitespace-nowrap
+          transition-all duration-300
+          ${isSelected ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:-translate-x-0'}
+        `}>
+          <span className="text-white text-xs font-bold font-mono bg-black/80 px-2 py-1 rounded backdrop-blur-sm border border-white/10">
+            {data.title}
+          </span>
+        </div>
+      </div>
+    </Html>
+  );
+}
+
 // --- ROCKET SECTION COMPONENT ---
-function RocketSection({ config, exploded, setHovered }: any) {
+function RocketSection({ config, exploded, setHovered, annotations, onAnnotationClick, selectedAnnotationId }: any) {
   const { scene: originalScene } = useGLTF(config.file);
   const scene = useMemo(() => originalScene.clone(), [originalScene]);
   const groupRef = useRef<THREE.Group>(null);
@@ -61,30 +164,19 @@ function RocketSection({ config, exploded, setHovered }: any) {
       if (node.isMesh) {
         node.castShadow = true;
         node.receiveShadow = true;
-        if (node.geometry) {
-          node.geometry.computeVertexNormals();
-        }
+        if (node.geometry) node.geometry.computeVertexNormals();
+
+        // Material Logic
         if (config.baseMaterial === "white" && !config.accentMaterial) {
-          node.material = new THREE.MeshStandardMaterial({
-            color: "#ffffff", roughness: 0.3, metalness: 0.1,
-          });
-        } 
-        else if (config.baseMaterial === "black") {
-          node.material = new THREE.MeshStandardMaterial({
-            color: "#151515", roughness: 0.4, metalness: 0.3,
-          });
-        }
-        else if (config.baseMaterial === "white" && config.accentMaterial === "black") {
+          node.material = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: 0.3, metalness: 0.1 });
+        } else if (config.baseMaterial === "black") {
+          node.material = new THREE.MeshStandardMaterial({ color: "#151515", roughness: 0.4, metalness: 0.3 });
+        } else if (config.baseMaterial === "white" && config.accentMaterial === "black") {
           const name = node.name.toLowerCase();
-          const isEngineOrFin = name.includes("engine") || name.includes("nozzle") || name.includes("leg") || name.includes("octaweb");
-          if (isEngineOrFin) {
-             node.material = new THREE.MeshStandardMaterial({
-              color: "#151515", roughness: 0.5, metalness: 0.5,
-            });
+          if (name.includes("engine") || name.includes("nozzle") || name.includes("leg") || name.includes("octaweb")) {
+             node.material = new THREE.MeshStandardMaterial({ color: "#151515", roughness: 0.5, metalness: 0.5 });
           } else {
-            node.material = new THREE.MeshStandardMaterial({
-              color: "#ffffff", roughness: 0.3, metalness: 0.1,
-            });
+            node.material = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: 0.3, metalness: 0.1 });
           }
         }
       }
@@ -108,6 +200,16 @@ function RocketSection({ config, exploded, setHovered }: any) {
       onPointerOut={() => setHovered(false)}
     >
       <primitive object={scene} />
+      
+      {/* Render Annotations ATTACHED to this specific stage */}
+      {annotations && annotations.map((ann: any) => (
+        <AnnotationMarker 
+          key={ann.id} 
+          data={ann} 
+          onClick={() => onAnnotationClick(ann)}
+          isSelected={selectedAnnotationId === ann.id}
+        />
+      ))}
     </group>
   );
 }
@@ -126,7 +228,7 @@ function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
   });
 
   return (
-    <Html position={[0, 0, 0]} style={{ pointerEvents: 'none', zIndex: 100 }} zIndexRange={[100, 0]}>
+    <Html position={[0, 0, 0]} style={{ pointerEvents: 'none', zIndex: 50 }} zIndexRange={[100, 0]}>
       <div className="fixed top-20 right-8 flex items-center gap-2 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full shadow-sm border border-black/5">
         <Search className="w-3 h-3 text-neutral-500" />
         <span className="text-xs font-mono font-bold text-neutral-700">{zoomPct}%</span>
@@ -148,14 +250,17 @@ function SceneController({ currentZone, cameraControlsRef }: any) {
   return null;
 }
 
+// --- MAIN COMPONENT ---
 export default function FalconViewer() {
   const [exploded, setExploded] = useState(0); 
   const [currentZone, setCurrentZone] = useState("overview");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [hovered, setHovered] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
-  
-  // NEW STATE: Tracks if the user has clicked the initial overlay
   const [hasInteracted, setHasInteracted] = useState(false);
+  
+  // SIDEBAR STATE
+  const [selectedPart, setSelectedPart] = useState<any | null>(null);
   
   const cameraControlsRef = useRef<CameraControls>(null);
 
@@ -170,30 +275,29 @@ export default function FalconViewer() {
   };
 
   return (
-    <div className="w-full h-[700px] relative bg-white border border-neutral-200 overflow-hidden shadow-sm group select-none">
+    <div className="w-full h-[700px] relative bg-white border border-neutral-200 overflow-hidden shadow-sm group select-none font-sans">
       
-      {/* --- NEW IMPRESSIVE INTRO OVERLAY --- */}
-      {/* This covers the entire viewer until clicked */}
+      {/* --- INTRO OVERLAY --- */}
       <div 
         className={`
-          absolute inset-0 z-[100] bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center 
+          absolute inset-0 z-[100] bg-black/60 backdrop-blur-md flex flex-col items-center justify-center 
           transition-all duration-700 cursor-pointer
           ${hasInteracted ? 'opacity-0 pointer-events-none' : 'opacity-100'}
         `}
         onClick={() => setHasInteracted(true)}
       >
         <div className="text-center group-hover:scale-105 transition-transform duration-500">
-          <MousePointerClick className="w-20 h-20 text-white mx-auto mb-6 animate-pulse opacity-90" />
+          <MousePointerClick className="w-16 h-16 text-white mx-auto mb-6 animate-pulse opacity-90" />
           <h2 className="text-5xl md:text-6xl font-black text-white tracking-tighter mb-4 drop-shadow-2xl">
-            CLICK TO DRAG
+            CLICK TO START
           </h2>
-          <p className="text-white/70 font-mono text-sm uppercase tracking-[0.2em]">
+          <p className="text-white/70 font-mono text-xs uppercase tracking-[0.3em]">
             Interactive 3D Schematic
           </p>
         </div>
       </div>
 
-      {/* 1. HEADER OVERLAY */}
+      {/* 1. HEADER */}
       <div className={`absolute top-8 left-8 z-50 pointer-events-none transition-opacity duration-1000 ${!hasInteracted ? 'opacity-0' : 'opacity-100'}`}>
         <h1 className="text-4xl font-black text-neutral-900 tracking-tighter">FALCON 9</h1>
         <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest mt-1">Interactive 3D Model</p>
@@ -207,8 +311,55 @@ export default function FalconViewer() {
         </div>
       )}
 
+      {/* --- TECH SIDEBAR (RIGHT) --- */}
+      <div className={`
+        absolute top-0 right-0 bottom-0 w-96 z-[60]
+        bg-black/85 backdrop-blur-xl border-l border-white/10
+        shadow-2xl transform transition-transform duration-500 ease-out
+        flex flex-col text-white
+        ${selectedPart ? 'translate-x-0' : 'translate-x-full'}
+      `}>
+        {/* Close Button */}
+        <button 
+          onClick={() => setSelectedPart(null)}
+          className="absolute top-6 right-6 p-2 text-white/50 hover:text-white transition-colors"
+        >
+          <X className="w-6 h-6" />
+        </button>
+
+        {/* Sidebar Content */}
+        {selectedPart && (
+          <div className="p-10 flex flex-col h-full overflow-y-auto">
+            <div className="mb-8">
+              <div className="text-xs font-mono text-blue-400 mb-2 uppercase tracking-widest">Component Detail</div>
+              <h2 className="text-4xl font-black tracking-tight mb-1">{selectedPart.title}</h2>
+              <div className="h-1 w-20 bg-blue-500/50 rounded-full mb-4"></div>
+              <h3 className="text-xl font-light text-white/80">{selectedPart.subtitle}</h3>
+            </div>
+
+            <p className="text-white/70 leading-relaxed mb-10 text-sm border-l-2 border-white/10 pl-4">
+              {selectedPart.desc}
+            </p>
+
+            <div className="space-y-4 mb-auto">
+              <h4 className="text-xs font-bold uppercase tracking-widest text-white/40 mb-4">Technical Specifications</h4>
+              {selectedPart.stats && selectedPart.stats.map((stat: string, i: number) => (
+                <div key={i} className="flex items-center gap-3 text-sm font-mono text-white/90 bg-white/5 p-3 rounded border border-white/5 hover:border-white/20 transition-colors">
+                  <ChevronRight className="w-3 h-3 text-blue-400" />
+                  {stat}
+                </div>
+              ))}
+            </div>
+            
+            <div className="mt-8 pt-8 border-t border-white/10 text-center">
+              <p className="text-[10px] text-white/30 uppercase tracking-widest font-mono">SpaceX // Vehicle Schematic</p>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* 3. ZOOM BUTTONS */}
-      <div className={`absolute right-8 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2 transition-opacity duration-1000 delay-100 ${!hasInteracted ? 'opacity-0' : 'opacity-100'}`}>
+      <div className={`absolute right-8 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2 transition-opacity duration-1000 delay-100 ${!hasInteracted ? 'opacity-0' : 'opacity-100'} ${selectedPart ? 'opacity-0 pointer-events-none' : ''}`}>
         {Object.keys(ZOOM_ZONES).map((zone) => (
           <button
             key={zone}
@@ -225,8 +376,8 @@ export default function FalconViewer() {
         ))}
       </div>
 
-      {/* 4. STAGE SEPARATION SLIDER */}
-      <div className={`absolute bottom-24 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-3 w-96 bg-white/95 p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md transition-all duration-1000 delay-200 ${!hasInteracted ? 'translate-y-20 opacity-0' : 'translate-y-0 opacity-100'}`}>
+      {/* 4. SLIDER */}
+      <div className={`absolute bottom-24 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-3 w-96 bg-white/95 p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md transition-all duration-1000 delay-200 ${!hasInteracted ? 'translate-y-20 opacity-0' : 'translate-y-0 opacity-100'} ${selectedPart ? 'opacity-0 pointer-events-none' : ''}`}>
         <div className="flex justify-between w-full text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
           <span>Stowed</span>
           <span className="text-neutral-900">Stage Separation</span>
@@ -241,7 +392,7 @@ export default function FalconViewer() {
         />
       </div>
 
-      {/* 5. DRAG INDICATOR (Persistent Reminder) */}
+      {/* 5. DRAG INDICATOR */}
       <div className={`absolute bottom-8 left-8 z-40 pointer-events-none flex items-center gap-2 bg-black text-white px-4 py-2 rounded-full shadow-xl opacity-90 transition-opacity duration-1000 delay-500 ${!hasInteracted ? 'opacity-0' : 'opacity-100'}`}>
         <Move className="w-3 h-3" />
         <span className="text-[10px] font-bold uppercase tracking-wider">Drag to look around</span>
@@ -258,9 +409,33 @@ export default function FalconViewer() {
 
             <Center top>
               <group rotation={[0, 0, 0]}>
-                  <RocketSection type="top" config={ROCKET_STACK.top} exploded={exploded} setHovered={setHovered} />
-                  <RocketSection type="middle" config={ROCKET_STACK.middle} exploded={exploded} setHovered={setHovered} />
-                  <RocketSection type="bottom" config={ROCKET_STACK.bottom} exploded={exploded} setHovered={setHovered} />
+                  <RocketSection 
+                    type="top" 
+                    config={ROCKET_STACK.top} 
+                    exploded={exploded} 
+                    setHovered={setHovered} 
+                    annotations={ANNOTATIONS.top}
+                    onAnnotationClick={setSelectedPart}
+                    selectedAnnotationId={selectedPart?.id}
+                  />
+                  <RocketSection 
+                    type="middle" 
+                    config={ROCKET_STACK.middle} 
+                    exploded={exploded} 
+                    setHovered={setHovered} 
+                    annotations={ANNOTATIONS.middle}
+                    onAnnotationClick={setSelectedPart}
+                    selectedAnnotationId={selectedPart?.id}
+                  />
+                  <RocketSection 
+                    type="bottom" 
+                    config={ROCKET_STACK.bottom} 
+                    exploded={exploded} 
+                    setHovered={setHovered} 
+                    annotations={ANNOTATIONS.bottom}
+                    onAnnotationClick={setSelectedPart}
+                    selectedAnnotationId={selectedPart?.id}
+                  />
               </group>
             </Center>
 

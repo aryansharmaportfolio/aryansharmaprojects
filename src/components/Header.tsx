@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
+import { Menu, X } from "lucide-react";
 
 interface SmokePuff {
   id: number;
@@ -11,6 +12,7 @@ const Header = ({ activeSection }: { activeSection: string }) => {
   const [scrollProgress, setScrollProgress] = useState(0);
   const [smoke, setSmoke] = useState<SmokePuff[]>([]);
   const [scrollDirection, setScrollDirection] = useState("down");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const lastScrollY = useRef(0);
   const isScrolling = useRef<NodeJS.Timeout | null>(null);
 
@@ -65,11 +67,13 @@ const Header = ({ activeSection }: { activeSection: string }) => {
   const scrollToSection = (sectionId: string) => {
     if (sectionId === "home") {
       window.scrollTo({ top: 0, behavior: "smooth" });
+      setMobileMenuOpen(false);
       return;
     }
     const element = document.getElementById(sectionId);
     if (element) {
       element.scrollIntoView({ behavior: "smooth" });
+      setMobileMenuOpen(false);
     }
   };
 
@@ -91,22 +95,57 @@ const Header = ({ activeSection }: { activeSection: string }) => {
         isScrolled ? "bg-background/95 backdrop-blur-sm shadow-lg" : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
         <button
           onClick={() => scrollToSection("home")}
-          className="text-2xl font-bold text-foreground hover:text-primary transition-colors"
+          className="text-lg sm:text-xl md:text-2xl font-bold text-foreground hover:text-primary transition-colors"
         >
           Aryan Sharma
         </button>
 
-        <nav className="flex gap-8">
+        {/* Desktop Navigation */}
+        <nav className="hidden md:flex gap-4 lg:gap-8">
           {navLinks.map((item) => (
             <button
               key={item.id}
               onClick={() => scrollToSection(item.id)}
               className={cn(
-                "text-foreground font-medium transition-all duration-200 hover:text-white hover:font-bold hover:scale-105",
+                "text-sm lg:text-base text-foreground font-medium transition-all duration-200 hover:text-white hover:font-bold hover:scale-105",
                 (activeSection === item.id || (item.id === 'home' && !activeSection)) && "font-bold text-white"
+              )}
+            >
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        {/* Mobile Menu Button */}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="md:hidden p-2 text-foreground hover:text-primary transition-colors"
+          aria-label="Toggle menu"
+        >
+          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
+        </button>
+      </div>
+
+      {/* Mobile Menu */}
+      <div
+        className={cn(
+          "md:hidden absolute top-full left-0 right-0 bg-background/98 backdrop-blur-lg border-t border-border transition-all duration-300 overflow-hidden",
+          mobileMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
+        )}
+      >
+        <nav className="container mx-auto px-4 py-4 flex flex-col gap-2">
+          {navLinks.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => scrollToSection(item.id)}
+              className={cn(
+                "text-left py-3 px-4 rounded-lg text-foreground font-medium transition-all duration-200",
+                (activeSection === item.id || (item.id === 'home' && !activeSection)) 
+                  ? "bg-primary/20 font-bold text-white" 
+                  : "hover:bg-muted/50"
               )}
             >
               {item.label}

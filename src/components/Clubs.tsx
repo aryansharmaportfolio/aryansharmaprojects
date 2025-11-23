@@ -38,16 +38,16 @@ const Clubs = () => {
   ];
   
   return (
-    <section id="clubs" className="py-24 px-6 bg-background relative overflow-hidden">
+    <section id="clubs" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-background relative overflow-hidden">
       <div className="container mx-auto max-w-7xl">
-        <div className="text-center mb-16 animate-fade-in">
-          <TypewriterHeader text="Clubs & Organizations" className="mb-6" />
-          <p className="text-xl italic text-white">
+        <div className="text-center mb-8 sm:mb-12 md:mb-16 animate-fade-in">
+          <TypewriterHeader text="Clubs & Organizations" className="mb-4 sm:mb-6" />
+          <p className="text-base sm:text-lg md:text-xl italic text-white px-4">
             Actively contributing to aerospace and engineering communities through hands-on collaboration.
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8 animate-fade-in">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 animate-fade-in">
           {clubs.map((club) => (
             <ClubCard
               key={club.id}

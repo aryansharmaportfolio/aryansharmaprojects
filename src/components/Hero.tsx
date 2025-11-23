@@ -61,13 +61,12 @@ const Hero = () => {
 
       {/* Text Container */}
       <div
-        className="relative z-20 text-center"
+        className="relative z-20 text-center px-4"
         style={{ opacity: textOpacity }}
       >
         <h1 
           className={cn(
-            "text-7xl md:text-8xl font-extrabold text-foreground tracking-tight pb-2 transition-all duration-1000 ease-out",
-            // Text now appears immediately (isMounted) instead of waiting for video (isVideoLoaded)
+            "text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-extrabold text-foreground tracking-tight pb-2 transition-all duration-1000 ease-out",
             isMounted
               ? "opacity-100 translate-y-0" 
               : "opacity-0 translate-y-8"

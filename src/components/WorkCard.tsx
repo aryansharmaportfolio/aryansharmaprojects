@@ -17,11 +17,11 @@ const WorkCard = ({ id, title, role, image }: WorkCardProps) => {
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
       <CollapsibleTrigger asChild>
-        <Card className="group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-80">
-          <div className="absolute top-4 right-4 z-30">
+        <Card className="group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-64 sm:h-72 md:h-80">
+          <div className="absolute top-2 sm:top-4 right-2 sm:right-4 z-30">
             <ChevronDown 
               className={cn(
-                "h-6 w-6 text-white transition-transform duration-300",
+                "h-5 w-5 sm:h-6 sm:w-6 text-white transition-transform duration-300",
                 isOpen && "rotate-180"
               )}
             />
@@ -39,9 +39,9 @@ const WorkCard = ({ id, title, role, image }: WorkCardProps) => {
       </div>
       
           {/* Text overlay at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 p-6 z-10">
-            <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg text-left">{title}</h3>
-            <p className="text-white/90 drop-shadow-lg">{role}</p>
+          <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6 z-10">
+            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1 sm:mb-2 drop-shadow-lg text-left">{title}</h3>
+            <p className="text-sm sm:text-base text-white/90 drop-shadow-lg">{role}</p>
           </div>
         </Card>
       </CollapsibleTrigger>

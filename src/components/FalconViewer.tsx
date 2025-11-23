@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, CameraControls, Html, Center, ContactShadows, useProgress, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { easing } from "maath";
-import { Search, Move, AlertCircle, MousePointerClick, X, ChevronRight } from "lucide-react";
+import { Search, Move, AlertCircle, MousePointerClick, X, ChevronRight, ArrowDown } from "lucide-react";
 
 // --- 1. DATA & CONFIGURATION ---
 
@@ -29,7 +29,7 @@ const ROCKET_STACK = {
   }
 };
 
-// Technical Data for Annotations
+// Technical Data for Annotations (Reduced to 6 Parts)
 const ANNOTATIONS = {
   top: [
     {
@@ -38,7 +38,7 @@ const ANNOTATIONS = {
       subtitle: "Payload Protection",
       desc: "Made of carbon composite material, the fairing protects satellites during delivery to orbit. It is jettisoned approximately 3 minutes into flight once the rocket leaves the atmosphere.",
       stats: ["Height: 13.1m", "Diameter: 5.2m", "Mass: 1900kg"],
-      pos: [0, 55, 5] // Local coordinates
+      pos: [0, 55, 5] 
     },
     {
       id: "second-stage",
@@ -76,14 +76,7 @@ const ANNOTATIONS = {
       stats: ["Height: 41.2m", "Diameter: 3.7m", "Empty Mass: 25,600kg"],
       pos: [0, 20, 5]
     },
-    {
-      id: "landing-legs",
-      title: "Landing Legs",
-      subtitle: "Carbon Fiber Assembly",
-      desc: "Four legs made of carbon fiber with honeycomb aluminum core. They deploy moments before touchdown to support the rocket.",
-      stats: ["Span: 18m", "Deployment: Compressed Helium"],
-      pos: [0, -30, 5]
-    },
+    // Removed Landing Legs to keep count to 6 as requested
     {
       id: "merlin-engines",
       title: "Octaweb / Merlin 1D",
@@ -258,20 +251,40 @@ export default function FalconViewer() {
   const [hovered, setHovered] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [showSliderHint, setShowSliderHint] = useState(false);
   
   // SIDEBAR STATE
   const [selectedPart, setSelectedPart] = useState<any | null>(null);
   
   const cameraControlsRef = useRef<CameraControls>(null);
 
-  const handleZoneClick = (zoneKey: string) => {
-    if (zoneKey === "second stage booster" && exploded < 0.2) {
-      setWarning("Deploy stage seperation first!");
-      setTimeout(() => setWarning(null), 3000);
-      return; 
+  // Handle Marker Clicks
+  const handleAnnotationClick = (annotation: any) => {
+    // Logic: If user clicks 'Second Stage' but rocket is NOT exploded enough
+    if (annotation.id === "second-stage" && exploded < 0.2) {
+      setWarning("Deploy stage separation to view!");
+      setShowSliderHint(true); // Trigger the bouncing arrow at slider
+      
+      // Clear hint after 4 seconds
+      setTimeout(() => {
+        setWarning(null);
+        setShowSliderHint(false);
+      }, 4000);
+      
+      return; // Do NOT open sidebar
     }
+    
     setWarning(null);
-    setCurrentZone(zoneKey);
+    setSelectedPart(annotation);
+    
+    // Also zoom to that part if possible? (Optional, but feels nice)
+    // setCurrentZone(annotation.id); 
+  };
+
+  // Handle Slider Interaction
+  const handleSliderChange = (e: any) => {
+    setExploded(parseFloat(e.target.value));
+    if (showSliderHint) setShowSliderHint(false); // Dismiss hint on interaction
   };
 
   return (
@@ -305,7 +318,7 @@ export default function FalconViewer() {
 
       {/* 2. WARNING POPUP */}
       {warning && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] bg-red-500 text-white px-6 py-3 rounded-lg shadow-xl flex items-center gap-3 animate-bounce">
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] bg-red-600 text-white px-6 py-3 rounded-lg shadow-xl flex items-center gap-3 animate-bounce">
           <AlertCircle className="w-5 h-5" />
           <span className="font-bold text-sm uppercase tracking-wide">{warning}</span>
         </div>
@@ -358,26 +371,17 @@ export default function FalconViewer() {
         )}
       </div>
 
-      {/* 3. ZOOM BUTTONS */}
-      <div className={`absolute right-8 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2 transition-opacity duration-1000 delay-100 ${!hasInteracted ? 'opacity-0' : 'opacity-100'} ${selectedPart ? 'opacity-0 pointer-events-none' : ''}`}>
-        {Object.keys(ZOOM_ZONES).map((zone) => (
-          <button
-            key={zone}
-            onClick={() => handleZoneClick(zone)}
-            className={`
-              text-right text-[10px] font-bold tracking-widest uppercase px-4 py-2 rounded-md transition-all duration-200
-              ${currentZone === zone 
-                ? "bg-neutral-900 text-white shadow-md translate-x-[-4px]" 
-                : "bg-white/80 text-neutral-400 hover:text-neutral-900 hover:bg-white"}
-            `}
-          >
-            {zone}
-          </button>
-        ))}
-      </div>
-
-      {/* 4. SLIDER */}
+      {/* 3. SLIDER CONTAINER */}
       <div className={`absolute bottom-24 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-3 w-96 bg-white/95 p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md transition-all duration-1000 delay-200 ${!hasInteracted ? 'translate-y-20 opacity-0' : 'translate-y-0 opacity-100'} ${selectedPart ? 'opacity-0 pointer-events-none' : ''}`}>
+        
+        {/* BOUNCING HINT ARROW (Only shows when needed) */}
+        {showSliderHint && (
+          <div className="absolute -top-12 left-1/2 -translate-x-1/2 text-red-600 animate-bounce flex flex-col items-center">
+            <span className="text-xs font-black uppercase tracking-widest bg-white px-2 py-1 rounded shadow mb-1">Slide Me!</span>
+            <ArrowDown className="w-8 h-8 fill-current" />
+          </div>
+        )}
+
         <div className="flex justify-between w-full text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
           <span>Stowed</span>
           <span className="text-neutral-900">Stage Separation</span>
@@ -387,12 +391,12 @@ export default function FalconViewer() {
           type="range" 
           min="0" max="1" step="0.01" 
           value={exploded}
-          onChange={(e) => setExploded(parseFloat(e.target.value))}
+          onChange={handleSliderChange}
           className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-neutral-900 hover:accent-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-400"
         />
       </div>
 
-      {/* 5. DRAG INDICATOR */}
+      {/* 4. DRAG INDICATOR */}
       <div className={`absolute bottom-8 left-8 z-40 pointer-events-none flex items-center gap-2 bg-black text-white px-4 py-2 rounded-full shadow-xl opacity-90 transition-opacity duration-1000 delay-500 ${!hasInteracted ? 'opacity-0' : 'opacity-100'}`}>
         <Move className="w-3 h-3" />
         <span className="text-[10px] font-bold uppercase tracking-wider">Drag to look around</span>
@@ -415,7 +419,7 @@ export default function FalconViewer() {
                     exploded={exploded} 
                     setHovered={setHovered} 
                     annotations={ANNOTATIONS.top}
-                    onAnnotationClick={setSelectedPart}
+                    onAnnotationClick={handleAnnotationClick}
                     selectedAnnotationId={selectedPart?.id}
                   />
                   <RocketSection 
@@ -424,7 +428,7 @@ export default function FalconViewer() {
                     exploded={exploded} 
                     setHovered={setHovered} 
                     annotations={ANNOTATIONS.middle}
-                    onAnnotationClick={setSelectedPart}
+                    onAnnotationClick={handleAnnotationClick}
                     selectedAnnotationId={selectedPart?.id}
                   />
                   <RocketSection 
@@ -433,7 +437,7 @@ export default function FalconViewer() {
                     exploded={exploded} 
                     setHovered={setHovered} 
                     annotations={ANNOTATIONS.bottom}
-                    onAnnotationClick={setSelectedPart}
+                    onAnnotationClick={handleAnnotationClick}
                     selectedAnnotationId={selectedPart?.id}
                   />
               </group>

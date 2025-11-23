@@ -9,7 +9,7 @@ import { Search, Move, AlertCircle } from "lucide-react";
 const ROCKET_STACK = {
   top: {
     file: "/rocket-parts/part_top.glb", 
-    // FLIPPED DIRECTION: Negative value moves it the "opposite" way on the Z-axis
+    // FLIPPED DIRECTION: Negative Z moves it "outwards" in the opposite direction
     explodeOffset: -120, 
     explodeAxis: "z", 
     baseMaterial: "white"
@@ -31,7 +31,7 @@ const ROCKET_STACK = {
 
 // --- ZOOM CONFIGURATION ---
 const ZOOM_ZONES = {
-  // Moved closer again to fill the screen (Was [250, 40, 350])
+  // Default view (Close enough to fill frame, but not too close)
   overview:             { pos: [180, 30, 250], look: [0, 10, 0] }, 
   
   fairing:              { pos: [50, 180, 50],  look: [0, 160, 0] },
@@ -40,10 +40,8 @@ const ZOOM_ZONES = {
   
   interstage:           { pos: [40, 50, 40],   look: [0, 30, 0] },
   
-  // Adjusted Grid Fins to be slightly more "top-down" to see the black lattice
   gridfins:             { pos: [35, 75, 35],   look: [0, 55, 0] },
   
-  // Tucked tighter under the tail
   "merlin 9 boosters":  { pos: [20, -70, 20],  look: [0, -45, 0] },
 };
 
@@ -137,7 +135,7 @@ function RocketSection({ config, exploded, setHovered }: any) {
 function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
   const [zoomPct, setZoomPct] = useState(100);
   const { camera } = useThree();
-  const BASE_DIST = 350; // Re-calibrated for new "100%"
+  const BASE_DIST = 350;
 
   useFrame(() => {
     if (!controlsRef.current) return;
@@ -264,14 +262,14 @@ export default function FalconViewer() {
             <ContactShadows resolution={1024} scale={300} blur={2} opacity={0.2} far={100} color="#000000" />
             
             {/* CAMERA CONTROLS 
-               - maxDistance reduced to 380 (Prevents zooming out too much)
+               - maxDistance INCREASED to 550 (was 380) to allow more zoom out
             */}
             <CameraControls 
               ref={cameraControlsRef} 
               minPolarAngle={0} 
               maxPolarAngle={Math.PI / 1.6} 
               minDistance={150} 
-              maxDistance={380} 
+              maxDistance={550} 
             />
             
             <ZoomIndicator controlsRef={cameraControlsRef} />

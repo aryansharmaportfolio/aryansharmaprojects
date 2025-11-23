@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, CameraControls, Html, Center, ContactShadows, useProgress, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { easing } from "maath";
-import { Search, MousePointer2, AlertCircle, ArrowDown, ChevronRight, ChevronDown, X } from "lucide-react";
+import { Search, MousePointer2, AlertCircle, ArrowDown, ChevronRight, ChevronDown, X, CornerUpLeft } from "lucide-react";
 
 // --- 1. CONFIGURATION ---
 const ROCKET_STACK = {
@@ -49,7 +49,7 @@ const PART_DETAILS: Record<string, {
   fairing: {
     title: "Payload Fairing",
     subtitle: "Composite Payload Protection",
-    description: "The fairing protects satellites and other payloads during ascent through Earth's atmosphere. Made of carbon composite material, the fairing is jettisoned approximately 3 minutes into flight.",
+    description: "The fairing protects satellites and other payloads during ascent through Earth's atmosphere. Made of carbon composite material, the fairing is jettisoned approximately 3 minutes into flight, allowing the payload to be deployed into orbit.",
     specs: [
         { label: "Height", value: "13.1 m / 43 ft" },
         { label: "Diameter", value: "5.2 m / 17 ft" },
@@ -318,10 +318,10 @@ export default function FalconViewer() {
         </div>
       )}
 
-      {/* 3. CLICK TO DRAG PROMPT - NOW VISIBLE IN BOTH VIEWS */}
-      <div className={`absolute bottom-8 right-8 z-40 transition-all duration-500`}>
-         <div className="flex items-center gap-3 bg-white/90 backdrop-blur border border-neutral-200 px-4 py-2 rounded-full shadow-lg hover:scale-105 transition-transform">
-            <MousePointer2 className="w-4 h-4 text-blue-500 animate-pulse" />
+      {/* 3. CLICK TO DRAG PROMPT - NOW ALWAYS VISIBLE IN BOTTOM RIGHT */}
+      <div className={`absolute bottom-8 right-8 z-[60]`}>
+         <div className="flex items-center gap-3 bg-white/90 backdrop-blur border border-neutral-200 px-4 py-2 rounded-full shadow-lg hover:scale-105 transition-transform animate-pulse">
+            <MousePointer2 className="w-4 h-4 text-blue-500" />
             <span className="text-[10px] font-bold text-neutral-600 uppercase tracking-widest">Click & Drag to Rotate</span>
          </div>
       </div>
@@ -353,31 +353,40 @@ export default function FalconViewer() {
 
       {/* 5. LEFT SIDEBAR: DETAILED VIEW (Sliding from Left) */}
       <div 
-        className={`absolute top-0 left-0 h-full w-full md:w-[450px] bg-neutral-950/95 backdrop-blur-xl z-50 text-white p-8 md:p-12 flex flex-col shadow-2xl transition-transform duration-700 ease-bezier ${!isOverview ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`absolute top-0 left-0 h-full w-full md:w-[400px] bg-neutral-950/95 backdrop-blur-xl z-50 text-white shadow-2xl transition-transform duration-700 ease-bezier flex flex-col ${!isOverview ? 'translate-x-0' : '-translate-x-full'}`}
         style={{ transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
       >
-        {/* BACKGROUND EFFECT */}
-        <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-blue-900/20 to-transparent pointer-events-none" />
+        {/* SIDEBAR HEADER - FIXED AT TOP */}
+        <div className="p-8 pb-4 shrink-0 border-b border-white/5 relative z-20 bg-neutral-950/50 backdrop-blur-md">
+            <div className="flex justify-between items-start gap-4">
+                 {/* VISIBLE RETURN BUTTON */}
+                <button 
+                    onClick={handleReturnToOverview}
+                    className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-lg transition-all border border-red-500/20 group w-full justify-center mb-4"
+                >
+                    <CornerUpLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+                    <span className="text-xs font-bold uppercase tracking-widest">Return to Overview</span>
+                </button>
+            </div>
+            
+            <div className="flex items-center justify-between">
+                <div className="px-3 py-1 border border-blue-500/30 bg-blue-500/10 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase text-blue-400">
+                    System Analysis
+                </div>
+                 {/* Small Close Icon as backup */}
+                 <button 
+                    onClick={handleReturnToOverview}
+                    className="p-1 rounded-full hover:bg-white/10 transition-colors text-neutral-500 hover:text-white"
+                >
+                    <X className="w-5 h-5" />
+                </button>
+            </div>
+        </div>
 
-        {/* CLOSE BUTTON - Positioned on right of the left panel */}
-        <button 
-            onClick={handleReturnToOverview}
-            className="absolute top-6 right-6 p-2 rounded-full hover:bg-white/10 transition-colors group z-20 border border-transparent hover:border-white/10"
-        >
-            <X className="w-6 h-6 text-neutral-400 group-hover:text-white" />
-        </button>
-
-        {/* CONTENT */}
-        <div className="mt-8 overflow-y-auto pr-2 custom-scrollbar h-full relative z-10">
+        {/* SCROLLABLE CONTENT AREA */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-8 pt-4 relative z-10">
             {currentDetails && (
                 <>
-                    <div className="flex items-center gap-2 mb-6">
-                        <div className="px-3 py-1 border border-blue-500/30 bg-blue-500/10 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase text-blue-400">
-                            System Analysis
-                        </div>
-                        <div className="h-px flex-1 bg-gradient-to-r from-blue-500/30 to-transparent" />
-                    </div>
-                    
                     <h2 className="text-4xl font-black tracking-tighter leading-none mb-2 text-transparent bg-clip-text bg-gradient-to-br from-white to-neutral-500">
                         {currentDetails.title}
                     </h2>
@@ -392,7 +401,7 @@ export default function FalconViewer() {
                     </p>
 
                     {/* ACCORDIONS WITH ENHANCED UI */}
-                    <div className="border-t border-white/10">
+                    <div className="border-t border-white/10 pb-20">
                         <DetailAccordion title="Technical Specifications" defaultOpen={true}>
                             <div className="grid grid-cols-2 gap-3 py-2">
                                 {currentDetails.specs.map((spec, i) => (
@@ -420,8 +429,8 @@ export default function FalconViewer() {
         </div>
       </div>
 
-      {/* 6. STAGE SEPARATION SLIDER - Moved Up to Bottom-24 to avoid cutoff */}
-      <div className={`absolute bottom-24 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-3 w-80 md:w-96 bg-white/90 p-4 md:p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md transition-all duration-500 ${!isOverview ? 'translate-y-40 opacity-0 pointer-events-none' : 'translate-y-0 opacity-100'}`}>
+      {/* 6. STAGE SEPARATION SLIDER - Moved Up SIGNIFICANTLY to Bottom-32 */}
+      <div className={`absolute bottom-32 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-3 w-80 md:w-96 bg-white/90 p-4 md:p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md transition-all duration-500 ${!isOverview ? 'opacity-0 pointer-events-none translate-y-20' : 'opacity-100 translate-y-0'}`}>
         <div className="flex justify-between w-full text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
           <span>Stowed</span>
           <span className="text-neutral-900">Stage Separation</span>

@@ -3,13 +3,12 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, CameraControls, Html, Center, ContactShadows, useProgress, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { easing } from "maath";
-import { Search, Move, AlertCircle } from "lucide-react";
+import { Search, Move, AlertCircle, MousePointerClick } from "lucide-react";
 
 // --- 1. CONFIGURATION ---
 const ROCKET_STACK = {
   top: {
     file: "/rocket-parts/part_top.glb", 
-    // MOVES OPPOSITE WAY (Negative Z)
     explodeOffset: -120, 
     explodeAxis: "z", 
     baseMaterial: "white"
@@ -31,17 +30,11 @@ const ROCKET_STACK = {
 
 // --- ZOOM CONFIGURATION ---
 const ZOOM_ZONES = {
-  // SET DEFAULT TO MAX ZOOM OUT DISTANCE (~500 units)
   overview:             { pos: [300, 50, 400], look: [0, 10, 0] }, 
-  
   fairing:              { pos: [50, 180, 50],  look: [0, 160, 0] },
-  
   "second stage booster": { pos: [60, 110, 60], look: [0, 120, 0] }, 
-  
   interstage:           { pos: [40, 50, 40],   look: [0, 30, 0] },
-  
   gridfins:             { pos: [35, 75, 35],   look: [0, 55, 0] },
-  
   "merlin 9 boosters":  { pos: [20, -70, 20],  look: [0, -45, 0] },
 };
 
@@ -68,12 +61,9 @@ function RocketSection({ config, exploded, setHovered }: any) {
       if (node.isMesh) {
         node.castShadow = true;
         node.receiveShadow = true;
-        
         if (node.geometry) {
           node.geometry.computeVertexNormals();
         }
-
-        // --- MATERIAL LOGIC ---
         if (config.baseMaterial === "white" && !config.accentMaterial) {
           node.material = new THREE.MeshStandardMaterial({
             color: "#ffffff", roughness: 0.3, metalness: 0.1,
@@ -87,7 +77,6 @@ function RocketSection({ config, exploded, setHovered }: any) {
         else if (config.baseMaterial === "white" && config.accentMaterial === "black") {
           const name = node.name.toLowerCase();
           const isEngineOrFin = name.includes("engine") || name.includes("nozzle") || name.includes("leg") || name.includes("octaweb");
-          
           if (isEngineOrFin) {
              node.material = new THREE.MeshStandardMaterial({
               color: "#151515", roughness: 0.5, metalness: 0.5,
@@ -102,21 +91,13 @@ function RocketSection({ config, exploded, setHovered }: any) {
     });
   }, [scene, config]);
 
-  // --- ANIMATION LOGIC ---
   useFrame((_, delta) => {
     if (!groupRef.current) return;
-    
     const offsetValue = exploded * config.explodeOffset;
     const targetPos: [number, number, number] = [0, 0, 0];
-
-    if (config.explodeAxis === "x") {
-      targetPos[0] = offsetValue; 
-    } else if (config.explodeAxis === "z") {
-      targetPos[2] = offsetValue; 
-    } else {
-      targetPos[1] = offsetValue; 
-    }
-
+    if (config.explodeAxis === "x") targetPos[0] = offsetValue; 
+    else if (config.explodeAxis === "z") targetPos[2] = offsetValue; 
+    else targetPos[1] = offsetValue; 
     easing.damp3(groupRef.current.position, targetPos, 0.3, delta);
   });
 
@@ -135,7 +116,7 @@ function RocketSection({ config, exploded, setHovered }: any) {
 function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
   const [zoomPct, setZoomPct] = useState(100);
   const { camera } = useThree();
-  const BASE_DIST = 500; // Matches default view distance
+  const BASE_DIST = 500; 
 
   useFrame(() => {
     if (!controlsRef.current) return;
@@ -170,9 +151,12 @@ function SceneController({ currentZone, cameraControlsRef }: any) {
 export default function FalconViewer() {
   const [exploded, setExploded] = useState(0); 
   const [currentZone, setCurrentZone] = useState("overview");
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [hovered, setHovered] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
+  
+  // NEW STATE: Tracks if the user has clicked the initial overlay
+  const [hasInteracted, setHasInteracted] = useState(false);
+  
   const cameraControlsRef = useRef<CameraControls>(null);
 
   const handleZoneClick = (zoneKey: string) => {
@@ -186,10 +170,31 @@ export default function FalconViewer() {
   };
 
   return (
-    <div className="w-full h-[700px] relative bg-white border border-neutral-200 overflow-hidden shadow-sm group">
+    <div className="w-full h-[700px] relative bg-white border border-neutral-200 overflow-hidden shadow-sm group select-none">
       
+      {/* --- NEW IMPRESSIVE INTRO OVERLAY --- */}
+      {/* This covers the entire viewer until clicked */}
+      <div 
+        className={`
+          absolute inset-0 z-[100] bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center 
+          transition-all duration-700 cursor-pointer
+          ${hasInteracted ? 'opacity-0 pointer-events-none' : 'opacity-100'}
+        `}
+        onClick={() => setHasInteracted(true)}
+      >
+        <div className="text-center group-hover:scale-105 transition-transform duration-500">
+          <MousePointerClick className="w-20 h-20 text-white mx-auto mb-6 animate-pulse opacity-90" />
+          <h2 className="text-5xl md:text-6xl font-black text-white tracking-tighter mb-4 drop-shadow-2xl">
+            CLICK TO DRAG
+          </h2>
+          <p className="text-white/70 font-mono text-sm uppercase tracking-[0.2em]">
+            Interactive 3D Schematic
+          </p>
+        </div>
+      </div>
+
       {/* 1. HEADER OVERLAY */}
-      <div className="absolute top-8 left-8 z-50 pointer-events-none">
+      <div className={`absolute top-8 left-8 z-50 pointer-events-none transition-opacity duration-1000 ${!hasInteracted ? 'opacity-0' : 'opacity-100'}`}>
         <h1 className="text-4xl font-black text-neutral-900 tracking-tighter">FALCON 9</h1>
         <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest mt-1">Interactive 3D Model</p>
       </div>
@@ -203,7 +208,7 @@ export default function FalconViewer() {
       )}
 
       {/* 3. ZOOM BUTTONS */}
-      <div className="absolute right-8 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2">
+      <div className={`absolute right-8 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2 transition-opacity duration-1000 delay-100 ${!hasInteracted ? 'opacity-0' : 'opacity-100'}`}>
         {Object.keys(ZOOM_ZONES).map((zone) => (
           <button
             key={zone}
@@ -221,7 +226,7 @@ export default function FalconViewer() {
       </div>
 
       {/* 4. STAGE SEPARATION SLIDER */}
-      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-3 w-96 bg-white/95 p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md">
+      <div className={`absolute bottom-24 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-3 w-96 bg-white/95 p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md transition-all duration-1000 delay-200 ${!hasInteracted ? 'translate-y-20 opacity-0' : 'translate-y-0 opacity-100'}`}>
         <div className="flex justify-between w-full text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
           <span>Stowed</span>
           <span className="text-neutral-900">Stage Separation</span>
@@ -236,8 +241,8 @@ export default function FalconViewer() {
         />
       </div>
 
-      {/* 5. DRAG INDICATOR - Moved to Bottom Left */}
-      <div className="absolute bottom-8 left-8 z-40 pointer-events-none flex items-center gap-2 bg-black text-white px-4 py-2 rounded-full shadow-xl opacity-90">
+      {/* 5. DRAG INDICATOR (Persistent Reminder) */}
+      <div className={`absolute bottom-8 left-8 z-40 pointer-events-none flex items-center gap-2 bg-black text-white px-4 py-2 rounded-full shadow-xl opacity-90 transition-opacity duration-1000 delay-500 ${!hasInteracted ? 'opacity-0' : 'opacity-100'}`}>
         <Move className="w-3 h-3" />
         <span className="text-[10px] font-bold uppercase tracking-wider">Drag to look around</span>
       </div>

@@ -191,7 +191,7 @@ export default function FalconViewer() {
       {/* 1. HEADER OVERLAY */}
       <div className="absolute top-8 left-8 z-50 pointer-events-none">
         <h1 className="text-4xl font-black text-neutral-900 tracking-tighter">FALCON 9</h1>
-        <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest mt-1">Interactive 3D Schematic</p>
+        <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest mt-1">Interactive 3D Model</p>
       </div>
 
       {/* 2. WARNING POPUP */}

@@ -1,20 +1,20 @@
 import { useState, useRef, useMemo } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useGLTF, useTexture, Decal, Environment, OrbitControls, Html, Center, PerspectiveCamera, ContactShadows } from "@react-three/drei";
+import { useGLTF, useTexture, Decal, Environment, OrbitControls, Html, Center, ContactShadows } from "@react-three/drei";
 import * as THREE from "three";
 import { easing } from "maath";
 
 // --- 1. CONFIGURATION ---
-// Define the 3 parts and their specific behavior
+// These point to the 3 parts you need to export from SolidWorks
 const ROCKET_STACK = {
   top: {
-    file: "/rocket-parts/part_top.glb", // Place files in public/rocket-parts/
-    explodeY: 6, // How far up it moves
+    file: "/rocket-parts/part_top.glb", 
+    explodeY: 6, // Moves UP 6 meters
     baseMaterial: "white"
   },
   middle: {
     file: "/rocket-parts/part_middle.glb",
-    explodeY: 3,
+    explodeY: 3, // Moves UP 3 meters
     baseMaterial: "black"
   },
   bottom: {
@@ -35,10 +35,11 @@ const ZOOM_ZONES = {
 };
 
 function RocketSection({ type, config, exploded, setHovered }: any) {
+  // Load the model
   const { scene } = useGLTF(config.file);
   const ref = useRef<THREE.Group>(null);
   
-  // Load textures for the bottom part
+  // Load your textures (Make sure these are in public folder!)
   const logoTex = useTexture('/spacex.png'); 
   const flagTex = useTexture('/flag.png');
 
@@ -49,7 +50,7 @@ function RocketSection({ type, config, exploded, setHovered }: any) {
         node.castShadow = true;
         node.receiveShadow = true;
         
-        // Override grey CAD material
+        // Override grey CAD material with nice paint
         if (config.baseMaterial === "white") {
           node.material = new THREE.MeshPhysicalMaterial({
             color: "#ffffff", roughness: 0.25, metalness: 0.1, clearcoat: 0.8
@@ -59,8 +60,6 @@ function RocketSection({ type, config, exploded, setHovered }: any) {
             color: "#111111", roughness: 0.8, metalness: 0.2
           });
         }
-        // Keep specific colors (like grid fins if they are distinct objects in the mesh)
-        // You can check node.name to apply titanium to grid fins specifically
       }
     });
   }, [scene, config]);
@@ -68,8 +67,7 @@ function RocketSection({ type, config, exploded, setHovered }: any) {
   // --- ANIMATION: The Explode Logic ---
   useFrame((state, delta) => {
     if (!ref.current) return;
-    // If exploded is true (1), move to explodeY. If false (0), move to 0 (assembled).
-    // We use specific offset logic to make it look like they slide apart.
+    // Move part based on 'exploded' slider value (0 to 1)
     const targetY = exploded * config.explodeY;
     easing.damp3(ref.current.position, [0, targetY, 0], 0.3, delta);
   });
@@ -85,11 +83,22 @@ function RocketSection({ type, config, exploded, setHovered }: any) {
       {/* --- DECALS: Only on the Bottom Part --- */}
       {config.hasDecals && (
         <>
-          {/* SpaceX Logo - You must TWEAK position/scale numbers manually */}
-          <Decal position={[0, 3, 1.55]} rotation={[0, 0, -Math.PI/2]} scale={[5, 0.8, 1]} map={logoTex} />
+          {/* SpaceX Logo - Vertical on the side */}
+          {/* Adjust 'position' X/Y/Z until it sits on the rocket surface */}
+          <Decal 
+            position={[0, 3, 1.6]} 
+            rotation={[0, 0, -Math.PI/2]} 
+            scale={[5, 0.8, 1]} 
+            map={logoTex} 
+          />
           
-          {/* Flag - Top of booster */}
-          <Decal position={[0, 8, 1.55]} rotation={[0, 0, 0]} scale={[0.8, 0.5, 1]} map={flagTex} />
+          {/* Flag - Near the top of booster */}
+          <Decal 
+            position={[0, 8, 1.6]} 
+            rotation={[0, 0, 0]} 
+            scale={[0.8, 0.5, 1]} 
+            map={flagTex} 
+          />
         </>
       )}
     </group>
@@ -100,10 +109,11 @@ function RocketSection({ type, config, exploded, setHovered }: any) {
 export default function FalconViewer() {
   const [exploded, setExploded] = useState(0); // 0 = closed, 1 = open
   const [cameraTarget, setCameraTarget] = useState("overview");
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [hovered, setHovered] = useState(false);
 
   return (
-    <div className="w-full h-[850px] relative bg-gradient-to-b from-neutral-900 to-neutral-950 rounded-2xl border border-white/10 overflow-hidden shadow-2xl">
+    <div className="w-full h-[600px] relative bg-gradient-to-b from-neutral-900 to-neutral-950 overflow-hidden">
       
       {/* --- UI OVERLAYS --- */}
       <div className="absolute top-8 left-8 z-10 pointer-events-none">
@@ -111,7 +121,7 @@ export default function FalconViewer() {
         <p className="text-white/60 text-sm font-mono uppercase tracking-widest">Interactive Schematic</p>
       </div>
 
-      {/* --- ZOOM LABELS (The Apple Feature) --- */}
+      {/* --- ZOOM LABELS --- */}
       <div className="absolute right-8 top-1/2 -translate-y-1/2 z-10 flex flex-col gap-4">
         {Object.keys(ZOOM_ZONES).map((zone) => (
           <button
@@ -119,7 +129,7 @@ export default function FalconViewer() {
             onClick={() => setCameraTarget(zone)}
             className={`
               text-right text-sm font-bold tracking-widest uppercase transition-all duration-300
-              ${cameraTarget === zone ? "text-primary scale-110" : "text-white/40 hover:text-white"}
+              ${cameraTarget === zone ? "text-white scale-110" : "text-white/40 hover:text-white"}
             `}
           >
             {zone}
@@ -167,10 +177,8 @@ export default function FalconViewer() {
 // --- CAMERA RIG (Smooth Zooming) ---
 function Rig({ target }: any) {
   useFrame((state, delta) => {
-    // Smoothly move camera to target position
     easing.damp3(state.camera.position, target.pos, 0.4, delta);
-    // Smoothly look at target center
-    const currentLookAt = new THREE.Vector3(0, 0, 0); // Placeholder
+    const currentLookAt = new THREE.Vector3(0, 0, 0); 
     easing.damp3(state.controls?.target || currentLookAt, target.look, 0.4, delta);
   });
   return null;

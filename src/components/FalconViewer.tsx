@@ -26,7 +26,7 @@ const ROCKET_STACK = {
 // DRASTICALLY INCREASED DISTANCES to fix "way too zoomed in" issue
 const ZOOM_ZONES = {
   // Moved camera way back (Z=80, X=50) to see the whole rocket comfortably
-  overview:   { pos: [50, 10, 80],  look: [0, 5, 0] }, 
+  overview:   { pos: [150, 10, 200],  look: [0, 5, 0] }, 
   fairing:    { pos: [10, 25, 25],  look: [0, 18, 0] },
   interstage: { pos: [12, 15, 20],  look: [0, 10, 0] }, 
   engines:    { pos: [12, -5, 20],  look: [0, -4, 0] },

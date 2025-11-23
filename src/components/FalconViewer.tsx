@@ -9,33 +9,27 @@ import { Search, Move, AlertCircle } from "lucide-react";
 const ROCKET_STACK = {
   top: {
     file: "/rocket-parts/part_top.glb", 
-    explodeY: 120, // Moves WAY up to reveal the MVac engine
+    explodeY: 120, 
     baseMaterial: "white"
   },
   middle: {
     file: "/rocket-parts/part_middle.glb",
-    explodeY: 0, // Interstage stays attached to the booster
+    explodeY: 0, 
     baseMaterial: "black"
   },
   bottom: {
     file: "/rocket-parts/part_bottom.glb",
     explodeY: 0, 
-    baseMaterial: "white", // Reverted to White per request
+    baseMaterial: "white", 
     accentMaterial: "black" 
   }
 };
 
 // --- ZOOM CONFIGURATION ---
-// "70% is the new 100%" -> We push coordinates out by ~1.4x
 const ZOOM_ZONES = {
-  // New "100%" View (Further back)
   overview:             { pos: [450, 80, 650], look: [0, 20, 0] }, 
-  
   fairing:              { pos: [50, 180, 50],  look: [0, 160, 0] },
-  
-  // Logic handled in component: If exploded, look at the engine of the separated stage
   "second stage booster": { pos: [40, 110, 40], look: [0, 120, 0] }, 
-  
   interstage:           { pos: [40, 50, 40],   look: [0, 30, 0] },
   gridfins:             { pos: [30, 40, 30],   look: [0, 25, 0] },
   "merlin 9 boosters":  { pos: [40, -50, 40],  look: [0, -60, 0] },
@@ -70,21 +64,17 @@ function RocketSection({ config, exploded, setHovered }: any) {
         }
 
         // --- MATERIAL LOGIC ---
-        // 1. Top Part (Fairing/2nd Stage) -> White
         if (config.baseMaterial === "white" && !config.accentMaterial) {
           node.material = new THREE.MeshStandardMaterial({
             color: "#ffffff", roughness: 0.3, metalness: 0.1,
           });
         } 
-        // 2. Middle Part (Interstage/Grid Fins) -> Black
         else if (config.baseMaterial === "black") {
           node.material = new THREE.MeshStandardMaterial({
             color: "#151515", roughness: 0.4, metalness: 0.3,
           });
         }
-        // 3. Bottom Part (Booster) -> White Body + Heuristic for black engines
         else if (config.baseMaterial === "white" && config.accentMaterial === "black") {
-          // Attempt to detect engine parts by name, otherwise default to white body
           const name = node.name.toLowerCase();
           const isEngineOrFin = name.includes("engine") || name.includes("nozzle") || name.includes("leg") || name.includes("octaweb");
           
@@ -123,7 +113,6 @@ function RocketSection({ config, exploded, setHovered }: any) {
 function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
   const [zoomPct, setZoomPct] = useState(100);
   const { camera } = useThree();
-  // New Base Distance = 750 (matches the new further back camera position)
   const BASE_DIST = 750; 
 
   useFrame(() => {
@@ -164,15 +153,12 @@ export default function FalconViewer() {
   const [warning, setWarning] = useState<string | null>(null);
   const cameraControlsRef = useRef<CameraControls>(null);
 
-  // Handle Button Clicks with Logic
   const handleZoneClick = (zoneKey: string) => {
-    // Logic: If user wants to see the 2nd stage engine, the rocket MUST be separated.
     if (zoneKey === "second stage booster" && exploded < 0.2) {
       setWarning("Reveal the Second Stage first!");
       setTimeout(() => setWarning(null), 3000);
-      return; // Do not zoom
+      return; 
     }
-    
     setWarning(null);
     setCurrentZone(zoneKey);
   };
@@ -186,7 +172,7 @@ export default function FalconViewer() {
         <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest mt-1">Interactive 3D Schematic</p>
       </div>
 
-      {/* 2. WARNING POPUP (If user tries to see hidden parts) */}
+      {/* 2. WARNING POPUP */}
       {warning && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] bg-red-500 text-white px-6 py-3 rounded-lg shadow-xl flex items-center gap-3 animate-bounce">
           <AlertCircle className="w-5 h-5" />
@@ -194,7 +180,7 @@ export default function FalconViewer() {
         </div>
       )}
 
-      {/* 3. ZOOM BUTTONS (Updated List) */}
+      {/* 3. ZOOM BUTTONS */}
       <div className="absolute right-8 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2">
         {Object.keys(ZOOM_ZONES).map((zone) => (
           <button
@@ -212,8 +198,8 @@ export default function FalconViewer() {
         ))}
       </div>
 
-      {/* 4. STAGE SEPARATION SLIDER (Prominent) */}
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-3 w-96 bg-white/95 p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md">
+      {/* 4. STAGE SEPARATION SLIDER - Moved UP (bottom-24) to avoid getting cut off */}
+      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-3 w-96 bg-white/95 p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md">
         <div className="flex justify-between w-full text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
           <span>Stowed</span>
           <span className="text-neutral-900">Stage Separation</span>
@@ -228,8 +214,8 @@ export default function FalconViewer() {
         />
       </div>
 
-      {/* 5. DRAG INDICATOR */}
-      <div className="absolute bottom-36 left-1/2 -translate-x-1/2 z-40 pointer-events-none flex items-center gap-2 bg-neutral-900 text-white px-4 py-2 rounded-full shadow-xl opacity-80">
+      {/* 5. DRAG INDICATOR - Moved DOWN (bottom-8) and made pure BLACK */}
+      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 pointer-events-none flex items-center gap-2 bg-black text-white px-4 py-2 rounded-full shadow-xl opacity-90">
         <Move className="w-3 h-3" />
         <span className="text-[10px] font-bold uppercase tracking-wider">Drag to look around</span>
       </div>
@@ -245,13 +231,8 @@ export default function FalconViewer() {
 
             <Center top>
               <group rotation={[0, 0, 0]}>
-                  {/* Top: Moves Up on Slider Change */}
                   <RocketSection type="top" config={ROCKET_STACK.top} exploded={exploded} setHovered={setHovered} />
-                  
-                  {/* Middle: Stays with Booster */}
                   <RocketSection type="middle" config={ROCKET_STACK.middle} exploded={exploded} setHovered={setHovered} />
-                  
-                  {/* Bottom: Static */}
                   <RocketSection type="bottom" config={ROCKET_STACK.bottom} exploded={exploded} setHovered={setHovered} />
               </group>
             </Center>
@@ -259,15 +240,15 @@ export default function FalconViewer() {
             <ContactShadows resolution={1024} scale={300} blur={2} opacity={0.2} far={100} color="#000000" />
             
             {/* CAMERA CONTROLS 
-               - minDistance={150}: Keeps camera safely outside model
-               - maxDistance={1200}: Allows wide contextual view
+               - minDistance={150}: Keep safe distance
+               - maxDistance={900}: REDUCED from 1200 per request (limits zoom out)
             */}
             <CameraControls 
               ref={cameraControlsRef} 
               minPolarAngle={0} 
               maxPolarAngle={Math.PI / 1.6} 
               minDistance={150} 
-              maxDistance={1200} 
+              maxDistance={900} 
             />
             
             <ZoomIndicator controlsRef={cameraControlsRef} />

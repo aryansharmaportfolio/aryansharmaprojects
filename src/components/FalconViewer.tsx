@@ -3,9 +3,88 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, CameraControls, Html, Center, ContactShadows, useProgress, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { easing } from "maath";
-import { Search, Move, AlertCircle, MousePointerClick, X, ChevronRight, ArrowDown } from "lucide-react";
+import { Search, Move, AlertCircle, MousePointerClick, X, ChevronRight, ArrowDown, Info, Minimize } from "lucide-react";
 
-// --- 1. DATA & CONFIGURATION ---
+// --- 1. CONFIGURATION & DATA ---
+
+// EDITING INSTRUCTIONS:
+// 1. markerPos: [X, Y, Z] -> Controls where the floating circle appears relative to the part.
+//    - Y is Vertical (Up/Down)
+//    - Z is Depth (Forward/Back)
+//    - X is Horizontal (Left/Right)
+// 2. camPos: [X, Y, Z] -> Where the camera moves TO when you click the marker.
+// 3. lookAt: [X, Y, Z] -> What point the camera looks AT when zoomed in.
+
+const ANNOTATIONS = {
+  top: [
+    {
+      id: "fairing",
+      title: "Composite Fairing",
+      subtitle: "Payload Protection",
+      desc: "Made of carbon composite material, the fairing protects satellites during delivery to orbit. It is jettisoned approximately 3 minutes into flight.",
+      stats: ["Height: 13.1m", "Diameter: 5.2m", "Mass: 1900kg"],
+      // Edit these numbers to move the pointer: [Horizontal, Vertical, Depth]
+      markerPos: [0, 55, 6], 
+      // Edit these numbers to change the zoomed-in view:
+      camPos: [40, 60, 40], 
+      lookAt: [0, 55, 0]
+    },
+    {
+      id: "second-stage",
+      title: "Second Stage",
+      subtitle: "Orbital Insertion",
+      desc: "Powered by a single Merlin Vacuum Engine, this stage delivers the payload to its final orbit. It carries its own fuel and oxidizer.",
+      stats: ["Thrust: 981 kN", "Burn Time: 397s", "Fuel: LOX/RP-1"],
+      markerPos: [0, 15, 6],
+      camPos: [40, 20, 40],
+      lookAt: [0, 15, 0]
+    }
+  ],
+  middle: [
+    {
+      id: "interstage",
+      title: "Interstage",
+      subtitle: "Pneumatic Pusher",
+      desc: "Connects the first and second stages. It houses the pneumatic pushers and protects the vacuum engine during ascent.",
+      stats: ["Material: Carbon Fiber", "Separation: Pneumatic"],
+      markerPos: [0, 6, 6],
+      camPos: [30, 10, 30],
+      lookAt: [0, 5, 0]
+    },
+    {
+      id: "gridfins",
+      title: "Titanium Grid Fins",
+      subtitle: "Hypersonic Control",
+      desc: "These heat-resistant titanium fins manipulate lift and drag during the booster's re-entry to steer it to the landing zone.",
+      stats: ["Material: Cast Titanium", "Control: Hydraulic/Electric"],
+      markerPos: [0, 14, 6], // Moved up slightly
+      camPos: [25, 25, 25],
+      lookAt: [0, 12, 0]
+    }
+  ],
+  bottom: [
+    {
+      id: "first-stage",
+      title: "First Stage",
+      subtitle: "Reusable Booster",
+      desc: "The main structural backbone of the rocket. It incorporates the propellant tanks for the 9 Merlin engines.",
+      stats: ["Height: 41.2m", "Diameter: 3.7m", "Empty Mass: 25,600kg"],
+      markerPos: [0, 20, 6],
+      camPos: [60, 20, 60],
+      lookAt: [0, 20, 0]
+    },
+    {
+      id: "merlin-engines",
+      title: "Merlin 1D Engines",
+      subtitle: "Propulsion System",
+      desc: "Nine Merlin 1D engines arranged in an Octaweb structure. They provide 1.7 million pounds of thrust at liftoff.",
+      stats: ["Thrust: 845 kN", "ISP: 282s", "Configuration: Octaweb"],
+      markerPos: [0, -42, 6],
+      camPos: [20, -60, 30], // Low angle looking up
+      lookAt: [0, -45, 0]
+    }
+  ]
+};
 
 const ROCKET_STACK = {
   top: {
@@ -29,74 +108,6 @@ const ROCKET_STACK = {
   }
 };
 
-// Technical Data for Annotations (Reduced to 6 Parts)
-const ANNOTATIONS = {
-  top: [
-    {
-      id: "fairing",
-      title: "Composite Fairing",
-      subtitle: "Payload Protection",
-      desc: "Made of carbon composite material, the fairing protects satellites during delivery to orbit. It is jettisoned approximately 3 minutes into flight once the rocket leaves the atmosphere.",
-      stats: ["Height: 13.1m", "Diameter: 5.2m", "Mass: 1900kg"],
-      pos: [0, 55, 5] 
-    },
-    {
-      id: "second-stage",
-      title: "Second Stage",
-      subtitle: "Orbital Insertion",
-      desc: "Powered by a single Merlin Vacuum Engine, this stage delivers the payload to its final orbit after stage separation. It carries its own fuel and oxidizer and is capable of multiple restarts.",
-      stats: ["Thrust: 981 kN", "Burn Time: 397s", "Fuel: LOX/RP-1"],
-      pos: [0, 15, 5]
-    }
-  ],
-  middle: [
-    {
-      id: "interstage",
-      title: "Interstage",
-      subtitle: "Pneumatic Pusher",
-      desc: "Connects the first and second stages. It houses the pneumatic pushers that physically push the stages apart during separation. The grid fins are also mounted to this structure.",
-      stats: ["Material: Carbon Fiber", "Separation: Pneumatic"],
-      pos: [0, 5, 5]
-    },
-    {
-      id: "gridfins",
-      title: "Titanium Grid Fins",
-      subtitle: "Hypersonic Control",
-      desc: "These heat-resistant titanium fins manipulate lift and drag during the booster's re-entry, steering it precisely to the landing zone.",
-      stats: ["Material: Cast Titanium", "Control: Hydraulic/Electric"],
-      pos: [0, 12, 5]
-    }
-  ],
-  bottom: [
-    {
-      id: "first-stage",
-      title: "First Stage",
-      subtitle: "Reusable Booster",
-      desc: "The main structural backbone of the rocket. It incorporates the propellant tanks for the 9 Merlin engines and landing gear for recovery.",
-      stats: ["Height: 41.2m", "Diameter: 3.7m", "Empty Mass: 25,600kg"],
-      pos: [0, 20, 5]
-    },
-    // Removed Landing Legs to keep count to 6 as requested
-    {
-      id: "merlin-engines",
-      title: "Octaweb / Merlin 1D",
-      subtitle: "Propulsion System",
-      desc: "Nine Merlin 1D engines arranged in an Octaweb structure. They provide 1.7 million pounds of thrust at liftoff.",
-      stats: ["Thrust (Sea Level): 845 kN", "ISP: 282s", "TWR: >150"],
-      pos: [0, -42, 5]
-    }
-  ]
-};
-
-const ZOOM_ZONES = {
-  overview:             { pos: [300, 50, 400], look: [0, 10, 0] }, 
-  fairing:              { pos: [50, 180, 50],  look: [0, 160, 0] },
-  "second stage booster": { pos: [60, 110, 60], look: [0, 120, 0] }, 
-  interstage:           { pos: [40, 50, 40],   look: [0, 30, 0] },
-  gridfins:             { pos: [35, 75, 35],   look: [0, 55, 0] },
-  "merlin 9 boosters":  { pos: [20, -70, 20],  look: [0, -45, 0] },
-};
-
 // --- LOADER ---
 function Loader() {
   const { progress } = useProgress();
@@ -109,35 +120,36 @@ function Loader() {
   );
 }
 
-// --- ANNOTATION COMPONENT ---
+// --- ANNOTATION MARKER COMPONENT ---
+// Sleek, transparent circle design
 function AnnotationMarker({ data, onClick, isSelected }: { data: any, onClick: () => void, isSelected: boolean }) {
   return (
-    <Html position={data.pos} zIndexRange={[100, 0]}>
+    <Html position={data.markerPos} zIndexRange={[100, 0]}>
       <div 
         className="group relative cursor-pointer"
         onClick={(e) => { e.stopPropagation(); onClick(); }}
       >
-        {/* The Marker Circle */}
+        {/* Outer Ring - Expands on hover */}
         <div className={`
-          w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all duration-300
-          ${isSelected ? 'border-white bg-white/20 scale-125' : 'border-white/60 bg-black/20 hover:border-white hover:scale-110'}
-        `}>
-          <div className={`w-2 h-2 bg-white rounded-full ${isSelected ? 'animate-none' : 'animate-pulse'}`} />
-        </div>
-
-        {/* Line Connector */}
+          absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2
+          rounded-full border border-white/40 transition-all duration-500 ease-out
+          ${isSelected ? 'w-12 h-12 border-white/80 opacity-100' : 'w-8 h-8 opacity-50 group-hover:w-10 group-hover:opacity-80'}
+        `} />
+        
+        {/* Inner Dot */}
         <div className={`
-          absolute left-full top-1/2 w-8 h-[1px] bg-white/50 origin-left transition-all duration-300
-          ${isSelected ? 'scale-x-100 opacity-100' : 'scale-x-0 opacity-0 group-hover:scale-x-100 group-hover:opacity-100'}
+          w-2 h-2 rounded-full bg-white/90 shadow-[0_0_10px_rgba(255,255,255,0.5)]
+          transition-transform duration-300
+          ${isSelected ? 'scale-150' : 'scale-100 group-hover:scale-125'}
         `} />
 
-        {/* Floating Label (Visible on Hover or Selected) */}
+        {/* Label (Hidden by default, shows on hover) */}
         <div className={`
-          absolute left-[calc(100%+2rem)] top-1/2 -translate-y-1/2 whitespace-nowrap
-          transition-all duration-300
-          ${isSelected ? 'opacity-100 translate-x-0' : 'opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:-translate-x-0'}
+          absolute left-[2rem] top-1/2 -translate-y-1/2 whitespace-nowrap
+          transition-all duration-300 pointer-events-none
+          ${isSelected ? 'opacity-0' : 'opacity-0 group-hover:opacity-100 translate-x-2'}
         `}>
-          <span className="text-white text-xs font-bold font-mono bg-black/80 px-2 py-1 rounded backdrop-blur-sm border border-white/10">
+          <span className="text-[10px] font-bold uppercase tracking-widest text-white bg-black/50 px-2 py-1 rounded backdrop-blur-sm">
             {data.title}
           </span>
         </div>
@@ -159,7 +171,6 @@ function RocketSection({ config, exploded, setHovered, annotations, onAnnotation
         node.receiveShadow = true;
         if (node.geometry) node.geometry.computeVertexNormals();
 
-        // Material Logic
         if (config.baseMaterial === "white" && !config.accentMaterial) {
           node.material = new THREE.MeshStandardMaterial({ color: "#ffffff", roughness: 0.3, metalness: 0.1 });
         } else if (config.baseMaterial === "black") {
@@ -193,8 +204,6 @@ function RocketSection({ config, exploded, setHovered, annotations, onAnnotation
       onPointerOut={() => setHovered(false)}
     >
       <primitive object={scene} />
-      
-      {/* Render Annotations ATTACHED to this specific stage */}
       {annotations && annotations.map((ann: any) => (
         <AnnotationMarker 
           key={ann.id} 
@@ -230,61 +239,56 @@ function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
   );
 }
 
-// --- SCENE CONTROLLER ---
-function SceneController({ currentZone, cameraControlsRef }: any) {
-  useEffect(() => {
-    if (cameraControlsRef.current && currentZone) {
-      const target = ZOOM_ZONES[currentZone as keyof typeof ZOOM_ZONES] || ZOOM_ZONES.overview;
-      const { pos, look } = target;
-      cameraControlsRef.current.setLookAt(pos[0], pos[1], pos[2], look[0], look[1], look[2], true);
-    }
-  }, [currentZone, cameraControlsRef]);
-
-  return null;
-}
-
 // --- MAIN COMPONENT ---
 export default function FalconViewer() {
   const [exploded, setExploded] = useState(0); 
-  const [currentZone, setCurrentZone] = useState("overview");
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [hovered, setHovered] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [showSliderHint, setShowSliderHint] = useState(false);
   
-  // SIDEBAR STATE
   const [selectedPart, setSelectedPart] = useState<any | null>(null);
-  
   const cameraControlsRef = useRef<CameraControls>(null);
 
-  // Handle Marker Clicks
+  // Main Interaction Handler
   const handleAnnotationClick = (annotation: any) => {
-    // Logic: If user clicks 'Second Stage' but rocket is NOT exploded enough
+    // Guard: Require separation for internal parts
     if (annotation.id === "second-stage" && exploded < 0.2) {
       setWarning("Deploy stage separation to view!");
-      setShowSliderHint(true); // Trigger the bouncing arrow at slider
-      
-      // Clear hint after 4 seconds
+      setShowSliderHint(true); 
       setTimeout(() => {
         setWarning(null);
         setShowSliderHint(false);
       }, 4000);
-      
-      return; // Do NOT open sidebar
+      return; 
     }
     
     setWarning(null);
     setSelectedPart(annotation);
-    
-    // Also zoom to that part if possible? (Optional, but feels nice)
-    // setCurrentZone(annotation.id); 
+
+    // FLY TO THE PART
+    if (cameraControlsRef.current) {
+      cameraControlsRef.current.setLookAt(
+        annotation.camPos[0], annotation.camPos[1], annotation.camPos[2], // Eye
+        annotation.lookAt[0], annotation.lookAt[1], annotation.lookAt[2], // Target
+        true // Animate
+      );
+    }
   };
 
-  // Handle Slider Interaction
+  // Handle "Click Out" logic
+  const resetView = () => {
+    setSelectedPart(null);
+    if (cameraControlsRef.current) {
+      // Return to Overview
+      cameraControlsRef.current.setLookAt(300, 50, 400, 0, 10, 0, true);
+    }
+  };
+
   const handleSliderChange = (e: any) => {
     setExploded(parseFloat(e.target.value));
-    if (showSliderHint) setShowSliderHint(false); // Dismiss hint on interaction
+    if (showSliderHint) setShowSliderHint(false);
   };
 
   return (
@@ -310,13 +314,36 @@ export default function FalconViewer() {
         </div>
       </div>
 
-      {/* 1. HEADER */}
-      <div className={`absolute top-8 left-8 z-50 pointer-events-none transition-opacity duration-1000 ${!hasInteracted ? 'opacity-0' : 'opacity-100'}`}>
+      {/* 1. TOP PROMPTS */}
+      <div className={`absolute top-8 left-0 right-0 z-50 pointer-events-none flex flex-col items-center transition-opacity duration-1000 ${!hasInteracted ? 'opacity-0' : 'opacity-100'}`}>
+        {/* Bouncing Prompt (Hides when a part is selected) */}
+        <div className={`
+          flex items-center gap-2 bg-white/90 backdrop-blur px-4 py-2 rounded-full shadow-lg border border-black/5
+          transition-all duration-500 transform
+          ${selectedPart ? 'translate-y-[-200%] opacity-0' : 'translate-y-0 opacity-100 animate-bounce'}
+        `}>
+          <Info className="w-4 h-4 text-blue-500" />
+          <span className="text-xs font-bold uppercase tracking-widest text-neutral-800">Click a part to explore details</span>
+        </div>
+
+        {/* Exit Prompt (Shows ONLY when a part is selected) */}
+        <div className={`
+          absolute top-0 flex items-center gap-2 bg-black/80 text-white backdrop-blur px-4 py-2 rounded-full shadow-lg
+          transition-all duration-500 transform
+          ${selectedPart ? 'translate-y-0 opacity-100' : 'translate-y-[-200%] opacity-0'}
+        `}>
+          <Minimize className="w-4 h-4" />
+          <span className="text-xs font-bold uppercase tracking-widest">Click background to return</span>
+        </div>
+      </div>
+
+      {/* 2. HEADER (Left) */}
+      <div className={`absolute top-8 left-8 z-40 pointer-events-none transition-opacity duration-1000 ${!hasInteracted ? 'opacity-0' : 'opacity-100'}`}>
         <h1 className="text-4xl font-black text-neutral-900 tracking-tighter">FALCON 9</h1>
         <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest mt-1">Interactive 3D Model</p>
       </div>
 
-      {/* 2. WARNING POPUP */}
+      {/* 3. WARNING POPUP */}
       {warning && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] bg-red-600 text-white px-6 py-3 rounded-lg shadow-xl flex items-center gap-3 animate-bounce">
           <AlertCircle className="w-5 h-5" />
@@ -332,15 +359,13 @@ export default function FalconViewer() {
         flex flex-col text-white
         ${selectedPart ? 'translate-x-0' : 'translate-x-full'}
       `}>
-        {/* Close Button */}
         <button 
-          onClick={() => setSelectedPart(null)}
+          onClick={resetView}
           className="absolute top-6 right-6 p-2 text-white/50 hover:text-white transition-colors"
         >
           <X className="w-6 h-6" />
         </button>
 
-        {/* Sidebar Content */}
         {selectedPart && (
           <div className="p-10 flex flex-col h-full overflow-y-auto">
             <div className="mb-8">
@@ -371,10 +396,9 @@ export default function FalconViewer() {
         )}
       </div>
 
-      {/* 3. SLIDER CONTAINER */}
+      {/* 4. SLIDER CONTAINER */}
       <div className={`absolute bottom-24 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-3 w-96 bg-white/95 p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md transition-all duration-1000 delay-200 ${!hasInteracted ? 'translate-y-20 opacity-0' : 'translate-y-0 opacity-100'} ${selectedPart ? 'opacity-0 pointer-events-none' : ''}`}>
         
-        {/* BOUNCING HINT ARROW (Only shows when needed) */}
         {showSliderHint && (
           <div className="absolute -top-12 left-1/2 -translate-x-1/2 text-red-600 animate-bounce flex flex-col items-center">
             <span className="text-xs font-black uppercase tracking-widest bg-white px-2 py-1 rounded shadow mb-1">Slide Me!</span>
@@ -396,14 +420,14 @@ export default function FalconViewer() {
         />
       </div>
 
-      {/* 4. DRAG INDICATOR */}
+      {/* 5. DRAG INDICATOR */}
       <div className={`absolute bottom-8 left-8 z-40 pointer-events-none flex items-center gap-2 bg-black text-white px-4 py-2 rounded-full shadow-xl opacity-90 transition-opacity duration-1000 delay-500 ${!hasInteracted ? 'opacity-0' : 'opacity-100'}`}>
         <Move className="w-3 h-3" />
         <span className="text-[10px] font-bold uppercase tracking-wider">Drag to look around</span>
       </div>
 
       {/* 3D CANVAS */}
-      <Canvas shadows dpr={[1, 2]} camera={{ fov: 45, position: [300, 50, 400], far: 5000 }}>
+      <Canvas shadows dpr={[1, 2]} camera={{ fov: 45, position: [300, 50, 400], far: 5000 }} onPointerMissed={resetView}>
         <color attach="background" args={['#ffffff']} />
         
         <Suspense fallback={<Loader />}>

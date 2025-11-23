@@ -9,7 +9,7 @@ import { Search, Move, AlertCircle } from "lucide-react";
 const ROCKET_STACK = {
   top: {
     file: "/rocket-parts/part_top.glb", 
-    // FLIPPED DIRECTION: Negative Z moves it "outwards" in the opposite direction
+    // MOVES OPPOSITE WAY (Negative Z)
     explodeOffset: -120, 
     explodeAxis: "z", 
     baseMaterial: "white"
@@ -31,8 +31,8 @@ const ROCKET_STACK = {
 
 // --- ZOOM CONFIGURATION ---
 const ZOOM_ZONES = {
-  // Default view (Close enough to fill frame, but not too close)
-  overview:             { pos: [180, 30, 250], look: [0, 10, 0] }, 
+  // SET DEFAULT TO MAX ZOOM OUT DISTANCE (~500 units)
+  overview:             { pos: [300, 50, 400], look: [0, 10, 0] }, 
   
   fairing:              { pos: [50, 180, 50],  look: [0, 160, 0] },
   
@@ -112,7 +112,7 @@ function RocketSection({ config, exploded, setHovered }: any) {
     if (config.explodeAxis === "x") {
       targetPos[0] = offsetValue; 
     } else if (config.explodeAxis === "z") {
-      targetPos[2] = offsetValue; // Moves on Depth Axis
+      targetPos[2] = offsetValue; 
     } else {
       targetPos[1] = offsetValue; 
     }
@@ -135,7 +135,7 @@ function RocketSection({ config, exploded, setHovered }: any) {
 function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
   const [zoomPct, setZoomPct] = useState(100);
   const { camera } = useThree();
-  const BASE_DIST = 350;
+  const BASE_DIST = 500; // Matches default view distance
 
   useFrame(() => {
     if (!controlsRef.current) return;
@@ -243,7 +243,7 @@ export default function FalconViewer() {
       </div>
 
       {/* 3D CANVAS */}
-      <Canvas shadows dpr={[1, 2]} camera={{ fov: 45, position: [180, 30, 250], far: 5000 }}>
+      <Canvas shadows dpr={[1, 2]} camera={{ fov: 45, position: [300, 50, 400], far: 5000 }}>
         <color attach="background" args={['#ffffff']} />
         
         <Suspense fallback={<Loader />}>
@@ -262,14 +262,15 @@ export default function FalconViewer() {
             <ContactShadows resolution={1024} scale={300} blur={2} opacity={0.2} far={100} color="#000000" />
             
             {/* CAMERA CONTROLS 
-               - maxDistance INCREASED to 550 (was 380) to allow more zoom out
+               - maxDistance allowed slightly more (600) so you can freely rotate 
+               without hitting a wall immediately at 500
             */}
             <CameraControls 
               ref={cameraControlsRef} 
               minPolarAngle={0} 
               maxPolarAngle={Math.PI / 1.6} 
               minDistance={150} 
-              maxDistance={550} 
+              maxDistance={600} 
             />
             
             <ZoomIndicator controlsRef={cameraControlsRef} />

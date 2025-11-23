@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, CameraControls, Html, Center, ContactShadows, useProgress, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { easing } from "maath";
-import { Search, Move, AlertCircle, ArrowDown, ChevronLeft, X } from "lucide-react";
+import { Search, Move, AlertCircle, ArrowDown, ChevronRight, ChevronDown, MousePointer2, X } from "lucide-react";
 
 // --- 1. CONFIGURATION ---
 const ROCKET_STACK = {
@@ -31,39 +31,103 @@ const ROCKET_STACK = {
 // --- ZOOM CONFIGURATION ---
 const ZOOM_ZONES = {
   overview:             { pos: [300, 50, 400], look: [0, 10, 0] },
-  
   fairing:              { pos: [50, 180, 50],  look: [0, 160, 0] },
-  
   "second stage booster": { pos: [60, 110, 60], look: [0, 120, 0] }, 
-  
   interstage:           { pos: [40, 50, 40],   look: [0, 30, 0] },
-  
   gridfins:             { pos: [35, 75, 35],   look: [0, 55, 0] },
-  
   "merlin 9 boosters":  { pos: [20, -70, 20],  look: [0, -45, 0] },
 };
 
-// --- PART DETAILS DATA ---
-const PART_DETAILS: Record<string, { title: string; description: string }> = {
+// --- PART DETAILS DATA STRUCTURE ---
+const PART_DETAILS: Record<string, { 
+    title: string; 
+    subtitle: string;
+    description: string;
+    specs: { label: string; value: string }[];
+    features: string[];
+}> = {
   fairing: {
     title: "Payload Fairing",
-    description: "The fairing protects satellites and other payloads during ascent through Earth's atmosphere. Made of carbon composite material, the fairing is jettisoned approximately 3 minutes into flight, allowing the payload to be deployed into orbit.",
+    subtitle: "Composite Payload Protection",
+    description: "The fairing protects satellites and other payloads during ascent through Earth's atmosphere. Made of carbon composite material, the fairing is jettisoned approximately 3 minutes into flight.",
+    specs: [
+        { label: "Height", value: "13.1 m / 43 ft" },
+        { label: "Diameter", value: "5.2 m / 17 ft" },
+        { label: "Mass", value: "~1900 kg" },
+        { label: "Material", value: "Carbon Composite" }
+    ],
+    features: [
+        "Pneumatic separation system",
+        "Recoverable via sea vessels",
+        "Acoustic absorption blankets",
+        "Radio-transparent windows"
+    ]
   },
   "second stage booster": {
     title: "Second Stage",
-    description: "The second stage, powered by a single Merlin Vacuum Engine, delivers the payload to its final orbit. It is designed to restart multiple times in space to place payloads into different trajectories.",
+    subtitle: "Orbital Insertion Stage",
+    description: "Powered by a single Merlin Vacuum Engine, the second stage delivers the payload to its final orbit. It is designed to restart multiple times in space to place payloads into different trajectories.",
+    specs: [
+        { label: "Engine", value: "1x Merlin Vacuum" },
+        { label: "Thrust", value: "981 kN / 220.5 klbf" },
+        { label: "Burn Time", value: "397 sec" },
+        { label: "Propellant", value: "LOX / RP-1" }
+    ],
+    features: [
+        "Multiple restart capability",
+        "Redundant flight computers",
+        "Nitrogen gas thrusters for attitude control",
+        "High-strength Al-Li alloy tanks"
+    ]
   },
   interstage: {
-    title: "Interstage & Pushers",
+    title: "Interstage",
+    subtitle: "Stage Connection & Separation",
     description: "The interstage connects the first and second stages. It houses the pneumatic pushers that separate the stages during flight. The grid fins are also stowed here during ascent.",
+    specs: [
+        { label: "Length", value: "Estimated ~8m" },
+        { label: "Material", value: "Carbon Fiber Composite" },
+        { label: "System", value: "Pneumatic Pusher" }
+    ],
+    features: [
+        "Encloses Merlin Vacuum Engine",
+        "Protects engine nozzle during ascent",
+        "Houses Grid Fin actuators",
+        "Grid fin stowage points"
+    ]
   },
   gridfins: {
     title: "Titanium Grid Fins",
+    subtitle: "Hypersonic Control Surfaces",
     description: "Hypersonic grid fins orient the rocket during reentry by moving the center of pressure. These heat-resistant titanium fins allow the first stage to steer itself through the atmosphere for a precise landing.",
+    specs: [
+        { label: "Material", value: "Cast Titanium" },
+        { label: "Actuation", value: "Open Hydraulic System" },
+        { label: "Quantity", value: "4 Fins" }
+    ],
+    features: [
+        "Withstands reentry temperatures",
+        "Foldable for ascent aerodynamics",
+        "Precise landing site targeting",
+        "Passive thermal protection"
+    ]
   },
   "merlin 9 boosters": {
-    title: "Merlin 9 Engines",
+    title: "First Stage / Octaweb",
+    subtitle: "Main Propulsion System",
     description: "The Octaweb houses nine Merlin 1D engines. These engines burn RP-1 rocket grade kerosene and liquid oxygen, generating over 1.7 million pounds of thrust at sea level to lift the vehicle off the pad.",
+    specs: [
+        { label: "Engines", value: "9x Merlin 1D" },
+        { label: "Thrust (SL)", value: "7,607 kN / 1.7M lbf" },
+        { label: "Thrust (Vac)", value: "8,227 kN / 1.8M lbf" },
+        { label: "TWR", value: "> 150:1 (Engine)" }
+    ],
+    features: [
+        "Octaweb stress distribution structure",
+        "Deep throttling capability",
+        "Propulsive landing capability",
+        "Engine-out redundancy"
+    ]
   },
 };
 
@@ -157,7 +221,7 @@ function RocketSection({ config, exploded, setHovered }: any) {
 function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
   const [zoomPct, setZoomPct] = useState(100);
   const { camera } = useThree();
-  const BASE_DIST = 500; // Matches default view distance
+  const BASE_DIST = 500; 
 
   useFrame(() => {
     if (!controlsRef.current) return;
@@ -187,6 +251,28 @@ function SceneController({ currentZone, cameraControlsRef }: any) {
   }, [currentZone, cameraControlsRef]);
 
   return null;
+}
+
+// --- ACCORDION COMPONENT FOR SIDEBAR ---
+function DetailAccordion({ title, children, defaultOpen = false }: { title: string, children: React.ReactNode, defaultOpen?: boolean }) {
+  const [isOpen, setIsOpen] = useState(defaultOpen);
+
+  return (
+    <div className="border-b border-white/10 last:border-0">
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full py-4 flex items-center justify-between text-left group"
+      >
+        <span className="text-sm font-bold uppercase tracking-wider text-neutral-200 group-hover:text-white transition-colors">
+          {title}
+        </span>
+        {isOpen ? <ChevronDown className="w-4 h-4 text-neutral-400" /> : <ChevronRight className="w-4 h-4 text-neutral-400" />}
+      </button>
+      <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isOpen ? 'max-h-96 opacity-100 mb-4' : 'max-h-0 opacity-0'}`}>
+        {children}
+      </div>
+    </div>
+  );
 }
 
 export default function FalconViewer() {
@@ -219,7 +305,7 @@ export default function FalconViewer() {
     <div className="w-full h-[700px] relative bg-white border border-neutral-200 overflow-hidden shadow-sm group font-sans">
       
       {/* 1. HEADER OVERLAY */}
-      <div className={`absolute top-8 left-8 z-50 transition-opacity duration-500 ${isOverview ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+      <div className={`absolute top-8 left-8 z-50 transition-all duration-500 ${isOverview ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
         <h1 className="text-4xl font-black text-neutral-900 tracking-tighter">FALCON 9</h1>
         <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest mt-1">Interactive 3D Model</p>
       </div>
@@ -232,19 +318,27 @@ export default function FalconViewer() {
         </div>
       )}
 
-      {/* 3. RIGHT SIDE: PART SELECTION & BOUNCING ARROW (Overview Only) */}
-      <div className={`absolute right-8 top-1/2 -translate-y-1/2 z-50 flex flex-col gap-2 transition-all duration-500 ${isOverview ? 'translate-x-0 opacity-100' : 'translate-x-20 opacity-0 pointer-events-none'}`}>
+      {/* 3. CLICK TO DRAG PROMPT */}
+      <div className={`absolute bottom-8 right-8 z-40 pointer-events-none transition-all duration-500 ${isOverview ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+         <div className="flex items-center gap-3 bg-white/90 backdrop-blur border border-neutral-200 px-4 py-2 rounded-full shadow-lg">
+            <MousePointer2 className="w-4 h-4 text-blue-500 animate-pulse" />
+            <span className="text-[10px] font-bold text-neutral-600 uppercase tracking-widest">Click & Drag to Rotate</span>
+         </div>
+      </div>
+
+      {/* 4. RIGHT SIDE: PART SELECTION & BOUNCING ARROW (Overview Only) */}
+      <div className={`absolute right-8 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2 transition-all duration-500 ${isOverview ? 'translate-x-0 opacity-100' : 'translate-x-20 opacity-0 pointer-events-none'}`}>
         
         {/* BOUNCING PROMPT */}
         <div className="absolute -top-16 right-0 w-48 text-right flex flex-col items-end gap-1 animate-bounce">
             <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest bg-white/90 px-2 py-1 rounded">
-                Click a part to learn more
+                Explore Components
             </span>
             <ArrowDown className="w-5 h-5 text-neutral-400 mr-4" />
         </div>
 
         {Object.keys(ZOOM_ZONES).map((zone) => {
-          if (zone === 'overview') return null; // Don't show overview button in list
+          if (zone === 'overview') return null; 
           return (
             <button
               key={zone}
@@ -257,40 +351,71 @@ export default function FalconViewer() {
         })}
       </div>
 
-      {/* 4. LEFT SIDE: DETAILED SIDEBAR (Detail View Only) */}
+      {/* 5. RIGHT SIDEBAR: DETAILED VIEW (Slide from Right) */}
       <div 
-        className={`absolute top-0 left-0 h-full w-full md:w-[400px] bg-black/85 backdrop-blur-md z-40 text-white p-12 flex flex-col justify-center transition-transform duration-700 ease-in-out ${!isOverview ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`absolute top-0 right-0 h-full w-full md:w-[450px] bg-neutral-950/95 backdrop-blur-xl z-50 text-white p-8 md:p-12 flex flex-col shadow-2xl transition-transform duration-700 ease-bezier ${!isOverview ? 'translate-x-0' : 'translate-x-full'}`}
+        style={{ transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
       >
-        <div className="space-y-6">
-            <div className="inline-block px-3 py-1 border border-white/20 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase text-neutral-400">
-                Component Detail
-            </div>
-            
-            <h2 className="text-4xl md:text-5xl font-black tracking-tighter leading-[0.9]">
-                {currentDetails?.title || currentZone.toUpperCase()}
-            </h2>
-            
-            <div className="w-12 h-1 bg-blue-500/80 rounded-full" />
-            
-            <p className="text-neutral-300 leading-relaxed text-sm md:text-base font-light opacity-90">
-                {currentDetails?.description || "Detailed specifications for this component are currently being updated from the engineering telemetry database."}
-            </p>
-        </div>
-
-        {/* RETURN BUTTON */}
+        {/* CLOSE BUTTON */}
         <button 
             onClick={handleReturnToOverview}
-            className="absolute top-8 right-8 md:left-12 md:right-auto md:top-12 flex items-center gap-2 text-neutral-400 hover:text-white transition-colors group"
+            className="absolute top-6 left-6 p-2 rounded-full hover:bg-white/10 transition-colors group"
         >
-            <div className="p-2 rounded-full border border-neutral-600 group-hover:border-white transition-colors">
-                <ChevronLeft className="w-4 h-4" />
-            </div>
-            <span className="text-xs font-bold uppercase tracking-widest">Back to Overview</span>
+            <X className="w-6 h-6 text-neutral-400 group-hover:text-white" />
         </button>
+
+        {/* CONTENT */}
+        <div className="mt-12 overflow-y-auto pr-2 custom-scrollbar h-full">
+            {currentDetails && (
+                <>
+                    <div className="inline-block px-3 py-1 border border-blue-500/30 bg-blue-500/10 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase text-blue-400 mb-6">
+                        Component Specs
+                    </div>
+                    
+                    <h2 className="text-4xl font-black tracking-tighter leading-none mb-2">
+                        {currentDetails.title}
+                    </h2>
+                    <h3 className="text-lg text-neutral-400 font-medium mb-6 tracking-tight">
+                        {currentDetails.subtitle}
+                    </h3>
+                    
+                    <div className="w-12 h-1 bg-blue-500 rounded-full mb-8" />
+                    
+                    <p className="text-neutral-300 leading-relaxed text-sm font-light opacity-90 mb-8">
+                        {currentDetails.description}
+                    </p>
+
+                    {/* ACCORDIONS */}
+                    <div className="border-t border-white/10">
+                        <DetailAccordion title="Technical Specifications" defaultOpen={true}>
+                            <div className="grid grid-cols-2 gap-4 py-2">
+                                {currentDetails.specs.map((spec, i) => (
+                                    <div key={i} className="flex flex-col">
+                                        <span className="text-[10px] uppercase tracking-wider text-neutral-500 font-bold">{spec.label}</span>
+                                        <span className="text-sm font-mono text-neutral-200">{spec.value}</span>
+                                    </div>
+                                ))}
+                            </div>
+                        </DetailAccordion>
+
+                        <DetailAccordion title="Mission Features">
+                            <ul className="space-y-2 py-2">
+                                {currentDetails.features.map((feature, i) => (
+                                    <li key={i} className="flex items-start gap-3 text-xs text-neutral-300">
+                                        <div className="w-1 h-1 bg-blue-500 rounded-full mt-1.5 shrink-0" />
+                                        {feature}
+                                    </li>
+                                ))}
+                            </ul>
+                        </DetailAccordion>
+                    </div>
+                </>
+            )}
+        </div>
       </div>
 
-      {/* 5. STAGE SEPARATION SLIDER (Visible in both, but dimmed in detail) */}
-      <div className={`absolute bottom-24 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-3 w-96 bg-white/95 p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md transition-opacity duration-500 ${!isOverview ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+      {/* 6. STAGE SEPARATION SLIDER */}
+      <div className={`absolute bottom-12 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-3 w-80 md:w-96 bg-white/90 p-4 md:p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md transition-all duration-500 ${!isOverview ? 'translate-y-32 opacity-0' : 'translate-y-0 opacity-100'}`}>
         <div className="flex justify-between w-full text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
           <span>Stowed</span>
           <span className="text-neutral-900">Stage Separation</span>
@@ -303,12 +428,6 @@ export default function FalconViewer() {
           onChange={(e) => setExploded(parseFloat(e.target.value))}
           className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-neutral-900 hover:accent-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-400"
         />
-      </div>
-
-      {/* 6. DRAG INDICATOR */}
-      <div className={`absolute bottom-8 left-8 z-40 pointer-events-none flex items-center gap-2 bg-black text-white px-4 py-2 rounded-full shadow-xl opacity-90 transition-opacity duration-300 ${!isOverview ? 'opacity-0' : 'opacity-100'}`}>
-        <Move className="w-3 h-3" />
-        <span className="text-[10px] font-bold uppercase tracking-wider">Drag to look around</span>
       </div>
 
       {/* 3D CANVAS */}

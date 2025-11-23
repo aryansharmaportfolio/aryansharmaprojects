@@ -1,6 +1,6 @@
-import { useState, useRef, useMemo, Suspense, useEffect } from "react";
+import { useState, useRef, useMemo, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useGLTF, useTexture, Decal, Environment, OrbitControls, Html, Center, ContactShadows, useProgress } from "@react-three/drei";
+import { useGLTF, Environment, OrbitControls, Html, Center, ContactShadows, useProgress } from "@react-three/drei"; // Removed Decal, useTexture
 import * as THREE from "three";
 import { easing } from "maath";
 
@@ -20,7 +20,7 @@ const ROCKET_STACK = {
     file: "/rocket-parts/part_bottom.glb",
     explodeY: 0, 
     baseMaterial: "white",
-    hasDecals: true
+    // hasDecals removed
   }
 };
 
@@ -45,41 +45,12 @@ function Loader() {
 }
 
 function RocketSection({ type, config, exploded, setHovered }: any) {
-  // Clone the scene to avoid modifying the cached GLTF instance directly
+  // We still clone the scene to ensure materials don't conflict if re-used
   const { scene: originalScene } = useGLTF(config.file);
   const scene = useMemo(() => originalScene.clone(), [originalScene]);
   
   const ref = useRef<THREE.Group>(null);
-  const [decalTarget, setDecalTarget] = useState<THREE.Mesh | null>(null);
-  
-  const logoTex = useTexture('/spacex.png'); 
-  const flagTex = useTexture('/flag.png');
 
-  // Find a valid mesh for decals
-  useEffect(() => {
-    if (config.hasDecals) {
-      let found: THREE.Mesh | null = null;
-      scene.traverse((node: any) => {
-        // STRICT CHECK: Ensure the node is a Mesh AND has valid geometry with position attributes
-        // This prevents the "getX of undefined" error which happens when Decal tries to project onto an empty or invalid geometry
-        if (
-          node.isMesh && 
-          node.geometry && 
-          node.geometry.attributes && 
-          node.geometry.attributes.position &&
-          !found
-        ) {
-          found = node;
-        }
-      });
-      setDecalTarget(found);
-    }
-  }, [scene, config.hasDecals]);
-
-  // Wrap the mesh in a stable ref object for the Decal component
-  const meshRef = useMemo(() => (decalTarget ? { current: decalTarget } : null), [decalTarget]);
-
-  // Apply materials
   useMemo(() => {
     scene.traverse((node: any) => {
       if (node.isMesh) {
@@ -112,14 +83,6 @@ function RocketSection({ type, config, exploded, setHovered }: any) {
       onPointerOut={() => setHovered(false)}
     >
       <primitive object={scene} />
-      
-      {/* Only render decals if we have a strictly valid mesh ref */}
-      {config.hasDecals && meshRef && (
-        <>
-          <Decal mesh={meshRef} position={[0, 3, 1.6]} rotation={[0, 0, -Math.PI/2]} scale={[5, 0.8, 1]} map={logoTex} />
-          <Decal mesh={meshRef} position={[0, 8, 1.6]} rotation={[0, 0, 0]} scale={[0.8, 0.5, 1]} map={flagTex} />
-        </>
-      )}
     </group>
   );
 }

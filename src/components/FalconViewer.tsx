@@ -9,17 +9,21 @@ import { Search, Move, AlertCircle } from "lucide-react";
 const ROCKET_STACK = {
   top: {
     file: "/rocket-parts/part_top.glb", 
-    explodeY: 120, 
+    // Changed to horizontal separation (X-axis)
+    explodeOffset: 120, 
+    explodeAxis: "x", 
     baseMaterial: "white"
   },
   middle: {
     file: "/rocket-parts/part_middle.glb",
-    explodeY: 0, 
+    explodeOffset: 0, 
+    explodeAxis: "y",
     baseMaterial: "black"
   },
   bottom: {
     file: "/rocket-parts/part_bottom.glb",
-    explodeY: 0, 
+    explodeOffset: 0, 
+    explodeAxis: "y",
     baseMaterial: "white", 
     accentMaterial: "black" 
   }
@@ -27,12 +31,20 @@ const ROCKET_STACK = {
 
 // --- ZOOM CONFIGURATION ---
 const ZOOM_ZONES = {
-  overview:             { pos: [450, 80, 650], look: [0, 20, 0] }, 
+  // Moved closer for a "filled frame" look (Was [450, 80, 650])
+  overview:             { pos: [350, 60, 450], look: [0, 10, 0] }, 
+  
   fairing:              { pos: [50, 180, 50],  look: [0, 160, 0] },
-  "second stage booster": { pos: [40, 110, 40], look: [0, 120, 0] }, 
+  
+  "second stage booster": { pos: [60, 110, 60], look: [0, 120, 0] }, 
+  
   interstage:           { pos: [40, 50, 40],   look: [0, 30, 0] },
-  gridfins:             { pos: [30, 40, 30],   look: [0, 25, 0] },
-  "merlin 9 boosters":  { pos: [40, -50, 40],  look: [0, -60, 0] },
+  
+  // Tweaked for better view of the black interstage/fins
+  gridfins:             { pos: [45, 65, 45],   look: [0, 55, 0] },
+  
+  // Focused strictly on the bottom engines
+  "merlin 9 boosters":  { pos: [30, -80, 30],  look: [0, -60, 0] },
 };
 
 // --- LOADER ---
@@ -92,10 +104,20 @@ function RocketSection({ config, exploded, setHovered }: any) {
     });
   }, [scene, config]);
 
+  // --- ANIMATION LOGIC (Horizontal vs Vertical) ---
   useFrame((_, delta) => {
     if (!groupRef.current) return;
-    const targetY = exploded * config.explodeY;
-    easing.damp3(groupRef.current.position, [0, targetY, 0], 0.3, delta);
+    
+    const offsetValue = exploded * config.explodeOffset;
+    const targetPos: [number, number, number] = [0, 0, 0];
+
+    if (config.explodeAxis === "x") {
+      targetPos[0] = offsetValue; // Move Horizontally
+    } else {
+      targetPos[1] = offsetValue; // Move Vertically (Default)
+    }
+
+    easing.damp3(groupRef.current.position, targetPos, 0.3, delta);
   });
 
   return (
@@ -113,7 +135,7 @@ function RocketSection({ config, exploded, setHovered }: any) {
 function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
   const [zoomPct, setZoomPct] = useState(100);
   const { camera } = useThree();
-  const BASE_DIST = 750; 
+  const BASE_DIST = 550; // Adjusted base for new zoom levels
 
   useFrame(() => {
     if (!controlsRef.current) return;
@@ -198,7 +220,7 @@ export default function FalconViewer() {
         ))}
       </div>
 
-      {/* 4. STAGE SEPARATION SLIDER - Moved UP (bottom-24) to avoid getting cut off */}
+      {/* 4. STAGE SEPARATION SLIDER */}
       <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-50 flex flex-col items-center gap-3 w-96 bg-white/95 p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md">
         <div className="flex justify-between w-full text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
           <span>Stowed</span>
@@ -214,14 +236,15 @@ export default function FalconViewer() {
         />
       </div>
 
-      {/* 5. DRAG INDICATOR - Moved DOWN (bottom-8) and made pure BLACK */}
+      {/* 5. DRAG INDICATOR */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-40 pointer-events-none flex items-center gap-2 bg-black text-white px-4 py-2 rounded-full shadow-xl opacity-90">
         <Move className="w-3 h-3" />
         <span className="text-[10px] font-bold uppercase tracking-wider">Drag to look around</span>
       </div>
 
       {/* 3D CANVAS */}
-      <Canvas shadows dpr={[1, 2]} camera={{ fov: 45, position: [450, 80, 650], far: 5000 }}>
+      {/* Reduced position coordinates to bring default view closer */}
+      <Canvas shadows dpr={[1, 2]} camera={{ fov: 45, position: [350, 60, 450], far: 5000 }}>
         <color attach="background" args={['#ffffff']} />
         
         <Suspense fallback={<Loader />}>
@@ -240,15 +263,14 @@ export default function FalconViewer() {
             <ContactShadows resolution={1024} scale={300} blur={2} opacity={0.2} far={100} color="#000000" />
             
             {/* CAMERA CONTROLS 
-               - minDistance={150}: Keep safe distance
-               - maxDistance={900}: REDUCED from 1200 per request (limits zoom out)
+               - maxDistance reduced to 600 (was 900) to limit zoom out
             */}
             <CameraControls 
               ref={cameraControlsRef} 
               minPolarAngle={0} 
               maxPolarAngle={Math.PI / 1.6} 
               minDistance={150} 
-              maxDistance={900} 
+              maxDistance={600} 
             />
             
             <ZoomIndicator controlsRef={cameraControlsRef} />

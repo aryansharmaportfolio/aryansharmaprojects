@@ -8,28 +8,27 @@ import { easing } from "maath";
 const ROCKET_STACK = {
   top: {
     file: "/rocket-parts/part_top.glb", 
-    explodeY: 6, 
+    explodeY: 25,  // Increased from 6 to 25 for dramatic effect
     baseMaterial: "white"
   },
   middle: {
     file: "/rocket-parts/part_middle.glb",
-    explodeY: 3, 
-    baseMaterial: "black"
+    explodeY: 10,  // Increased from 3 to 10
+    baseMaterial: "black" // Interstage/Grid fins
   },
   bottom: {
     file: "/rocket-parts/part_bottom.glb",
     explodeY: 0, 
-    baseMaterial: "black" // Changed to black per request (Engines/Legs/Fins)
+    baseMaterial: "black" // Engines/Legs
   }
 };
 
-// Coordinates for specific parts to zoom to
+// Adjusted coordinates to be further away to fix "too zoomed in" issue
 const ZOOM_ZONES = {
-  overview:   { pos: [10, 5, 15],  look: [0, 5, 0] },
-  fairing:    { pos: [3, 14, 5],   look: [0, 13, 0] },
-  interstage: { pos: [4, 9, 4],    look: [0, 8, 0] },
-  gridfins:   { pos: [3, 6, 3],    look: [0, 5, 0] },
-  engines:    { pos: [4, -1, 4],   look: [0, -2, 0] },
+  overview:   { pos: [20, 5, 35],   look: [0, 5, 0] }, // Default view (Max Zoom Out)
+  fairing:    { pos: [5, 20, 10],   look: [0, 18, 0] },
+  interstage: { pos: [6, 12, 8],    look: [0, 10, 0] }, // Grid fins area
+  engines:    { pos: [6, -5, 8],    look: [0, -4, 0] },
 };
 
 // --- LOADER ---
@@ -46,34 +45,31 @@ function Loader() {
 
 // --- ROCKET SECTION COMPONENT ---
 function RocketSection({ config, exploded, setHovered }: any) {
-  // Clone scene to avoid cached instance issues
   const { scene: originalScene } = useGLTF(config.file);
   const scene = useMemo(() => originalScene.clone(), [originalScene]);
   const groupRef = useRef<THREE.Group>(null);
 
-  // Apply "SolidWorks-style" materials
   useMemo(() => {
     scene.traverse((node: any) => {
       if (node.isMesh) {
         node.castShadow = true;
         node.receiveShadow = true;
         
-        // Remove flat shading if it exists to help with "low poly" look
+        // Ensure geometry calculates normals for smooth lighting
         if (node.geometry) {
           node.geometry.computeVertexNormals();
         }
 
+        // Apply Materials strictly based on config
         if (config.baseMaterial === "white") {
-          // Glossy white plastic/metal look
           node.material = new THREE.MeshStandardMaterial({
             color: "#ffffff", 
             roughness: 0.3, 
             metalness: 0.1,
           });
         } else if (config.baseMaterial === "black") {
-          // Dark matte metal look (for interstage/engines)
           node.material = new THREE.MeshStandardMaterial({
-            color: "#1a1a1a", 
+            color: "#151515", // Very dark grey instead of pure black for better definition
             roughness: 0.4, 
             metalness: 0.3,
           });
@@ -101,13 +97,10 @@ function RocketSection({ config, exploded, setHovered }: any) {
 }
 
 // --- SCENE CONTROLLER ---
-// Handles camera movement when buttons are clicked
 function SceneController({ currentZone, cameraControlsRef }: any) {
   useEffect(() => {
     if (cameraControlsRef.current && ZOOM_ZONES[currentZone as keyof typeof ZOOM_ZONES]) {
       const { pos, look } = ZOOM_ZONES[currentZone as keyof typeof ZOOM_ZONES];
-      // Smoothly fly the camera to the new position (x, y, z) and look at (tx, ty, tz)
-      // The 'true' argument enables transition animation
       cameraControlsRef.current.setLookAt(pos[0], pos[1], pos[2], look[0], look[1], look[2], true);
     }
   }, [currentZone, cameraControlsRef]);
@@ -131,7 +124,7 @@ export default function FalconViewer() {
         <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest mt-1">Interactive CAD View</p>
       </div>
 
-      {/* 2. ZOOM CONTROLS (Right Side) */}
+      {/* 2. ZOOM CONTROLS */}
       <div className="absolute right-6 top-1/2 -translate-y-1/2 z-10 flex flex-col gap-2">
         {Object.keys(ZOOM_ZONES).map((zone) => (
           <button
@@ -149,7 +142,7 @@ export default function FalconViewer() {
         ))}
       </div>
 
-      {/* 3. SLIDER CONTROL (Bottom Center) */}
+      {/* 3. SLIDER CONTROL */}
       <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-3 w-72 bg-white/90 p-4 rounded-xl border border-neutral-100 shadow-sm backdrop-blur-sm">
         <div className="flex justify-between w-full text-[10px] font-bold text-neutral-400 uppercase tracking-wider">
           <span>Assembled</span>
@@ -165,13 +158,11 @@ export default function FalconViewer() {
       </div>
 
       {/* 4. 3D CANVAS */}
-      <Canvas shadows dpr={[1, 2]} camera={{ fov: 45, position: [10, 5, 15] }}>
+      <Canvas shadows dpr={[1, 2]} camera={{ fov: 45, position: [20, 5, 35] }}>
         
-        {/* White background for SolidWorks feel */}
         <color attach="background" args={['#ffffff']} />
         
         <Suspense fallback={<Loader />}>
-            {/* Studio Lighting Environment */}
             <Environment preset="studio" />
             <ambientLight intensity={0.5} />
             <directionalLight position={[10, 10, 5]} intensity={1.5} castShadow />
@@ -184,13 +175,20 @@ export default function FalconViewer() {
               </group>
             </Center>
 
-            {/* Shadows for depth */}
             <ContactShadows resolution={1024} scale={50} blur={2} opacity={0.25} far={10} color="#000000" />
             
-            {/* Camera Controls: Allows dragging AND programmatic zooming */}
-            <CameraControls ref={cameraControlsRef} minPolarAngle={0} maxPolarAngle={Math.PI / 1.5} />
+            {/* CAMERA CONTROLS 
+              - minDistance: Prevents zooming too close (inside the model)
+              - maxDistance: Prevents zooming out too far (limits to 'overview' distance)
+            */}
+            <CameraControls 
+              ref={cameraControlsRef} 
+              minPolarAngle={0} 
+              maxPolarAngle={Math.PI / 1.6} 
+              minDistance={10} 
+              maxDistance={45} // Locked to keep model visible
+            />
             
-            {/* Helper to animate camera when state changes */}
             <SceneController currentZone={currentZone} cameraControlsRef={cameraControlsRef} />
         </Suspense>
       </Canvas>

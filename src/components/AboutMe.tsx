@@ -19,14 +19,14 @@ const AboutMe = () => {
   };
 
   return (
-    <section id="about" className="py-24 px-6 bg-background/95 backdrop-blur-sm">
+    <section id="about" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto max-w-6xl">
         
         {/* Standard 2-column grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
           
           {/* Left Column - Profile */}
-          <div className="flex flex-col items-center space-y-6 animate-fade-in">
+          <div className="flex flex-col items-center space-y-4 sm:space-y-6 animate-fade-in">
             
             {/* Wrapper for Image and Speech Bubble */}
             <div 
@@ -34,24 +34,24 @@ const AboutMe = () => {
               onMouseLeave={handleMouseLeave}
             >
               {/* Speech Bubble */}
-              <div className="absolute -top-20 -right-10 z-50 pointer-events-none select-none">
-                <div className="relative bg-white text-background px-5 py-3 rounded-2xl shadow-2xl 
+              <div className="absolute -top-12 sm:-top-20 -right-6 sm:-right-10 z-50 pointer-events-none select-none">
+                <div className="relative bg-white text-background px-3 sm:px-5 py-2 sm:py-3 rounded-2xl shadow-2xl 
                               transform scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 
                               transition-all duration-300 ease-out origin-bottom-left">
-                  <p className="text-sm font-bold whitespace-nowrap text-black">
+                  <p className="text-xs sm:text-sm font-bold whitespace-nowrap text-black">
                     {messages[messageIndex]}
                   </p>
-                  <div className="absolute -bottom-2 left-6 w-4 h-4 bg-white transform rotate-45"></div>
+                  <div className="absolute -bottom-2 left-4 sm:left-6 w-3 sm:w-4 h-3 sm:h-4 bg-white transform rotate-45"></div>
                 </div>
               </div>
 
               {/* Profile Image */}
-              <div className="w-64 h-64 rounded-full overflow-hidden border-4 border-primary shadow-2xl relative z-10 transition-transform duration-300 group-hover:scale-105">
+              <div className="w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-primary shadow-2xl relative z-10 transition-transform duration-300 group-hover:scale-105">
                 <img src={profilePicture} alt="Aryan Sharma" className="w-full h-full object-cover" />
               </div>
             </div>
             
-            <h2 className="text-3xl font-bold text-foreground">Aryan Sharma</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-foreground">Aryan Sharma</h2>
             
             <div className="flex flex-wrap gap-4 justify-center">
               <Button variant="outline" className="gap-2 border-2 border-foreground text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all" asChild>
@@ -77,10 +77,10 @@ const AboutMe = () => {
           </div>
 
           {/* Right Column - Bio */}
-          <div className="space-y-6 animate-fade-in">
+          <div className="space-y-4 sm:space-y-6 animate-fade-in">
             <TypewriterHeader text="About Me" />
             
-            <div className="space-y-4 text-lg text-muted-foreground leading-relaxed">
+            <div className="space-y-3 sm:space-y-4 text-sm sm:text-base md:text-lg text-muted-foreground leading-relaxed">
               <p className="text-white my-0">
                 I'm a student majoring in <span className="font-semibold text-foreground">Aerospace Engineering</span> at the University of Texas at Arlington, passionate about turning complex theories into a tangible reality. My path is rooted in hands-on application, from analyzing aircraft structural design on the Design-Build-Fly team to constructing high-powered rockets with UTA's AeroMavs. My dedication to aerospace took flight when I co-founded my high school's first aerospace club, growing it to over 115 members.
               </p>

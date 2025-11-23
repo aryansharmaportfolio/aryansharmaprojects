@@ -35,21 +35,21 @@ const DegreeProgress = () => {
   }, [isVisible]);
 
   return (
-    <div ref={containerRef} className="flex flex-col items-center text-center mt-8 animate-fade-in">
+    <div ref={containerRef} className="flex flex-col items-center text-center mt-6 sm:mt-8 animate-fade-in">
        {/* Label: Kept White and Readable */}
-       <span className="text-white text-sm md:text-base uppercase tracking-widest font-semibold mb-1">
+       <span className="text-white text-xs sm:text-sm md:text-base uppercase tracking-widest font-semibold mb-1">
          BS Aerospace Engineering
        </span>
        
-       {/* Big Percentage Number: Reduced size from 5xl/6xl to 4xl/5xl */}
+       {/* Big Percentage Number */}
        <div className="relative flex items-baseline justify-center my-1">
-         <span className="text-4xl md:text-5xl font-black text-white tracking-tighter text-shadow-glow transition-all duration-500 hover:scale-110 cursor-default">
+         <span className="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tighter text-shadow-glow transition-all duration-500 hover:scale-110 cursor-default">
            <Counter value={progress} />%
          </span>
        </div>
        
        {/* Context text */}
-       <span className="text-white/80 text-sm font-medium">
+       <span className="text-white/80 text-xs sm:text-sm font-medium">
          Degree Completed
        </span>
     </div>

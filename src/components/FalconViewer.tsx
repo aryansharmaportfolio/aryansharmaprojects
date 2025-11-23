@@ -177,7 +177,7 @@ export default function FalconViewer() {
 
   const handleZoneClick = (zoneKey: string) => {
     if (zoneKey === "second stage booster" && exploded < 0.2) {
-      setWarning("Reveal the Second Stage first!");
+      setWarning("Deploy stage seperation first!");
       setTimeout(() => setWarning(null), 3000);
       return; 
     }

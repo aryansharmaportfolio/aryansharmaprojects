@@ -304,6 +304,27 @@ export default function FalconViewer() {
   return (
     <div className="w-full h-[750px] relative bg-white border border-neutral-200 overflow-hidden shadow-sm group font-sans">
       
+      {/* CUSTOM SCROLLBAR STYLES */}
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 8px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent; 
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(80, 80, 80, 0.5); 
+            border-radius: 20px;
+            border: 2px solid rgba(0,0,0,0); /* Creates padding effect */
+            background-clip: content-box;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(120, 120, 120, 0.8);
+            border: 2px solid rgba(0,0,0,0);
+            background-clip: content-box;
+        }
+      `}</style>
+
       {/* 1. HEADER OVERLAY */}
       <div className={`absolute top-8 left-8 z-50 transition-all duration-500 ${isOverview ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
         <h1 className="text-4xl font-black text-neutral-900 tracking-tighter">FALCON 9</h1>
@@ -383,8 +404,8 @@ export default function FalconViewer() {
             </div>
         </div>
 
-        {/* SCROLLABLE CONTENT AREA */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-8 pt-4 relative z-10">
+        {/* SCROLLABLE CONTENT AREA - ADDED MORE PADDING BOTTOM (pb-40) */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-8 pt-4 relative z-10 pb-40">
             {currentDetails && (
                 <>
                     <h2 className="text-4xl font-black tracking-tighter leading-none mb-2 text-transparent bg-clip-text bg-gradient-to-br from-white to-neutral-500">
@@ -401,7 +422,7 @@ export default function FalconViewer() {
                     </p>
 
                     {/* ACCORDIONS WITH ENHANCED UI */}
-                    <div className="border-t border-white/10 pb-20">
+                    <div className="border-t border-white/10">
                         <DetailAccordion title="Technical Specifications" defaultOpen={true}>
                             <div className="grid grid-cols-2 gap-3 py-2">
                                 {currentDetails.specs.map((spec, i) => (
@@ -429,8 +450,8 @@ export default function FalconViewer() {
         </div>
       </div>
 
-      {/* 6. STAGE SEPARATION SLIDER - Moved Up SIGNIFICANTLY to Bottom-32 */}
-      <div className={`absolute bottom-32 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-3 w-80 md:w-96 bg-white/90 p-4 md:p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md transition-all duration-500 ${!isOverview ? 'opacity-0 pointer-events-none translate-y-20' : 'opacity-100 translate-y-0'}`}>
+      {/* 6. STAGE SEPARATION SLIDER - Moved Up EVEN HIGHER to Bottom-40 */}
+      <div className={`absolute bottom-40 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-3 w-80 md:w-96 bg-white/90 p-4 md:p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md transition-all duration-500 ${!isOverview ? 'opacity-0 pointer-events-none translate-y-20' : 'opacity-100 translate-y-0'}`}>
         <div className="flex justify-between w-full text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
           <span>Stowed</span>
           <span className="text-neutral-900">Stage Separation</span>

@@ -8,27 +8,28 @@ import { easing } from "maath";
 const ROCKET_STACK = {
   top: {
     file: "/rocket-parts/part_top.glb", 
-    explodeY: 25,  // Increased from 6 to 25 for dramatic effect
+    explodeY: 25, 
     baseMaterial: "white"
   },
   middle: {
     file: "/rocket-parts/part_middle.glb",
-    explodeY: 10,  // Increased from 3 to 10
-    baseMaterial: "black" // Interstage/Grid fins
+    explodeY: 10, 
+    baseMaterial: "black"
   },
   bottom: {
     file: "/rocket-parts/part_bottom.glb",
     explodeY: 0, 
-    baseMaterial: "black" // Engines/Legs
+    baseMaterial: "black"
   }
 };
 
-// Adjusted coordinates to be further away to fix "too zoomed in" issue
+// DRASTICALLY INCREASED DISTANCES to fix "way too zoomed in" issue
 const ZOOM_ZONES = {
-  overview:   { pos: [20, 5, 35],   look: [0, 5, 0] }, // Default view (Max Zoom Out)
-  fairing:    { pos: [5, 20, 10],   look: [0, 18, 0] },
-  interstage: { pos: [6, 12, 8],    look: [0, 10, 0] }, // Grid fins area
-  engines:    { pos: [6, -5, 8],    look: [0, -4, 0] },
+  // Moved camera way back (Z=80, X=50) to see the whole rocket comfortably
+  overview:   { pos: [50, 10, 80],  look: [0, 5, 0] }, 
+  fairing:    { pos: [10, 25, 25],  look: [0, 18, 0] },
+  interstage: { pos: [12, 15, 20],  look: [0, 10, 0] }, 
+  engines:    { pos: [12, -5, 20],  look: [0, -4, 0] },
 };
 
 // --- LOADER ---
@@ -55,12 +56,10 @@ function RocketSection({ config, exploded, setHovered }: any) {
         node.castShadow = true;
         node.receiveShadow = true;
         
-        // Ensure geometry calculates normals for smooth lighting
         if (node.geometry) {
           node.geometry.computeVertexNormals();
         }
 
-        // Apply Materials strictly based on config
         if (config.baseMaterial === "white") {
           node.material = new THREE.MeshStandardMaterial({
             color: "#ffffff", 
@@ -69,7 +68,7 @@ function RocketSection({ config, exploded, setHovered }: any) {
           });
         } else if (config.baseMaterial === "black") {
           node.material = new THREE.MeshStandardMaterial({
-            color: "#151515", // Very dark grey instead of pure black for better definition
+            color: "#151515",
             roughness: 0.4, 
             metalness: 0.3,
           });
@@ -78,7 +77,6 @@ function RocketSection({ config, exploded, setHovered }: any) {
     });
   }, [scene, config]);
 
-  // Handle Explode Animation
   useFrame((_, delta) => {
     if (!groupRef.current) return;
     const targetY = exploded * config.explodeY;
@@ -158,7 +156,7 @@ export default function FalconViewer() {
       </div>
 
       {/* 4. 3D CANVAS */}
-      <Canvas shadows dpr={[1, 2]} camera={{ fov: 45, position: [20, 5, 35] }}>
+      <Canvas shadows dpr={[1, 2]} camera={{ fov: 45, position: [50, 10, 80] }}>
         
         <color attach="background" args={['#ffffff']} />
         
@@ -178,15 +176,14 @@ export default function FalconViewer() {
             <ContactShadows resolution={1024} scale={50} blur={2} opacity={0.25} far={10} color="#000000" />
             
             {/* CAMERA CONTROLS 
-              - minDistance: Prevents zooming too close (inside the model)
-              - maxDistance: Prevents zooming out too far (limits to 'overview' distance)
+              maxDistance increased from 45 -> 120 so you can zoom out freely
             */}
             <CameraControls 
               ref={cameraControlsRef} 
               minPolarAngle={0} 
               maxPolarAngle={Math.PI / 1.6} 
               minDistance={10} 
-              maxDistance={45} // Locked to keep model visible
+              maxDistance={120} 
             />
             
             <SceneController currentZone={currentZone} cameraControlsRef={cameraControlsRef} />

@@ -9,8 +9,8 @@ import { Search, MousePointer2, AlertCircle, ArrowDown, ChevronRight, ChevronDow
 const ROCKET_STACK = {
   top: {
     file: "/rocket-parts/part_top.glb", 
-    explodeOffset: -120, // Distance to move
-    explodeAxis: "z",    // Axis to move along
+    explodeOffset: -120, 
+    explodeAxis: "z", 
     baseMaterial: "white"
   },
   middle: {
@@ -28,16 +28,33 @@ const ROCKET_STACK = {
   }
 };
 
-// --- ZOOM CONFIGURATION (Offets relative to the Object Center) ---
+// --- ZOOM CONFIGURATION (Tweaked for Level Views & Safe Distances) ---
 const ZOOM_ZONES = {
   overview:             { pos: [300, 50, 400], look: [0, 10, 0], type: "static" },
   
-  // Dynamic: Camera finds the object, then applies this offset relative to it
-  fairing:              { offset: [50, 20, 50],  lookOffset: [0, 10, 0], type: "dynamic" }, 
-  "second stage booster": { offset: [50, -20, 50], lookOffset: [0, -10, 0], type: "dynamic" }, 
+  // DYNAMIC PARTS
+  // Adjusted offset Y to match lookOffset Y for a "Perpendicular" feel
+  // Increased Distance (X/Z) to prevent phasing through the model
+  fairing: { 
+    offset: [100, 40, 100],     // Camera Position relative to mesh center
+    lookOffset: [0, 20, 0],     // Target Point relative to mesh center (Lifted up)
+    type: "dynamic" 
+  }, 
   
-  // Static: Fixed world coordinates for parts that don't move
-  interstage:           { pos: [40, 50, 40],   look: [0, 30, 0], type: "static" },
+  "second stage booster": { 
+    offset: [100, 10, 100],     // Further back to avoid clipping
+    lookOffset: [0, 10, 0],     // Looking slightly higher than geometric center
+    type: "dynamic" 
+  }, 
+  
+  // STATIC PARTS
+  // Interstage: Perfectly Perpendicular (Camera Y = Target Y)
+  interstage: { 
+    pos: [100, 48, 100],        // Level with target, far enough out
+    look: [0, 48, 0],           // Look exactly at the center height
+    type: "static" 
+  },
+  
   gridfins:             { pos: [35, 75, 35],   look: [0, 55, 0], type: "static" },
   "merlin 9 boosters":  { pos: [20, -70, 20],  look: [0, -45, 0], type: "static" },
 };
@@ -147,11 +164,10 @@ function Loader() {
   );
 }
 
-// --- ROCKET SECTION COMPONENT (With ForwardRef) ---
+// --- ROCKET SECTION COMPONENT ---
 const RocketSection = forwardRef(({ config, exploded, setHovered }: any, ref: any) => {
   const { scene: originalScene } = useGLTF(config.file);
   const scene = useMemo(() => originalScene.clone(), [originalScene]);
-  // Use internal ref if external not provided, to keep logic safe
   const internalRef = useRef<THREE.Group>(null);
   const groupRef = ref || internalRef;
 
@@ -160,12 +176,9 @@ const RocketSection = forwardRef(({ config, exploded, setHovered }: any, ref: an
       if (node.isMesh) {
         node.castShadow = true;
         node.receiveShadow = true;
-        
         if (node.geometry) {
           node.geometry.computeVertexNormals();
         }
-
-        // --- MATERIAL LOGIC ---
         if (config.baseMaterial === "white" && !config.accentMaterial) {
           node.material = new THREE.MeshStandardMaterial({
             color: "#ffffff", roughness: 0.3, metalness: 0.1,
@@ -179,7 +192,6 @@ const RocketSection = forwardRef(({ config, exploded, setHovered }: any, ref: an
         else if (config.baseMaterial === "white" && config.accentMaterial === "black") {
           const name = node.name.toLowerCase();
           const isEngineOrFin = name.includes("engine") || name.includes("nozzle") || name.includes("leg") || name.includes("octaweb");
-          
           if (isEngineOrFin) {
              node.material = new THREE.MeshStandardMaterial({
               color: "#151515", roughness: 0.5, metalness: 0.5,
@@ -194,13 +206,10 @@ const RocketSection = forwardRef(({ config, exploded, setHovered }: any, ref: an
     });
   }, [scene, config]);
 
-  // --- ANIMATION LOGIC ---
   useFrame((_, delta) => {
     if (!groupRef.current) return;
-    
     const offsetValue = exploded * config.explodeOffset;
     const targetPos: [number, number, number] = [0, 0, 0];
-
     if (config.explodeAxis === "x") {
       targetPos[0] = offsetValue; 
     } else if (config.explodeAxis === "z") {
@@ -208,7 +217,6 @@ const RocketSection = forwardRef(({ config, exploded, setHovered }: any, ref: an
     } else {
       targetPos[1] = offsetValue; 
     }
-
     easing.damp3(groupRef.current.position, targetPos, 0.3, delta);
   });
 
@@ -247,50 +255,43 @@ function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
   );
 }
 
-// --- SCENE CONTROLLER (BOUNDING BOX TRACKING) ---
+// --- SCENE CONTROLLER ---
 function SceneController({ currentZone, cameraControlsRef, topPartRef }: any) {
   const prevZone = useRef(currentZone);
-  // Track last known center to detect movement
   const lastCenter = useRef(new THREE.Vector3()); 
 
   useFrame(() => {
     if (!cameraControlsRef.current) return;
 
-    // 1. Get current Zone config
     const targetConfig = ZOOM_ZONES[currentZone as keyof typeof ZOOM_ZONES] || ZOOM_ZONES.overview;
 
-    // 2. Logic for Dynamic Tracking (Fairing / Second Stage)
+    // DYNAMIC TRACKING LOGIC
     if (targetConfig.type === "dynamic" && topPartRef.current) {
-        
-        // Calculate Bounding Box of the MOVING part in World Space
         const box = new THREE.Box3().setFromObject(topPartRef.current);
         const center = new THREE.Vector3();
-        box.getCenter(center); // <--- This gets the EXACT center of the mesh, wherever it is
+        box.getCenter(center); 
 
-        // Detect if the part moved (animation playing) or zone changed
         const zoneChanged = prevZone.current !== currentZone;
         const partMoved = center.distanceTo(lastCenter.current) > 0.1;
 
         if (zoneChanged || partMoved) {
             // Apply Offsets relative to the center of the mesh
+            // We use the `offset` from config to determine distance relative to the mesh center
             const camPos = new THREE.Vector3().copy(center).add(new THREE.Vector3(...targetConfig.offset));
             const camLook = new THREE.Vector3().copy(center).add(new THREE.Vector3(...targetConfig.lookOffset));
 
             cameraControlsRef.current.setLookAt(
                 camPos.x, camPos.y, camPos.z,
                 camLook.x, camLook.y, camLook.z,
-                true // Smooth transition
+                true 
             );
 
-            // Update trackers
             lastCenter.current.copy(center);
             prevZone.current = currentZone;
         }
     } 
-    
-    // 3. Logic for Static Parts (Overview, Bottom parts)
+    // STATIC LOGIC
     else if (prevZone.current !== currentZone) {
-        // Just move to the hardcoded static coordinates
         const { pos, look } = targetConfig;
         if(pos && look) {
             cameraControlsRef.current.setLookAt(
@@ -306,7 +307,7 @@ function SceneController({ currentZone, cameraControlsRef, topPartRef }: any) {
   return null;
 }
 
-// --- ACCORDION COMPONENT FOR SIDEBAR ---
+// --- ACCORDION COMPONENT ---
 function DetailAccordion({ title, children, defaultOpen = false }: { title: string, children: React.ReactNode, defaultOpen?: boolean }) {
   const [isOpen, setIsOpen] = useState(defaultOpen);
 
@@ -336,11 +337,9 @@ export default function FalconViewer() {
   const [warning, setWarning] = useState<string | null>(null);
   const cameraControlsRef = useRef<CameraControls>(null);
   
-  // Ref for the moving top part to track it
   const topPartRef = useRef<THREE.Group>(null);
 
   const handleZoneClick = (zoneKey: string) => {
-    // Prevent clicking separation dependent parts if not exploded
     if (zoneKey === "second stage booster" && exploded < 0.2) {
       setWarning("Deploy stage seperation first!");
       setTimeout(() => setWarning(null), 3000);
@@ -360,18 +359,13 @@ export default function FalconViewer() {
   return (
     <div className="w-full h-[750px] relative bg-white border border-neutral-200 overflow-hidden shadow-sm group font-sans">
       
-      {/* CUSTOM SCROLLBAR STYLES */}
       <style>{`
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 8px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: transparent; 
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
         .custom-scrollbar::-webkit-scrollbar-thumb {
             background: rgba(80, 80, 80, 0.5); 
             border-radius: 20px;
-            border: 2px solid rgba(0,0,0,0); /* Creates padding effect */
+            border: 2px solid rgba(0,0,0,0);
             background-clip: content-box;
         }
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
@@ -381,7 +375,7 @@ export default function FalconViewer() {
         }
       `}</style>
 
-      {/* 1. HEADER OVERLAY */}
+      {/* 1. HEADER */}
       <div className={`absolute top-8 left-8 z-50 transition-all duration-500 ${isOverview ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
         <h1 className="text-4xl font-black text-neutral-900 tracking-tighter">FALCON 9</h1>
         <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest mt-1">Interactive 3D Model</p>
@@ -395,7 +389,7 @@ export default function FalconViewer() {
         </div>
       )}
 
-      {/* 3. CLICK TO DRAG PROMPT - NOW ALWAYS VISIBLE IN BOTTOM RIGHT */}
+      {/* 3. CLICK TO DRAG PROMPT */}
       <div className={`absolute bottom-8 right-8 z-[60]`}>
          <div className="flex items-center gap-3 bg-white/90 backdrop-blur border border-neutral-200 px-4 py-2 rounded-full shadow-lg hover:scale-105 transition-transform animate-pulse">
             <MousePointer2 className="w-4 h-4 text-blue-500" />
@@ -403,10 +397,8 @@ export default function FalconViewer() {
          </div>
       </div>
 
-      {/* 4. RIGHT SIDE: PART SELECTION & BOUNCING ARROW (Overview Only) */}
+      {/* 4. OVERVIEW PART SELECTION */}
       <div className={`absolute right-8 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2 transition-all duration-500 ${isOverview ? 'translate-x-0 opacity-100' : 'translate-x-20 opacity-0 pointer-events-none'}`}>
-        
-        {/* BOUNCING PROMPT */}
         <div className="absolute -top-16 right-0 w-48 text-right flex flex-col items-end gap-1 animate-bounce">
             <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest bg-white/90 px-2 py-1 rounded">
                 Explore Components
@@ -428,15 +420,13 @@ export default function FalconViewer() {
         })}
       </div>
 
-      {/* 5. LEFT SIDEBAR: DETAILED VIEW (Sliding from Left) */}
+      {/* 5. SIDEBAR: DETAILED VIEW */}
       <div 
         className={`absolute top-0 left-0 h-full w-full md:w-[400px] bg-neutral-950/95 backdrop-blur-xl z-50 text-white shadow-2xl transition-transform duration-700 ease-bezier flex flex-col ${!isOverview ? 'translate-x-0' : '-translate-x-full'}`}
         style={{ transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
       >
-        {/* SIDEBAR HEADER - FIXED AT TOP */}
         <div className="p-8 pb-4 shrink-0 border-b border-white/5 relative z-20 bg-neutral-950/50 backdrop-blur-md">
             <div className="flex justify-between items-start gap-4">
-                 {/* VISIBLE RETURN BUTTON */}
                 <button 
                     onClick={handleReturnToOverview}
                     className="flex items-center gap-2 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-lg transition-all border border-red-500/20 group w-full justify-center mb-4"
@@ -450,7 +440,6 @@ export default function FalconViewer() {
                 <div className="px-3 py-1 border border-blue-500/30 bg-blue-500/10 rounded-full text-[10px] font-bold tracking-[0.2em] uppercase text-blue-400">
                     System Analysis
                 </div>
-                 {/* Small Close Icon as backup */}
                  <button 
                     onClick={handleReturnToOverview}
                     className="p-1 rounded-full hover:bg-white/10 transition-colors text-neutral-500 hover:text-white"
@@ -460,7 +449,6 @@ export default function FalconViewer() {
             </div>
         </div>
 
-        {/* SCROLLABLE CONTENT AREA - ADDED MORE PADDING BOTTOM (pb-40) */}
         <div className="flex-1 overflow-y-auto custom-scrollbar p-8 pt-4 relative z-10 pb-40">
             {currentDetails && (
                 <>
@@ -477,7 +465,6 @@ export default function FalconViewer() {
                         {currentDetails.description}
                     </p>
 
-                    {/* ACCORDIONS WITH ENHANCED UI */}
                     <div className="border-t border-white/10 pb-20">
                         <DetailAccordion title="Technical Specifications" defaultOpen={true}>
                             <div className="grid grid-cols-2 gap-3 py-2">
@@ -506,7 +493,7 @@ export default function FalconViewer() {
         </div>
       </div>
 
-      {/* 6. STAGE SEPARATION SLIDER - Moved Up EVEN HIGHER to Bottom-40 */}
+      {/* 6. SLIDER */}
       <div className={`absolute bottom-40 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-3 w-80 md:w-96 bg-white/90 p-4 md:p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md transition-all duration-500 ${!isOverview ? 'opacity-0 pointer-events-none translate-y-20' : 'opacity-100 translate-y-0'}`}>
         <div className="flex justify-between w-full text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
           <span>Stowed</span>
@@ -533,7 +520,6 @@ export default function FalconViewer() {
 
             <Center top>
               <group rotation={[0, 0, 0]}>
-                  {/* PASS REF TO TOP SECTION */}
                   <RocketSection ref={topPartRef} type="top" config={ROCKET_STACK.top} exploded={exploded} setHovered={setHovered} />
                   <RocketSection type="middle" config={ROCKET_STACK.middle} exploded={exploded} setHovered={setHovered} />
                   <RocketSection type="bottom" config={ROCKET_STACK.bottom} exploded={exploded} setHovered={setHovered} />
@@ -546,13 +532,12 @@ export default function FalconViewer() {
               ref={cameraControlsRef} 
               minPolarAngle={0} 
               maxPolarAngle={Math.PI / 1.6} 
-              minDistance={150} 
+              minDistance={80}  // LOWERED FROM 150 TO 80 TO ALLOW CLOSER VIEWS WITHOUT PHASING
               maxDistance={600} 
             />
             
             <ZoomIndicator controlsRef={cameraControlsRef} />
             
-            {/* PASS REF TO CONTROLLER FOR TRACKING */}
             <SceneController 
                 currentZone={currentZone} 
                 cameraControlsRef={cameraControlsRef} 

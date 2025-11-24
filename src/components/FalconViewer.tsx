@@ -9,8 +9,8 @@ import { Search, MousePointer2, AlertCircle, ArrowDown, ChevronRight, ChevronDow
 const ROCKET_STACK = {
   top: {
     file: "/rocket-parts/part_top.glb", 
-    explodeOffset: -120, 
-    explodeAxis: "z", 
+    explodeOffset: -120, // Distance to move
+    explodeAxis: "z",    // Axis to move along
     baseMaterial: "white"
   },
   middle: {
@@ -28,18 +28,21 @@ const ROCKET_STACK = {
   }
 };
 
-// --- ZOOM CONFIGURATION ---
-// These are the "Base" offsets relative to the part's center 
+// --- ZOOM CONFIGURATION (Offets relative to the Object Center) ---
 const ZOOM_ZONES = {
-  overview:             { pos: [300, 50, 400], look: [0, 10, 0] },
-  fairing:              { pos: [50, 180, 50],  look: [0, 160, 0] },
-  "second stage booster": { pos: [60, 110, 60], look: [0, 120, 0] }, 
-  interstage:           { pos: [40, 50, 40],   look: [0, 30, 0] },
-  gridfins:             { pos: [35, 75, 35],   look: [0, 55, 0] },
-  "merlin 9 boosters":  { pos: [20, -70, 20],  look: [0, -45, 0] },
+  overview:             { pos: [300, 50, 400], look: [0, 10, 0], type: "static" },
+  
+  // Dynamic: Camera finds the object, then applies this offset relative to it
+  fairing:              { offset: [50, 20, 50],  lookOffset: [0, 10, 0], type: "dynamic" }, 
+  "second stage booster": { offset: [50, -20, 50], lookOffset: [0, -10, 0], type: "dynamic" }, 
+  
+  // Static: Fixed world coordinates for parts that don't move
+  interstage:           { pos: [40, 50, 40],   look: [0, 30, 0], type: "static" },
+  gridfins:             { pos: [35, 75, 35],   look: [0, 55, 0], type: "static" },
+  "merlin 9 boosters":  { pos: [20, -70, 20],  look: [0, -45, 0], type: "static" },
 };
 
-// --- PART DETAILS DATA STRUCTURE ---
+// --- PART DETAILS DATA ---
 const PART_DETAILS: Record<string, { 
     title: string; 
     subtitle: string;
@@ -144,7 +147,7 @@ function Loader() {
   );
 }
 
-// --- ROCKET SECTION COMPONENT (Now with ForwardRef) ---
+// --- ROCKET SECTION COMPONENT (With ForwardRef) ---
 const RocketSection = forwardRef(({ config, exploded, setHovered }: any, ref: any) => {
   const { scene: originalScene } = useGLTF(config.file);
   const scene = useMemo(() => originalScene.clone(), [originalScene]);
@@ -244,52 +247,59 @@ function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
   );
 }
 
-// --- SCENE CONTROLLER (SMART TRACKING) ---
+// --- SCENE CONTROLLER (BOUNDING BOX TRACKING) ---
 function SceneController({ currentZone, cameraControlsRef, topPartRef }: any) {
   const prevZone = useRef(currentZone);
-  const lastMeshPos = useRef(new THREE.Vector3());
+  // Track last known center to detect movement
+  const lastCenter = useRef(new THREE.Vector3()); 
 
   useFrame(() => {
     if (!cameraControlsRef.current) return;
 
-    const isDynamicZone = currentZone === "fairing" || currentZone === "second stage booster";
-    const targetBase = ZOOM_ZONES[currentZone as keyof typeof ZOOM_ZONES] || ZOOM_ZONES.overview;
+    // 1. Get current Zone config
+    const targetConfig = ZOOM_ZONES[currentZone as keyof typeof ZOOM_ZONES] || ZOOM_ZONES.overview;
 
-    let offset = new THREE.Vector3(0, 0, 0);
-
-    // If tracking a moving part (Fairing/Second Stage), calculate real-time offset
-    if (isDynamicZone && topPartRef.current) {
-        offset.copy(topPartRef.current.position);
-    }
-
-    // Determine if we should update the camera:
-    // 1. Zone just changed
-    // 2. We are in a dynamic zone AND the mesh has moved significantly (user is sliding slider)
-    const zoneChanged = prevZone.current !== currentZone;
-    const meshMoved = isDynamicZone && offset.distanceTo(lastMeshPos.current) > 0.1;
-
-    if (zoneChanged || meshMoved) {
-        const { pos, look } = targetBase;
+    // 2. Logic for Dynamic Tracking (Fairing / Second Stage)
+    if (targetConfig.type === "dynamic" && topPartRef.current) {
         
-        // Calculate Final Targets relative to Mesh Position
-        const finalPx = pos[0] + offset.x;
-        const finalPy = pos[1] + offset.y;
-        const finalPz = pos[2] + offset.z;
-        
-        const finalLx = look[0] + offset.x;
-        const finalLy = look[1] + offset.y;
-        const finalLz = look[2] + offset.z;
+        // Calculate Bounding Box of the MOVING part in World Space
+        const box = new THREE.Box3().setFromObject(topPartRef.current);
+        const center = new THREE.Vector3();
+        box.getCenter(center); // <--- This gets the EXACT center of the mesh, wherever it is
 
-        // Update Camera
-        cameraControlsRef.current.setLookAt(
-            finalPx, finalPy, finalPz, 
-            finalLx, finalLy, finalLz, 
-            true // Enable transition for smoothness
-        );
+        // Detect if the part moved (animation playing) or zone changed
+        const zoneChanged = prevZone.current !== currentZone;
+        const partMoved = center.distanceTo(lastCenter.current) > 0.1;
 
-        // Update trackers
+        if (zoneChanged || partMoved) {
+            // Apply Offsets relative to the center of the mesh
+            const camPos = new THREE.Vector3().copy(center).add(new THREE.Vector3(...targetConfig.offset));
+            const camLook = new THREE.Vector3().copy(center).add(new THREE.Vector3(...targetConfig.lookOffset));
+
+            cameraControlsRef.current.setLookAt(
+                camPos.x, camPos.y, camPos.z,
+                camLook.x, camLook.y, camLook.z,
+                true // Smooth transition
+            );
+
+            // Update trackers
+            lastCenter.current.copy(center);
+            prevZone.current = currentZone;
+        }
+    } 
+    
+    // 3. Logic for Static Parts (Overview, Bottom parts)
+    else if (prevZone.current !== currentZone) {
+        // Just move to the hardcoded static coordinates
+        const { pos, look } = targetConfig;
+        if(pos && look) {
+            cameraControlsRef.current.setLookAt(
+                pos[0], pos[1], pos[2],
+                look[0], look[1], look[2],
+                true
+            );
+        }
         prevZone.current = currentZone;
-        lastMeshPos.current.copy(offset);
     }
   });
 
@@ -496,7 +506,7 @@ export default function FalconViewer() {
         </div>
       </div>
 
-      {/* 6. STAGE SEPARATION SLIDER - Moved Up to Bottom-40 */}
+      {/* 6. STAGE SEPARATION SLIDER - Moved Up EVEN HIGHER to Bottom-40 */}
       <div className={`absolute bottom-40 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-3 w-80 md:w-96 bg-white/90 p-4 md:p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md transition-all duration-500 ${!isOverview ? 'opacity-0 pointer-events-none translate-y-20' : 'opacity-100 translate-y-0'}`}>
         <div className="flex justify-between w-full text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
           <span>Stowed</span>

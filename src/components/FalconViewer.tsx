@@ -401,7 +401,7 @@ export default function FalconViewer() {
       <div className={`absolute right-8 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2 transition-all duration-500 ${isOverview ? 'translate-x-0 opacity-100' : 'translate-x-20 opacity-0 pointer-events-none'}`}>
         <div className="absolute -top-16 right-0 w-48 text-right flex flex-col items-end gap-1 animate-bounce">
             <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest bg-white/90 px-2 py-1 rounded">
-                Explore Components
+                Click On Each Part To View In More Detail!
             </span>
             <ArrowDown className="w-5 h-5 text-neutral-400 mr-4" />
         </div>

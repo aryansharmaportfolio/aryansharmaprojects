@@ -48,10 +48,10 @@ const ZOOM_ZONES = {
     refId: "top"    
   }, 
   
-  // FIXED: Lifted Y offsets by 28 units to target the black cylinder properly
+  // FIXED: Lifted Y offsets by 120 units to target the black cylinder properly
   interstage: { 
-    offset: [110, 100, 110],      // Lifted Camera UP
-    lookOffset: [0, 100, 0],      // Lifted Target UP
+    offset: [130, 120, 1000],      // Lifted Camera UP
+    lookOffset: [0, 120, 0],      // Lifted Target UP
     type: "dynamic",
     refId: "middle" 
   },

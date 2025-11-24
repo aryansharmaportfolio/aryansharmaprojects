@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, Suspense, useEffect } from "react";
+import { useState, useRef, useMemo, Suspense, useEffect, forwardRef } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, CameraControls, Html, Center, ContactShadows, useProgress, Environment } from "@react-three/drei";
 import * as THREE from "three";
@@ -29,9 +29,10 @@ const ROCKET_STACK = {
 };
 
 // --- ZOOM CONFIGURATION ---
+// These are the "Base" offsets relative to the part's center 
 const ZOOM_ZONES = {
-  overview:             { pos: [350, 50, 400], look: [0, 10, 0] },
-  fairing:              { pos: [80, 20, 0],  look: [0, 10, 0] },
+  overview:             { pos: [300, 50, 400], look: [0, 10, 0] },
+  fairing:              { pos: [50, 180, 50],  look: [0, 160, 0] },
   "second stage booster": { pos: [60, 110, 60], look: [0, 120, 0] }, 
   interstage:           { pos: [40, 50, 40],   look: [0, 30, 0] },
   gridfins:             { pos: [35, 75, 35],   look: [0, 55, 0] },
@@ -143,11 +144,13 @@ function Loader() {
   );
 }
 
-// --- ROCKET SECTION COMPONENT ---
-function RocketSection({ config, exploded, setHovered }: any) {
+// --- ROCKET SECTION COMPONENT (Now with ForwardRef) ---
+const RocketSection = forwardRef(({ config, exploded, setHovered }: any, ref: any) => {
   const { scene: originalScene } = useGLTF(config.file);
   const scene = useMemo(() => originalScene.clone(), [originalScene]);
-  const groupRef = useRef<THREE.Group>(null);
+  // Use internal ref if external not provided, to keep logic safe
+  const internalRef = useRef<THREE.Group>(null);
+  const groupRef = ref || internalRef;
 
   useMemo(() => {
     scene.traverse((node: any) => {
@@ -215,7 +218,8 @@ function RocketSection({ config, exploded, setHovered }: any) {
       <primitive object={scene} />
     </group>
   );
-}
+});
+RocketSection.displayName = "RocketSection";
 
 // --- ZOOM INDICATOR ---
 function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
@@ -240,15 +244,54 @@ function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
   );
 }
 
-// --- SCENE CONTROLLER ---
-function SceneController({ currentZone, cameraControlsRef }: any) {
-  useEffect(() => {
-    if (cameraControlsRef.current && currentZone) {
-      const target = ZOOM_ZONES[currentZone as keyof typeof ZOOM_ZONES] || ZOOM_ZONES.overview;
-      const { pos, look } = target;
-      cameraControlsRef.current.setLookAt(pos[0], pos[1], pos[2], look[0], look[1], look[2], true);
+// --- SCENE CONTROLLER (SMART TRACKING) ---
+function SceneController({ currentZone, cameraControlsRef, topPartRef }: any) {
+  const prevZone = useRef(currentZone);
+  const lastMeshPos = useRef(new THREE.Vector3());
+
+  useFrame(() => {
+    if (!cameraControlsRef.current) return;
+
+    const isDynamicZone = currentZone === "fairing" || currentZone === "second stage booster";
+    const targetBase = ZOOM_ZONES[currentZone as keyof typeof ZOOM_ZONES] || ZOOM_ZONES.overview;
+
+    let offset = new THREE.Vector3(0, 0, 0);
+
+    // If tracking a moving part (Fairing/Second Stage), calculate real-time offset
+    if (isDynamicZone && topPartRef.current) {
+        offset.copy(topPartRef.current.position);
     }
-  }, [currentZone, cameraControlsRef]);
+
+    // Determine if we should update the camera:
+    // 1. Zone just changed
+    // 2. We are in a dynamic zone AND the mesh has moved significantly (user is sliding slider)
+    const zoneChanged = prevZone.current !== currentZone;
+    const meshMoved = isDynamicZone && offset.distanceTo(lastMeshPos.current) > 0.1;
+
+    if (zoneChanged || meshMoved) {
+        const { pos, look } = targetBase;
+        
+        // Calculate Final Targets relative to Mesh Position
+        const finalPx = pos[0] + offset.x;
+        const finalPy = pos[1] + offset.y;
+        const finalPz = pos[2] + offset.z;
+        
+        const finalLx = look[0] + offset.x;
+        const finalLy = look[1] + offset.y;
+        const finalLz = look[2] + offset.z;
+
+        // Update Camera
+        cameraControlsRef.current.setLookAt(
+            finalPx, finalPy, finalPz, 
+            finalLx, finalLy, finalLz, 
+            true // Enable transition for smoothness
+        );
+
+        // Update trackers
+        prevZone.current = currentZone;
+        lastMeshPos.current.copy(offset);
+    }
+  });
 
   return null;
 }
@@ -282,6 +325,9 @@ export default function FalconViewer() {
   const [hovered, setHovered] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
   const cameraControlsRef = useRef<CameraControls>(null);
+  
+  // Ref for the moving top part to track it
+  const topPartRef = useRef<THREE.Group>(null);
 
   const handleZoneClick = (zoneKey: string) => {
     // Prevent clicking separation dependent parts if not exploded
@@ -353,7 +399,7 @@ export default function FalconViewer() {
         {/* BOUNCING PROMPT */}
         <div className="absolute -top-16 right-0 w-48 text-right flex flex-col items-end gap-1 animate-bounce">
             <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest bg-white/90 px-2 py-1 rounded">
-                Click To View Each Part!
+                Explore Components
             </span>
             <ArrowDown className="w-5 h-5 text-neutral-400 mr-4" />
         </div>
@@ -422,7 +468,7 @@ export default function FalconViewer() {
                     </p>
 
                     {/* ACCORDIONS WITH ENHANCED UI */}
-                    <div className="border-t border-white/10">
+                    <div className="border-t border-white/10 pb-20">
                         <DetailAccordion title="Technical Specifications" defaultOpen={true}>
                             <div className="grid grid-cols-2 gap-3 py-2">
                                 {currentDetails.specs.map((spec, i) => (
@@ -450,7 +496,7 @@ export default function FalconViewer() {
         </div>
       </div>
 
-      {/* 6. STAGE SEPARATION SLIDER - Moved Up EVEN HIGHER to Bottom-40 */}
+      {/* 6. STAGE SEPARATION SLIDER - Moved Up to Bottom-40 */}
       <div className={`absolute bottom-40 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-3 w-80 md:w-96 bg-white/90 p-4 md:p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md transition-all duration-500 ${!isOverview ? 'opacity-0 pointer-events-none translate-y-20' : 'opacity-100 translate-y-0'}`}>
         <div className="flex justify-between w-full text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
           <span>Stowed</span>
@@ -477,7 +523,8 @@ export default function FalconViewer() {
 
             <Center top>
               <group rotation={[0, 0, 0]}>
-                  <RocketSection type="top" config={ROCKET_STACK.top} exploded={exploded} setHovered={setHovered} />
+                  {/* PASS REF TO TOP SECTION */}
+                  <RocketSection ref={topPartRef} type="top" config={ROCKET_STACK.top} exploded={exploded} setHovered={setHovered} />
                   <RocketSection type="middle" config={ROCKET_STACK.middle} exploded={exploded} setHovered={setHovered} />
                   <RocketSection type="bottom" config={ROCKET_STACK.bottom} exploded={exploded} setHovered={setHovered} />
               </group>
@@ -494,7 +541,13 @@ export default function FalconViewer() {
             />
             
             <ZoomIndicator controlsRef={cameraControlsRef} />
-            <SceneController currentZone={currentZone} cameraControlsRef={cameraControlsRef} />
+            
+            {/* PASS REF TO CONTROLLER FOR TRACKING */}
+            <SceneController 
+                currentZone={currentZone} 
+                cameraControlsRef={cameraControlsRef} 
+                topPartRef={topPartRef}
+            />
         </Suspense>
       </Canvas>
     </div>

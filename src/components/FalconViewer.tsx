@@ -28,30 +28,35 @@ const ROCKET_STACK = {
   }
 };
 
-// --- ZOOM CONFIGURATION (Tweaked for Level Views & Safe Distances) ---
+// --- ZOOM CONFIGURATION ---
+// Now includes 'refId' to tell the SceneController which part to track
 const ZOOM_ZONES = {
   overview:             { pos: [300, 50, 400], look: [0, 10, 0], type: "static" },
   
   // DYNAMIC PARTS
   fairing: { 
-    offset: [100, 40, 100],     // Camera Position relative to mesh center
-    lookOffset: [0, 20, 0],     // Target Point relative to mesh center (Lifted up)
-    type: "dynamic" 
+    offset: [100, 40, 100],     
+    lookOffset: [0, 20, 0],     
+    type: "dynamic",
+    refId: "top"    // Tracks the Top Part
   }, 
   
   "second stage booster": { 
-    offset: [100, 10, 100],     // Further back to avoid clipping
-    lookOffset: [0, 10, 0],     // Looking slightly higher than geometric center
-    type: "dynamic" 
+    offset: [100, 10, 100],     
+    lookOffset: [0, 10, 0],     
+    type: "dynamic",
+    refId: "top"    // Tracks the Top Part
   }, 
   
-  // STATIC PARTS
+  // UPDATED: INTERSTAGE IS NOW DYNAMIC
   interstage: { 
-    pos: [100, 48, 100],        // Level with target, far enough out
-    look: [0, 48, 0],           // Look exactly at the center height
-    type: "static" 
+    offset: [110, 0, 110],       // Distance relative to the cylinder center
+    lookOffset: [0, 0, 0],       // Look exactly at the mesh center
+    type: "dynamic",
+    refId: "middle" // Tracks the Middle Part
   },
   
+  // STATIC PARTS
   gridfins:             { pos: [35, 75, 35],  look: [0, 55, 0], type: "static" },
   "merlin 9 boosters":  { pos: [20, -70, 20],  look: [0, -45, 0], type: "static" },
 };
@@ -253,7 +258,7 @@ function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
 }
 
 // --- SCENE CONTROLLER ---
-function SceneController({ currentZone, cameraControlsRef, topPartRef }: any) {
+function SceneController({ currentZone, cameraControlsRef, partsRefs }: any) {
   const prevZone = useRef(currentZone);
   const lastCenter = useRef(new THREE.Vector3()); 
 
@@ -262,9 +267,12 @@ function SceneController({ currentZone, cameraControlsRef, topPartRef }: any) {
 
     const targetConfig = ZOOM_ZONES[currentZone as keyof typeof ZOOM_ZONES] || ZOOM_ZONES.overview;
 
+    // Determine which part to track based on refId
+    const activePartRef = targetConfig.refId === "middle" ? partsRefs.middle : partsRefs.top;
+
     // DYNAMIC TRACKING LOGIC
-    if (targetConfig.type === "dynamic" && topPartRef.current) {
-        const box = new THREE.Box3().setFromObject(topPartRef.current);
+    if (targetConfig.type === "dynamic" && activePartRef?.current) {
+        const box = new THREE.Box3().setFromObject(activePartRef.current);
         const center = new THREE.Vector3();
         box.getCenter(center); 
 
@@ -332,7 +340,9 @@ export default function FalconViewer() {
   const [warning, setWarning] = useState<string | null>(null);
   const cameraControlsRef = useRef<CameraControls>(null);
   
+  // REFS FOR TRACKING PARTS
   const topPartRef = useRef<THREE.Group>(null);
+  const middlePartRef = useRef<THREE.Group>(null); // New ref for interstage
 
   const handleZoneClick = (zoneKey: string) => {
     if (zoneKey === "second stage booster" && exploded < 0.2) {
@@ -383,7 +393,6 @@ export default function FalconViewer() {
             <AlertCircle className="w-5 h-5" />
             <span className="font-bold text-sm uppercase tracking-wide">{warning}</span>
           </div>
-          {/* Arrow pointing down towards the slider */}
           <ArrowDown className="w-10 h-10 text-red-500 filter drop-shadow-md" strokeWidth={3} />
         </div>
       )}
@@ -524,7 +533,7 @@ export default function FalconViewer() {
             <Center top>
               <group rotation={[0, 0, 0]}>
                   <RocketSection ref={topPartRef} type="top" config={ROCKET_STACK.top} exploded={exploded} setHovered={setHovered} />
-                  <RocketSection type="middle" config={ROCKET_STACK.middle} exploded={exploded} setHovered={setHovered} />
+                  <RocketSection ref={middlePartRef} type="middle" config={ROCKET_STACK.middle} exploded={exploded} setHovered={setHovered} />
                   <RocketSection type="bottom" config={ROCKET_STACK.bottom} exploded={exploded} setHovered={setHovered} />
               </group>
             </Center>
@@ -544,7 +553,7 @@ export default function FalconViewer() {
             <SceneController 
                 currentZone={currentZone} 
                 cameraControlsRef={cameraControlsRef} 
-                topPartRef={topPartRef}
+                partsRefs={{ top: topPartRef, middle: middlePartRef }}
             />
         </Suspense>
       </Canvas>

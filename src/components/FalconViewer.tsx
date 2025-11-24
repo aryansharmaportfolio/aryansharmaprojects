@@ -30,8 +30,8 @@ const ROCKET_STACK = {
 
 // --- ZOOM CONFIGURATION ---
 const ZOOM_ZONES = {
-  overview:             { pos: [300, 50, 400], look: [0, 10, 0] },
-  fairing:              { pos: [1000, 180, 50],  look: [0, 160, 0] },
+  overview:             { pos: [350, 50, 400], look: [0, 10, 0] },
+  fairing:              { pos: [50, 50, 150],  look: [0, 10, 0] },
   "second stage booster": { pos: [60, 110, 60], look: [0, 120, 0] }, 
   interstage:           { pos: [40, 50, 40],   look: [0, 30, 0] },
   gridfins:             { pos: [35, 75, 35],   look: [0, 55, 0] },

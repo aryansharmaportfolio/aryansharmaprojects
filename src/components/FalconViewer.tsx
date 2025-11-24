@@ -29,7 +29,7 @@ const ROCKET_STACK = {
 };
 
 // --- ZOOM CONFIGURATION ---
-// Now includes 'refId' to tell the SceneController which part to track
+// UPDATED: Added Y-offsets to Interstage to fix "looking below" issue
 const ZOOM_ZONES = {
   overview:             { pos: [300, 50, 400], look: [0, 10, 0], type: "static" },
   
@@ -38,22 +38,22 @@ const ZOOM_ZONES = {
     offset: [100, 40, 100],     
     lookOffset: [0, 20, 0],     
     type: "dynamic",
-    refId: "top"    // Tracks the Top Part
+    refId: "top"    
   }, 
   
   "second stage booster": { 
     offset: [100, 10, 100],     
     lookOffset: [0, 10, 0],     
     type: "dynamic",
-    refId: "top"    // Tracks the Top Part
+    refId: "top"    
   }, 
   
-  // UPDATED: INTERSTAGE IS NOW DYNAMIC
+  // FIXED: Lifted Y offsets by 28 units to target the black cylinder properly
   interstage: { 
-    offset: [110, 0, 110],       // Distance relative to the cylinder center
-    lookOffset: [0, 0, 0],       // Look exactly at the mesh center
+    offset: [110, 28, 110],      // Lifted Camera UP
+    lookOffset: [0, 28, 0],      // Lifted Target UP
     type: "dynamic",
-    refId: "middle" // Tracks the Middle Part
+    refId: "middle" 
   },
   
   // STATIC PARTS
@@ -280,6 +280,7 @@ function SceneController({ currentZone, cameraControlsRef, partsRefs }: any) {
         const partMoved = center.distanceTo(lastCenter.current) > 0.1;
 
         if (zoneChanged || partMoved) {
+            // Apply Manual Offsets to the Calculated Center
             const camPos = new THREE.Vector3().copy(center).add(new THREE.Vector3(...targetConfig.offset));
             const camLook = new THREE.Vector3().copy(center).add(new THREE.Vector3(...targetConfig.lookOffset));
 
@@ -342,7 +343,7 @@ export default function FalconViewer() {
   
   // REFS FOR TRACKING PARTS
   const topPartRef = useRef<THREE.Group>(null);
-  const middlePartRef = useRef<THREE.Group>(null); // New ref for interstage
+  const middlePartRef = useRef<THREE.Group>(null);
 
   const handleZoneClick = (zoneKey: string) => {
     if (zoneKey === "second stage booster" && exploded < 0.2) {

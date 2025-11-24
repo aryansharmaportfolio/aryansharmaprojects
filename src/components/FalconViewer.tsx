@@ -33,8 +33,6 @@ const ZOOM_ZONES = {
   overview:             { pos: [300, 50, 400], look: [0, 10, 0], type: "static" },
   
   // DYNAMIC PARTS
-  // Adjusted offset Y to match lookOffset Y for a "Perpendicular" feel
-  // Increased Distance (X/Z) to prevent phasing through the model
   fairing: { 
     offset: [100, 40, 100],     // Camera Position relative to mesh center
     lookOffset: [0, 20, 0],     // Target Point relative to mesh center (Lifted up)
@@ -48,7 +46,6 @@ const ZOOM_ZONES = {
   }, 
   
   // STATIC PARTS
-  // Interstage: Perfectly Perpendicular (Camera Y = Target Y)
   interstage: { 
     pos: [100, 48, 100],        // Level with target, far enough out
     look: [0, 48, 0],           // Look exactly at the center height
@@ -275,8 +272,6 @@ function SceneController({ currentZone, cameraControlsRef, topPartRef }: any) {
         const partMoved = center.distanceTo(lastCenter.current) > 0.1;
 
         if (zoneChanged || partMoved) {
-            // Apply Offsets relative to the center of the mesh
-            // We use the `offset` from config to determine distance relative to the mesh center
             const camPos = new THREE.Vector3().copy(center).add(new THREE.Vector3(...targetConfig.offset));
             const camLook = new THREE.Vector3().copy(center).add(new THREE.Vector3(...targetConfig.lookOffset));
 
@@ -381,11 +376,15 @@ export default function FalconViewer() {
         <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest mt-1">Interactive 3D Model</p>
       </div>
 
-      {/* 2. WARNING POPUP */}
+      {/* 2. WARNING POPUP WITH ARROW */}
       {warning && (
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] bg-red-500 text-white px-6 py-3 rounded-lg shadow-xl flex items-center gap-3 animate-bounce">
-          <AlertCircle className="w-5 h-5" />
-          <span className="font-bold text-sm uppercase tracking-wide">{warning}</span>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] flex flex-col items-center animate-bounce">
+          <div className="bg-red-500 text-white px-6 py-3 rounded-lg shadow-xl flex items-center gap-3 mb-2">
+            <AlertCircle className="w-5 h-5" />
+            <span className="font-bold text-sm uppercase tracking-wide">{warning}</span>
+          </div>
+          {/* Arrow pointing down towards the slider */}
+          <ArrowDown className="w-10 h-10 text-red-500 filter drop-shadow-md" strokeWidth={3} />
         </div>
       )}
 
@@ -499,17 +498,6 @@ export default function FalconViewer() {
         ${warning ? 'bg-red-50/90 border-red-200 ring-2 ring-red-400 ring-offset-2' : 'bg-white/90 border-neutral-200'}
       `}>
         
-        {/* NEW: DYNAMIC PROMPT POINTER */}
-        {warning && (
-            <div className="absolute -top-24 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce z-50">
-                <div className="bg-red-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg uppercase tracking-wider mb-2 flex items-center gap-2 whitespace-nowrap">
-                    <MousePointer2 className="w-4 h-4" />
-                    Drag to Deploy!
-                </div>
-                <ArrowDown className="w-8 h-8 text-red-500 filter drop-shadow-sm" strokeWidth={3} />
-            </div>
-        )}
-
         <div className="flex justify-between w-full text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
           <span>Stowed</span>
           <span className="text-neutral-900">Stage Separation</span>
@@ -547,7 +535,7 @@ export default function FalconViewer() {
               ref={cameraControlsRef} 
               minPolarAngle={0} 
               maxPolarAngle={Math.PI / 1.6} 
-              minDistance={80}  // LOWERED FROM 150 TO 80 TO ALLOW CLOSER VIEWS WITHOUT PHASING
+              minDistance={80} 
               maxDistance={600} 
             />
             

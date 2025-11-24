@@ -35,15 +35,15 @@ const ZOOM_ZONES = {
   
   // DYNAMIC PARTS
   fairing: { 
-    offset: [100, 40, 100],     
-    lookOffset: [0, 20, 0],     
+    offset: [200, 40, 100],     
+    lookOffset: [-50, 20, 0],     
     type: "dynamic",
     refId: "top"    
   }, 
   
   "second stage booster": { 
-    offset: [100, 10, 100],     
-    lookOffset: [0, 10, 0],     
+    offset: [100, 100, 100],     
+    lookOffset: [0, 100, 0],     
     type: "dynamic",
     refId: "top"    
   }, 

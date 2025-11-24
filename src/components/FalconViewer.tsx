@@ -55,7 +55,7 @@ const ZOOM_ZONES = {
     type: "static" 
   },
   
-  gridfins:             { pos: [35, 75, 35],   look: [0, 55, 0], type: "static" },
+  gridfins:             { pos: [35, 75, 35],  look: [0, 55, 0], type: "static" },
   "merlin 9 boosters":  { pos: [20, -70, 20],  look: [0, -45, 0], type: "static" },
 };
 
@@ -494,7 +494,22 @@ export default function FalconViewer() {
       </div>
 
       {/* 6. SLIDER */}
-      <div className={`absolute bottom-40 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-3 w-80 md:w-96 bg-white/90 p-4 md:p-6 rounded-2xl border border-neutral-200 shadow-xl backdrop-blur-md transition-all duration-500 ${!isOverview ? 'opacity-0 pointer-events-none translate-y-20' : 'opacity-100 translate-y-0'}`}>
+      <div className={`absolute bottom-40 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-3 w-80 md:w-96 p-4 md:p-6 rounded-2xl border shadow-xl backdrop-blur-md transition-all duration-500 
+        ${!isOverview ? 'opacity-0 pointer-events-none translate-y-20' : 'opacity-100 translate-y-0'}
+        ${warning ? 'bg-red-50/90 border-red-200 ring-2 ring-red-400 ring-offset-2' : 'bg-white/90 border-neutral-200'}
+      `}>
+        
+        {/* NEW: DYNAMIC PROMPT POINTER */}
+        {warning && (
+            <div className="absolute -top-24 left-1/2 -translate-x-1/2 flex flex-col items-center animate-bounce z-50">
+                <div className="bg-red-500 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg uppercase tracking-wider mb-2 flex items-center gap-2 whitespace-nowrap">
+                    <MousePointer2 className="w-4 h-4" />
+                    Drag to Deploy!
+                </div>
+                <ArrowDown className="w-8 h-8 text-red-500 filter drop-shadow-sm" strokeWidth={3} />
+            </div>
+        )}
+
         <div className="flex justify-between w-full text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
           <span>Stowed</span>
           <span className="text-neutral-900">Stage Separation</span>
@@ -505,7 +520,7 @@ export default function FalconViewer() {
           min="0" max="1" step="0.01" 
           value={exploded}
           onChange={(e) => setExploded(parseFloat(e.target.value))}
-          className="w-full h-2 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-neutral-900 hover:accent-neutral-700 transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-400"
+          className={`w-full h-2 rounded-lg appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-400 ${warning ? 'bg-red-200 accent-red-500' : 'bg-neutral-200 accent-neutral-900 hover:accent-neutral-700'}`}
         />
       </div>
 

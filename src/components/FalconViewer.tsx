@@ -39,7 +39,7 @@ const ZOOM_ZONES: Record<string, ZoomZone> = {
   // DYNAMIC PARTS (track moving parts)
   fairing: { 
     offset: [100, 800, 300],     
-    lookOffset: [0, 20, 0],     
+    lookOffset: [-100, 20, 0],     
     type: "dynamic",
     refId: "top"    
   }, 

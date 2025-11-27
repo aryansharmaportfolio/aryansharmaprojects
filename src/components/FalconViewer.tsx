@@ -29,16 +29,13 @@ const ROCKET_STACK = {
 };
 
 // --- ZOOM CONFIGURATION ---
-type StaticZone = { pos: number[]; look: number[]; type: "static" };
-type DynamicZone = { offset: number[]; lookOffset: number[]; type: "dynamic"; refId: string };
-type ZoomZone = StaticZone | DynamicZone;
-
-const ZOOM_ZONES: Record<string, ZoomZone> = {
-  overview: { pos: [300, 50, 400], look: [0, 10, 0], type: "static" },
+// UPDATED: Added Y-offsets to Interstage to fix "looking below" issue
+const ZOOM_ZONES = {
+  overview:             { pos: [300, 50, 400], look: [0, 10, 0], type: "static" },
   
-  // DYNAMIC PARTS (track moving parts)
+  // DYNAMIC PARTS
   fairing: { 
-    offset: [100, 800, 300],     
+    offset: [-100, 40, 120],     
     lookOffset: [-100, 20, 0],     
     type: "dynamic",
     refId: "top"    
@@ -51,18 +48,17 @@ const ZOOM_ZONES: Record<string, ZoomZone> = {
     refId: "top"    
   }, 
   
+  // FIXED: Lifted Y offsets by 120 units to target the black cylinder properly
   interstage: { 
-    offset: [200, 120, 80],
-    lookOffset: [-50, 120, 0],
+    offset: [200, 120, 80],      // Lifted Camera UP
+    lookOffset: [-50, 120, 0],      // Lifted Target UP
     type: "dynamic",
     refId: "middle" 
   },
   
-  // STATIC PARTS - Bottom stage components
-  // Gridfins are located near the top of the first stage (just below interstage)
-  gridfins: { pos: [80, 30, 80], look: [0, 15, 0], type: "static" },
-  // Merlin 9 boosters are at the very bottom - camera looks up at engine bells
-  "merlin 9 boosters": { pos: [60, -100, 60], look: [0, -60, 0], type: "static" },
+  // STATIC PARTS
+  gridfins:             { pos: [35, 75, 35],  look: [0, 55, 0], type: "static" },
+  "merlin 9 boosters":  { pos: [20, -70, 20],  look: [0, -45, 0], type: "static" },
 };
 
 // --- PART DETAILS DATA ---
@@ -172,8 +168,7 @@ function Loader() {
 
 // --- ROCKET SECTION COMPONENT ---
 const RocketSection = forwardRef(({ config, exploded, setHovered }: any, ref: any) => {
-  const gltf = useGLTF(config.file) as { scene: THREE.Group };
-  const originalScene = gltf.scene;
+  const { scene: originalScene } = useGLTF(config.file);
   const scene = useMemo(() => originalScene.clone(), [originalScene]);
   const internalRef = useRef<THREE.Group>(null);
   const groupRef = ref || internalRef;
@@ -272,12 +267,11 @@ function SceneController({ currentZone, cameraControlsRef, partsRefs }: any) {
 
     const targetConfig = ZOOM_ZONES[currentZone as keyof typeof ZOOM_ZONES] || ZOOM_ZONES.overview;
 
-    // DYNAMIC TRACKING LOGIC
-    if (targetConfig.type === "dynamic") {
-      const dynamicConfig = targetConfig as DynamicZone;
-      const activePartRef = dynamicConfig.refId === "middle" ? partsRefs.middle : partsRefs.top;
+    // Determine which part to track based on refId
+    const activePartRef = targetConfig.refId === "middle" ? partsRefs.middle : partsRefs.top;
 
-      if (activePartRef?.current) {
+    // DYNAMIC TRACKING LOGIC
+    if (targetConfig.type === "dynamic" && activePartRef?.current) {
         const box = new THREE.Box3().setFromObject(activePartRef.current);
         const center = new THREE.Vector3();
         box.getCenter(center); 
@@ -286,8 +280,9 @@ function SceneController({ currentZone, cameraControlsRef, partsRefs }: any) {
         const partMoved = center.distanceTo(lastCenter.current) > 0.1;
 
         if (zoneChanged || partMoved) {
-            const camPos = new THREE.Vector3().copy(center).add(new THREE.Vector3(...dynamicConfig.offset));
-            const camLook = new THREE.Vector3().copy(center).add(new THREE.Vector3(...dynamicConfig.lookOffset));
+            // Apply Manual Offsets to the Calculated Center
+            const camPos = new THREE.Vector3().copy(center).add(new THREE.Vector3(...targetConfig.offset));
+            const camLook = new THREE.Vector3().copy(center).add(new THREE.Vector3(...targetConfig.lookOffset));
 
             cameraControlsRef.current.setLookAt(
                 camPos.x, camPos.y, camPos.z,
@@ -298,12 +293,10 @@ function SceneController({ currentZone, cameraControlsRef, partsRefs }: any) {
             lastCenter.current.copy(center);
             prevZone.current = currentZone;
         }
-      }
     } 
     // STATIC LOGIC
     else if (prevZone.current !== currentZone) {
-        const staticConfig = targetConfig as StaticZone;
-        const { pos, look } = staticConfig;
+        const { pos, look } = targetConfig;
         if(pos && look) {
             cameraControlsRef.current.setLookAt(
                 pos[0], pos[1], pos[2],
@@ -552,7 +545,7 @@ export default function FalconViewer() {
               ref={cameraControlsRef} 
               minPolarAngle={0} 
               maxPolarAngle={Math.PI / 1.6} 
-              minDistance={120} 
+              minDistance={80} 
               maxDistance={600} 
             />
             

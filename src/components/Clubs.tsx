@@ -16,8 +16,8 @@ const Clubs = () => {
   const clubs: Club[] = [
     {
       id: "aeromavs",
-      name: "UTA Aero Mavs",
-      role: "IREC Manufacturing",
+      name: "Aero Mavs",
+      role: "Manufacturing",
       logo: "https://images.unsplash.com/photo-1581822261290-991b38693d1b?auto=format&fit=crop&w=800",
       date: "Sep 2025 - Present",
     },

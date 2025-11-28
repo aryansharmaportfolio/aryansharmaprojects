@@ -396,9 +396,9 @@ export default function FalconViewer() {
         </div>
       )}
 
-      {/* 3. CLICK TO DRAG PROMPT */}
-      <div className={`absolute bottom-8 right-8 z-[60]`}>
-         <div className="flex items-center gap-3 bg-white/90 backdrop-blur border border-neutral-200 px-4 py-2 rounded-full shadow-lg hover:scale-105 transition-transform animate-pulse">
+      {/* 3. CLICK TO DRAG PROMPT - UPDATED TO BOUNCE */}
+      <div className={`absolute bottom-8 right-8 z-[60] animate-bounce`}>
+         <div className="flex items-center gap-3 bg-white/90 backdrop-blur border border-neutral-200 px-4 py-2 rounded-full shadow-lg hover:scale-105 transition-transform">
             <MousePointer2 className="w-4 h-4 text-blue-500" />
             <span className="text-[10px] font-bold text-neutral-600 uppercase tracking-widest">Click & Drag to Rotate</span>
          </div>

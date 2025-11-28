@@ -33,11 +33,10 @@ const ROCKET_STACK = {
   }
 };
 
-// --- ZOOM CONFIGURATION (Finalized Coordinates) ---
+// --- ZOOM CONFIGURATION ---
 const ZOOM_ZONES: Record<string, ZoomZone> = {
   overview:             { pos: [300, 50, 400], look: [0, 10, 0], type: "static" },
   
-  // DYNAMIC PARTS
   fairing: { 
     offset: [132, 41, -211],     
     lookOffset: [-100, 20,-50],     
@@ -59,7 +58,6 @@ const ZOOM_ZONES: Record<string, ZoomZone> = {
     refId: "middle" 
   },
   
-  // STATIC PARTS
   gridfins:             { pos: [-2, 128, 282],  look: [0, 55, 250], type: "static" },
   "merlin 9 boosters":  { pos: [17, 113, 337],  look: [0, -45, 250], type: "static" },
 };
@@ -261,6 +259,55 @@ function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
   );
 }
 
+// --- NEW COMPONENT: CAMERA COLLISION SYSTEM ---
+// Prevents the camera from clipping inside the model by creating a force field around active parts
+function CameraCollision({ controlsRef, partsRefs }: { controlsRef: any, partsRefs: any }) {
+  const { camera } = useThree();
+  
+  // Settings: Minimum distance from the center of any rocket part
+  const MIN_COLLISION_RADIUS = 45; 
+
+  useFrame(() => {
+    if (!controlsRef.current) return;
+
+    const parts = [
+      partsRefs.top.current,
+      partsRefs.middle.current,
+      partsRefs.bottom.current
+    ];
+
+    let corrected = false;
+    const currentCamPos = camera.position.clone();
+
+    // Check collision against each rocket part
+    parts.forEach((part) => {
+        if (!part) return;
+
+        // Calculate world position of the part (it moves when exploded)
+        const partBox = new THREE.Box3().setFromObject(part);
+        const partCenter = new THREE.Vector3();
+        partBox.getCenter(partCenter);
+
+        // Check distance
+        const distance = currentCamPos.distanceTo(partCenter);
+
+        if (distance < MIN_COLLISION_RADIUS) {
+            // Camera is too close! Push it out.
+            const direction = currentCamPos.sub(partCenter).normalize();
+            
+            // Calculate new safe position
+            const safePos = partCenter.add(direction.multiplyScalar(MIN_COLLISION_RADIUS));
+            
+            // Apply correction immediately (no transition/damping) to act like a solid wall
+            controlsRef.current.setPosition(safePos.x, safePos.y, safePos.z, false);
+            corrected = true;
+        }
+    });
+  });
+
+  return null;
+}
+
 // --- SCENE CONTROLLER ---
 function SceneController({ currentZone, cameraControlsRef, partsRefs }: any) {
   const prevZone = useRef(currentZone);
@@ -315,7 +362,7 @@ function SceneController({ currentZone, cameraControlsRef, partsRefs }: any) {
   return null;
 }
 
-// --- NEW: FULL SCREEN INSTRUCTION OVERLAY ---
+// --- FULL SCREEN INSTRUCTION OVERLAY ---
 function InstructionOverlay({ onDismiss }: { onDismiss: () => void }) {
   return (
     <div 
@@ -380,8 +427,10 @@ export default function FalconViewer() {
   const [hasInteracted, setHasInteracted] = useState(false);
   const cameraControlsRef = useRef<CameraControls>(null);
   
+  // REFS FOR TRACKING PARTS
   const topPartRef = useRef<THREE.Group>(null);
   const middlePartRef = useRef<THREE.Group>(null);
+  const bottomPartRef = useRef<THREE.Group>(null); // Added ref for bottom part collision
 
   // Dismiss overlay on first interaction
   const handleInteraction = () => {
@@ -446,7 +495,6 @@ export default function FalconViewer() {
       )}
 
       {/* 3. FULL SCREEN INSTRUCTION OVERLAY (Game Style) */}
-      {/* Renders on top of everything until user clicks */}
       {!hasInteracted && <InstructionOverlay onDismiss={handleInteraction} />}
 
       {/* 4. OVERVIEW PART SELECTION */}
@@ -578,7 +626,7 @@ export default function FalconViewer() {
               <group rotation={[0, 0, 0]}>
                   <RocketSection ref={topPartRef} type="top" config={ROCKET_STACK.top} exploded={exploded} setHovered={setHovered} />
                   <RocketSection ref={middlePartRef} type="middle" config={ROCKET_STACK.middle} exploded={exploded} setHovered={setHovered} />
-                  <RocketSection type="bottom" config={ROCKET_STACK.bottom} exploded={exploded} setHovered={setHovered} />
+                  <RocketSection ref={bottomPartRef} type="bottom" config={ROCKET_STACK.bottom} exploded={exploded} setHovered={setHovered} />
               </group>
             </Center>
 
@@ -593,6 +641,9 @@ export default function FalconViewer() {
             />
             
             <ZoomIndicator controlsRef={cameraControlsRef} />
+            
+            {/* Added Collision System */}
+            <CameraCollision controlsRef={cameraControlsRef} partsRefs={{ top: topPartRef, middle: middlePartRef, bottom: bottomPartRef }} />
             
             <SceneController 
                 currentZone={currentZone} 

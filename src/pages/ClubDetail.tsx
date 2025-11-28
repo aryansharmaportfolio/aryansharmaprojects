@@ -1,10 +1,10 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import DynamicSidebar from "@/components/DynamicSidebar";
 import { useState, useEffect } from "react";
+import { Award, Target, Sparkles } from "lucide-react";
 
 const ClubDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
   
   // Initialize opacity to 0 for the fade-in effect
   const [opacity, setOpacity] = useState(0);
@@ -13,7 +13,7 @@ const ClubDetail = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setOpacity(1);
-    }, 50); // Small delay to ensure the browser registers the initial state
+    }, 50);
     return () => clearTimeout(timer);
   }, []);
 
@@ -28,7 +28,6 @@ const ClubDetail = () => {
         "3D printing ogive nose cone and laser-cutting individual parts for the precise construction of the wooden fin can assembly.",
         "Drilling mounting points and installing hardware to secure the recovery system and ensure structural integrity for launch.",
       ],
-      skills: ["SolidWorks", "Computational Fluid Dynamics (CFD)", "MATLAB", "3D Printing"],
     },
     aiaa: {
       name: "UTA Design-Build-Fly Team",
@@ -39,7 +38,6 @@ const ClubDetail = () => {
         "Conducted aerodynamic analysis and performance testing",
         "Collaborated with team members on structural optimization",
       ],
-      skills: ["Aerodynamics", "Structural Analysis", "Composite Materials", "Wind Tunnel Testing", "Flight Testing"],
     },
     "chs-aerospace": {
       name: "Coppell High School Aerospace Club",
@@ -49,9 +47,8 @@ const ClubDetail = () => {
         "Co-founded and grew the school's first aerospace club to over 115 members, establishing it as the largest student organization in the school's history (est. 1965).",
         "Led the astronomy sub-department, coordinating monthly meetings and developing educational presentations.",
         "Co-developed and managed a centralized Excel spreadsheet to track member enrollment, event logistics, and communications.",
-        "Designed and modeled a detailed rocket prototype, including the payload fairing, second stage, interstage, first stage booster body, grid fins, and engine cluster. in SolidWorks, inspired by Falcon 9, to showcase to students.",
+        "Designed and modeled a detailed rocket prototype, including the payload fairing, second stage, interstage, first stage booster body, grid fins, and engine cluster in SolidWorks, inspired by Falcon 9, to showcase to students.",
       ],
-      skills: ["SolidWorks", "Leadership", "Excel", "Teamwork", "Project Management", "Program Development", "Recruitment/Member Outreach"],
     },
   };
   const club = clubData[id || ""];
@@ -72,43 +69,61 @@ const ClubDetail = () => {
         style={{ opacity }}
       >
         {/* Hero image - respects sidebar on left */}
-        <div className="relative h-[500px] overflow-hidden ml-16">
+        <div className="relative h-[450px] md:h-[500px] overflow-hidden ml-16">
           <img src={club.logo} alt={club.name} className="w-full h-full object-cover" />
-          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-          <div className="absolute bottom-0 left-0 right-0 p-12">
-            <h1 className="text-5xl font-bold text-foreground mb-2">{club.name}</h1>
-            <p className="text-2xl text-white font-semibold my-[4px] py-[4px]">{club.role}</p>
+          <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/20" />
+          
+          {/* Floating accent elements */}
+          <div className="absolute top-8 right-8 w-24 h-24 bg-primary/10 rounded-full blur-3xl" />
+          <div className="absolute bottom-20 right-20 w-16 h-16 bg-primary/20 rounded-full blur-2xl" />
+          
+          <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="px-3 py-1 bg-primary/20 backdrop-blur-sm rounded-full border border-primary/30">
+                <span className="text-xs font-bold text-primary uppercase tracking-wider">Team Experience</span>
+              </div>
+            </div>
+            <h1 className="text-4xl md:text-5xl font-black text-foreground mb-2 tracking-tight">{club.name}</h1>
+            <div className="flex items-center gap-2">
+              <Target className="w-5 h-5 text-primary" />
+              <p className="text-xl md:text-2xl text-white font-semibold">{club.role}</p>
+            </div>
           </div>
         </div>
 
-        <div className="container mx-auto px-6 py-12">
-
-          <div className="grid md:grid-cols-2 gap-12">
-            <div className="space-y-6">
-              <h2 className="text-3xl font-bold text-foreground border-l-4 border-primary pl-4">
-                My Role & Achievements
-              </h2>
-              <ul className="space-y-4">
-                {club.achievements.map((achievement: string, index: number) => (
-                  <li key={index} className="flex items-start">
-                    <span className="mr-3 mt-1 text-white">▸</span>
-                    <span className="text-lg text-white">{achievement}</span>
-                  </li>
-                ))}
-              </ul>
+        <div className="container mx-auto px-6 py-12 max-w-5xl">
+          {/* Main Content Card */}
+          <div className="relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-8 md:p-10 shadow-xl">
+            {/* Decorative corner accents */}
+            <div className="absolute top-0 left-0 w-20 h-20 border-l-2 border-t-2 border-primary/30 rounded-tl-2xl" />
+            <div className="absolute bottom-0 right-0 w-20 h-20 border-r-2 border-b-2 border-primary/30 rounded-br-2xl" />
+            
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-3 bg-primary/10 rounded-xl">
+                <Award className="w-6 h-6 text-primary" />
+              </div>
+              <div>
+                <h2 className="text-2xl md:text-3xl font-bold text-foreground">My Role & Achievements</h2>
+                <p className="text-muted-foreground text-sm">Key contributions and accomplishments</p>
+              </div>
             </div>
 
+            {/* Achievements List */}
             <div className="space-y-6">
-              <h2 className="text-3xl font-bold text-foreground border-l-4 border-primary pl-4">
-                Skills Developed
-              </h2>
-              <div className="flex flex-wrap gap-3">
-                {club.skills.map((skill: string, index: number) => (
-                  <span key={index} className="px-4 py-2 bg-card text-card-foreground rounded-lg text-lg font-medium">
-                    {skill}
-                  </span>
-                ))}
-              </div>
+              {club.achievements.map((achievement: string, index: number) => (
+                <div 
+                  key={index} 
+                  className="group flex gap-4 p-4 rounded-xl bg-background/50 border border-border/30 hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5"
+                >
+                  <div className="flex-shrink-0 mt-1">
+                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center group-hover:from-primary/30 group-hover:to-primary/10 transition-all duration-300">
+                      <Sparkles className="w-4 h-4 text-primary" />
+                    </div>
+                  </div>
+                  <p className="text-base md:text-lg text-foreground/90 leading-relaxed">{achievement}</p>
+                </div>
+              ))}
             </div>
           </div>
         </div>

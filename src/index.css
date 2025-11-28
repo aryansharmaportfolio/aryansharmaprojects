@@ -288,3 +288,12 @@ MASTERPIECE ANIMATION SUITE
 .animate-shimmer {
   animation: shimmer-wave 2.5s infinite;
 }
+
+/* ==============================================
+   LOVABLE OVERRIDES
+   ============================================== */
+
+/* Hide the Lovable Edit Badge */
+#lovable-badge {
+  display: none !important;
+}

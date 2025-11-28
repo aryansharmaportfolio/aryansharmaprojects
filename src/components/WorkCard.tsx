@@ -1,36 +1,31 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface WorkCardProps {
   id: string;
   title: string;
   role: string;
   image: string;
+  description?: string;
 }
 
-const WorkCard = ({ id, title, role, image }: WorkCardProps) => {
-  const [isOpen, setIsOpen] = useState(false);
+const WorkCard = ({ id, title, role, image, description = "Contributing to cutting-edge aerospace research and development, gaining hands-on experience with industry-standard tools and methodologies while collaborating with experienced professionals." }: WorkCardProps) => {
+  const [isHovered, setIsHovered] = useState(false);
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen} className="w-full">
-      <CollapsibleTrigger asChild>
-        <Card className="group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-64 sm:h-72 md:h-80">
-          <div className="absolute top-2 sm:top-4 right-2 sm:right-4 z-30">
-            <ChevronDown 
-              className={cn(
-                "h-5 w-5 sm:h-6 sm:w-6 text-white transition-transform duration-300",
-                isOpen && "rotate-180"
-              )}
-            />
-          </div>
+    <Card 
+      className="group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-64 sm:h-72 md:h-80"
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+    >
       {/* Full-bleed image with gradient overlay */}
       <div className="absolute inset-0">
-        <img src={image} alt={title} className="w-full h-full object-cover" />
+        <img src={image} alt={title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
         {/* Dark gradient for text readability */}
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+        
+        {/* Darker overlay on hover */}
+        <div className={`absolute inset-0 bg-black/40 transition-opacity duration-500 ${isHovered ? 'opacity-100' : 'opacity-0'}`} />
         
         {/* Shine effect on hover */}
         <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500">
@@ -38,22 +33,45 @@ const WorkCard = ({ id, title, role, image }: WorkCardProps) => {
         </div>
       </div>
       
-          {/* Text overlay at bottom */}
-          <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6 z-10">
-            <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1 sm:mb-2 drop-shadow-lg text-left">{title}</h3>
-            <p className="text-sm sm:text-base text-white/90 drop-shadow-lg">{role}</p>
+      {/* Text overlay at bottom - slides up to reveal description */}
+      <div className="absolute bottom-0 left-0 right-0 z-10 overflow-hidden">
+        {/* Sliding content container */}
+        <div 
+          className={`p-4 sm:p-5 md:p-6 transition-all duration-500 ease-out transform ${
+            isHovered ? '-translate-y-0' : 'translate-y-0'
+          }`}
+        >
+          {/* Title & Role */}
+          <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1 sm:mb-2 drop-shadow-lg text-left">{title}</h3>
+          <p className={`text-sm sm:text-base text-white/90 drop-shadow-lg font-medium transition-all duration-300 ${isHovered ? 'mb-3' : ''}`}>{role}</p>
+          
+          {/* Description - slides up on hover */}
+          <div 
+            className={`overflow-hidden transition-all duration-500 ease-out ${
+              isHovered ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+            }`}
+          >
+            <div className="pt-3 border-t border-white/20">
+              <p className="text-sm text-white/80 leading-relaxed">
+                {description}
+              </p>
+            </div>
           </div>
-        </Card>
-      </CollapsibleTrigger>
-      
-      <CollapsibleContent className="mt-4">
-        <Card className="p-6 bg-card border border-border">
-          <p className="text-foreground">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.
-          </p>
-        </Card>
-      </CollapsibleContent>
-    </Collapsible>
+        </div>
+        
+        {/* Gradient bar indicator at bottom */}
+        <div 
+          className={`h-1 bg-gradient-to-r from-primary via-primary/80 to-primary transition-all duration-500 ${
+            isHovered ? 'w-full' : 'w-0'
+          }`}
+        />
+      </div>
+
+      {/* Corner accent */}
+      <div className={`absolute top-4 right-4 w-2 h-2 rounded-full bg-primary transition-all duration-300 ${
+        isHovered ? 'scale-150 opacity-100' : 'scale-100 opacity-50'
+      }`} />
+    </Card>
   );
 };
 

@@ -31,7 +31,7 @@ const FeaturedProjects = () => {
     <section id="projects" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-8 sm:mb-12 md:mb-16 animate-fade-in">
-          <TypewriterHeader text="Featured Projects" className="mb-4 sm:mb-6" />
+          <TypewriterHeader text="Personal Projects" className="mb-4 sm:mb-6" />
           <p className="text-base sm:text-lg md:text-xl italic text-white px-4">
             A showcase of hands-on projects. Click on a project to view a detailed overview of the design process and its outcome.
           </p>

@@ -169,7 +169,8 @@ function Loader() {
 
 // --- ROCKET SECTION COMPONENT ---
 const RocketSection = forwardRef(({ config, exploded, setHovered }: any, ref: any) => {
-  const { scene: originalScene } = useGLTF(config.file);
+  const gltf = useGLTF(config.file) as any;
+  const originalScene = gltf.scene as THREE.Group;
   const scene = useMemo(() => originalScene.clone(), [originalScene]);
   const internalRef = useRef<THREE.Group>(null);
   const groupRef = ref || internalRef;

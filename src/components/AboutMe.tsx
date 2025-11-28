@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Mail, Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import profilePicture from "@/assets/profile-picture.jpg";
@@ -7,19 +7,32 @@ import DegreeProgress from "./DegreeProgress";
 import ResumeViewer from "./ResumeViewer";
 
 const AboutMe = () => {
-  const [messageIndex, setMessageIndex] = useState(0);
-  
-  const messages = [
-    "I love aerospace 🚀", 
-    "I hope you like my portfolio 🚀"
-  ];
+  const [showBubble, setShowBubble] = useState(false);
+  const sectionRef = useRef<HTMLElement>(null);
 
-  const handleMouseLeave = () => {
-    setMessageIndex((prev) => (prev + 1) % messages.length);
-  };
+  // Auto-popup when section comes into view
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !showBubble) {
+            // Delay popup for smooth effect
+            setTimeout(() => setShowBubble(true), 500);
+          }
+        });
+      },
+      { threshold: 0.3 }
+    );
+
+    if (sectionRef.current) {
+      observer.observe(sectionRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [showBubble]);
 
   return (
-    <section id="about" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-background/95 backdrop-blur-sm">
+    <section ref={sectionRef} id="about" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto max-w-6xl">
         
         {/* Standard 2-column grid */}
@@ -29,24 +42,28 @@ const AboutMe = () => {
           <div className="flex flex-col items-center space-y-4 sm:space-y-6 animate-fade-in">
             
             {/* Wrapper for Image and Speech Bubble */}
-            <div 
-              className="relative group cursor-pointer" 
-              onMouseLeave={handleMouseLeave}
-            >
-              {/* Speech Bubble */}
-              <div className="absolute -top-12 sm:-top-20 -right-6 sm:-right-10 z-50 pointer-events-none select-none">
-                <div className="relative bg-white text-background px-3 sm:px-5 py-2 sm:py-3 rounded-2xl shadow-2xl 
-                              transform scale-0 opacity-0 group-hover:scale-100 group-hover:opacity-100 
-                              transition-all duration-300 ease-out origin-bottom-left">
-                  <p className="text-xs sm:text-sm font-bold whitespace-nowrap text-black">
-                    {messages[messageIndex]}
+            <div className="relative">
+              {/* Speech Bubble - Phone text style auto-popup */}
+              <div 
+                className={`absolute -top-16 sm:-top-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none select-none
+                           transition-all duration-500 ease-out
+                           ${showBubble 
+                             ? 'opacity-100 translate-y-0 scale-100' 
+                             : 'opacity-0 translate-y-4 scale-95'}`}
+              >
+                <div className="relative bg-white text-background px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl shadow-2xl">
+                  {/* Subtle pulse animation on the bubble */}
+                  <div className="absolute inset-0 bg-white rounded-2xl animate-pulse opacity-30" />
+                  <p className="relative text-xs sm:text-sm font-bold whitespace-nowrap text-black">
+                    I hope you like my portfolio 🚀
                   </p>
-                  <div className="absolute -bottom-2 left-4 sm:left-6 w-3 sm:w-4 h-3 sm:h-4 bg-white transform rotate-45"></div>
+                  {/* Speech bubble tail - centered */}
+                  <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white transform rotate-45" />
                 </div>
               </div>
 
               {/* Profile Image */}
-              <div className="w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-primary shadow-2xl relative z-10 transition-transform duration-300 group-hover:scale-105">
+              <div className="w-48 h-48 sm:w-56 sm:h-56 md:w-64 md:h-64 rounded-full overflow-hidden border-4 border-primary shadow-2xl relative z-10 transition-transform duration-300 hover:scale-105">
                 <img src={profilePicture} alt="Aryan Sharma" className="w-full h-full object-cover" />
               </div>
             </div>

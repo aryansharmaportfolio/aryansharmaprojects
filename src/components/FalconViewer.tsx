@@ -34,21 +34,21 @@ const ZOOM_ZONES = {
   
   // DYNAMIC PARTS
   fairing: { 
-    offset: [200, 40, -200],     
+    offset: [132, 41, -211],     
     lookOffset: [-100, 20,-50],     
     type: "dynamic",
     refId: "top"    
   }, 
   
   "second stage booster": { 
-    offset: [100, 20, 100],     
+    offset: [70, 20, 100],     
     lookOffset: [0, 30, 0],     
     type: "dynamic",
     refId: "top"    
   }, 
   
   interstage: { 
-    offset: [200, 120, 80],      
+    offset: [214, 127, 13],      
     lookOffset: [-50, 120, 0],      
     type: "dynamic",
     refId: "middle" 
@@ -56,7 +56,7 @@ const ZOOM_ZONES = {
   
   // STATIC PARTS
   gridfins:             { pos: [35, 75, 35],  look: [0, 55, 0], type: "static" },
-  "merlin 9 boosters":  { pos: [20, -70, 20],  look: [0, -45, 0], type: "static" },
+  "merlin 9 boosters":  { pos: [20, -70, 20],  look: [600, -45, 0], type: "static" },
 };
 
 // --- PART DETAILS DATA ---

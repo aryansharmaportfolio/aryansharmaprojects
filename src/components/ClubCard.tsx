@@ -1,72 +1,59 @@
-import { useNavigate } from "react-router-dom";
-import { ClubCard } from "./ClubCard";
-import TypewriterHeader from "./TypewriterHeader";
+import { Card } from "@/components/ui/card";
 
-// Updated interface to match the new ClubCardProps
-interface ClubData {
+interface ClubCardProps {
   id: string;
-  title: string;
+  name: string;
   role: string;
-  period: string;
   logo: string;
-  description: string;
-  skills: string[];
+  date: string;
+  onClick: () => void;
+  isExpanded: boolean;
 }
 
-const Clubs = () => {
-  const navigate = useNavigate();
-  
-  const clubs: ClubData[] = [
-    {
-      id: "aeromavs",
-      title: "Aero Mavs",
-      role: "Manufacturing",
-      period: "Sep 2025 - Present",
-      logo: "https://images.unsplash.com/photo-1581822261290-991b38693d1b?auto=format&fit=crop&w=800",
-      description: "Contributing to the manufacturing subsystem of high-powered rocketry projects. Hands-on experience with composite layups, precision machining, and structural assembly for competition-grade rockets.",
-      skills: ["Manufacturing", "Composites", "Rocketry", "Precision Machining"]
-    },
-    {
-      id: "aiaa",
-      title: "UTA Design-Build-Fly Team",
-      role: "Structures/Manufacturing",
-      period: "Oct 2025 - Present",
-      logo: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=800",
-      description: "Member of the Structures and Manufacturing team for the AIAA Design/Build/Fly competition. Collaborating on the design and fabrication of a high-performance unmanned electric aircraft.",
-      skills: ["Structural Design", "Aircraft Manufacturing", "SolidWorks", "Team Collaboration"]
-    },
-    {
-      id: "chs-aerospace",
-      title: "Coppell High School Aerospace Club",
-      role: "Co-Founder/Executive",
-      period: "Aug 2024 - May 2025",
-      logo: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?auto=format&fit=crop&w=800",
-      description: "Co-founded and led the high school aerospace club to foster student interest in aviation and space. Organized workshops, guest speaker events, and model rocket launches for over 50 members.",
-      skills: ["Leadership", "Event Organization", "Public Speaking", "Mentorship"]
-    },
-  ];
-  
+const ClubCard = ({
+  name,
+  role,
+  logo,
+  date,
+  onClick,
+  isExpanded
+}: ClubCardProps) => {
   return (
-    <section id="clubs" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-background relative overflow-hidden">
-      <div className="container mx-auto max-w-7xl">
-        <div className="text-center mb-8 sm:mb-12 md:mb-16 animate-fade-in">
-          <TypewriterHeader text="Clubs & Organizations" className="mb-4 sm:mb-6" />
-          <p className="text-base sm:text-lg md:text-xl italic text-white px-4">
-            Actively contributing to aerospace and engineering communities through hands-on collaboration.
+    <Card 
+      onClick={onClick} 
+      className={`group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-64 sm:h-72 md:h-80 ${isExpanded ? 'scale-110 opacity-0' : 'scale-100 opacity-100'}`}
+    >
+      {/* Full-bleed image with gradient overlay */}
+      <div className="absolute inset-0">
+        <img src={logo} alt={name} className="w-full h-full object-cover" />
+        {/* Dark gradient for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
+        
+        {/* Simple black overlay on hover */}
+        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+      </div>
+      
+      {/* Date Display - Top Left Glass Badge */}
+      <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-30 pointer-events-none">
+        <div className="bg-black/40 backdrop-blur-md border border-white/10 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full">
+          <p className="text-xs font-bold text-white uppercase tracking-wider drop-shadow-md">
+            {date}
           </p>
         </div>
-
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 animate-fade-in">
-          {clubs.map((club) => (
-            <ClubCard
-              key={club.id}
-              {...club}
-              onClick={() => navigate(`/club/${club.id}`)}
-            />
-          ))}
-        </div>
       </div>
-    </section>
+      
+      {/* Text overlay at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6 z-20 flex flex-col justify-end overflow-hidden pointer-events-none">
+        {/* Click to learn text */}
+        <p className="text-base sm:text-lg md:text-2xl font-bold text-white text-left opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-40 group-hover:mb-2 transition-all duration-300 ease-in-out">
+          Click to learn more about
+        </p>
+
+        {/* Title and Description */}
+        <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1 sm:mb-2 drop-shadow-lg text-left transition-all duration-300 ease-in-out">{name}</h3>
+        <p className="text-sm sm:text-base text-white/90 drop-shadow-lg text-left transition-all duration-300 ease-in-out">{role}</p>
+      </div>
+    </Card>
   );
 };
-export default Clubs;
+export default ClubCard;

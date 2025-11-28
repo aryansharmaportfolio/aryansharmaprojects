@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Mail, Linkedin } from "lucide-react";
+import { Mail, Linkedin, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import profilePicture from "@/assets/profile-picture.jpg";
 import TypewriterHeader from "./TypewriterHeader";
@@ -8,15 +8,18 @@ import ResumeViewer from "./ResumeViewer";
 
 const AboutMe = () => {
   const [showBubble, setShowBubble] = useState(false);
+  const [hasTriggered, setHasTriggered] = useState(false); // Ensures it only runs once per page load
   const sectionRef = useRef<HTMLElement>(null);
 
-  // Auto-popup when section comes into view
+  // 1. Handle appearance when scrolling into view
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && !showBubble) {
-            // Delay popup for smooth effect
+          // Trigger only if intersecting and hasn't triggered yet
+          if (entry.isIntersecting && !hasTriggered) {
+            setHasTriggered(true);
+            // Small delay before showing
             setTimeout(() => setShowBubble(true), 500);
           }
         });
@@ -29,6 +32,17 @@ const AboutMe = () => {
     }
 
     return () => observer.disconnect();
+  }, [hasTriggered]);
+
+  // 2. Handle auto-dismiss after 5 seconds
+  useEffect(() => {
+    if (showBubble) {
+      const timer = setTimeout(() => {
+        setShowBubble(false);
+      }, 5000); // Disappear after 5 seconds
+
+      return () => clearTimeout(timer);
+    }
   }, [showBubble]);
 
   return (
@@ -43,20 +57,27 @@ const AboutMe = () => {
             
             {/* Wrapper for Image and Speech Bubble */}
             <div className="relative">
-              {/* Speech Bubble - Phone text style auto-popup */}
+              {/* Speech Bubble - Interactive & Auto-dismiss */}
               <div 
-                className={`absolute -top-16 sm:-top-20 left-1/2 -translate-x-1/2 z-50 pointer-events-none select-none
-                           transition-all duration-500 ease-out
+                onClick={() => setShowBubble(false)}
+                className={`absolute -top-16 sm:-top-20 left-1/2 -translate-x-1/2 z-50 cursor-pointer
+                           transition-all duration-700 ease-in-out
                            ${showBubble 
                              ? 'opacity-100 translate-y-0 scale-100' 
-                             : 'opacity-0 translate-y-4 scale-95'}`}
+                             : 'opacity-0 translate-y-4 scale-95 pointer-events-none'}`}
               >
-                <div className="relative bg-white text-background px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl shadow-2xl">
+                <div className="relative bg-white text-background px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl shadow-2xl group hover:scale-105 transition-transform">
                   {/* Subtle pulse animation on the bubble */}
                   <div className="absolute inset-0 bg-white rounded-2xl animate-pulse opacity-30" />
-                  <p className="relative text-xs sm:text-sm font-bold whitespace-nowrap text-black">
-                    I hope you like my portfolio 🚀
-                  </p>
+                  
+                  <div className="flex items-center gap-2">
+                    <p className="relative text-xs sm:text-sm font-bold whitespace-nowrap text-black">
+                      I hope you like my portfolio 🚀
+                    </p>
+                    {/* Tiny close icon for better UX */}
+                    <X className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
+
                   {/* Speech bubble tail - centered */}
                   <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-4 h-4 bg-white transform rotate-45" />
                 </div>

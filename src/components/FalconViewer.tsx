@@ -55,7 +55,7 @@ const ZOOM_ZONES = {
   },
   
   // STATIC PARTS
-  gridfins:             { pos: [420, 40, 273],  look: [0, 55, 250], type: "static" },
+  gridfins:             { pos: [-2, 128, 282],  look: [0, 55, 250], type: "static" },
   "merlin 9 boosters":  { pos: [17, 113, 337],  look: [0, -45, 250], type: "static" },
 };
 

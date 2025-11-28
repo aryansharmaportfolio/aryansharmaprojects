@@ -43,7 +43,7 @@ const ZOOM_ZONES = {
   
   "second stage booster": { 
     offset: [100, 20, 100],     
-    lookOffset: [0, 50, 0],     
+    lookOffset: [0, 30, 0],     
     type: "dynamic",
     refId: "top"    
   }, 

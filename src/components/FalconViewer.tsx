@@ -36,7 +36,7 @@ const ZOOM_ZONES = {
   // DYNAMIC PARTS
   fairing: { 
     offset: [150, 40, 0],     
-    lookOffset: [-100, 20, -40],     
+    lookOffset: [-100, 20, -50],     
     type: "dynamic",
     refId: "top"    
   }, 

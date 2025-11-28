@@ -33,7 +33,7 @@ const ROCKET_STACK = {
   }
 };
 
-// --- ZOOM CONFIGURATION (Finalized Coordinates) ---
+// --- ZOOM CONFIGURATION ---
 const ZOOM_ZONES: Record<string, ZoomZone> = {
   overview:             { pos: [300, 50, 400], look: [0, 10, 0], type: "static" },
   
@@ -171,8 +171,7 @@ function Loader() {
 
 // --- ROCKET SECTION COMPONENT ---
 const RocketSection = forwardRef(({ config, exploded, setHovered }: any, ref: any) => {
-  const gltf = useGLTF(config.file) as any;
-  const originalScene = gltf.scene as THREE.Group;
+  const { scene: originalScene } = useGLTF(config.file);
   const scene = useMemo(() => originalScene.clone(), [originalScene]);
   const internalRef = useRef<THREE.Group>(null);
   const groupRef = ref || internalRef;
@@ -315,7 +314,7 @@ function SceneController({ currentZone, cameraControlsRef, partsRefs }: any) {
   return null;
 }
 
-// --- NEW INTERACTION PROMPT ---
+// --- FIXED: INTERACTION PROMPT ---
 function InteractionPrompt({ hasInteracted }: { hasInteracted: boolean }) {
   const [visible, setVisible] = useState(true);
 
@@ -325,25 +324,22 @@ function InteractionPrompt({ hasInteracted }: { hasInteracted: boolean }) {
     }
   }, [hasInteracted]);
 
+  if (!visible) return null;
+
   return (
-    <div 
-      className={`absolute bottom-20 right-10 z-50 pointer-events-none transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}
-    >
-      <div className="flex flex-col items-center gap-3">
-        {/* Hand Icon Container */}
-        <div className="relative w-16 h-16 bg-white/10 backdrop-blur-md rounded-full border border-white/20 flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.4)]">
-           <div className="absolute inset-0 bg-blue-500/30 rounded-full animate-ping" />
-           {/* Animated Hand */}
-           <Hand 
-             className="w-8 h-8 text-white drop-shadow-md" 
-             style={{ animation: 'drag-hand 2s ease-in-out infinite' }}
-             strokeWidth={1.5}
-           />
+    // FIXED: z-[100] ensures it is above everything. pointer-events-none lets clicks pass through.
+    <div className="absolute bottom-20 right-10 z-[100] pointer-events-none transition-opacity duration-1000">
+      <div className="flex flex-col items-center gap-3 animate-bounce">
+        
+        {/* FIXED: White background + Blue Icon ensures visibility on white canvas */}
+        <div className="relative w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-xl border border-neutral-100">
+           <div className="absolute inset-0 bg-blue-500 rounded-full animate-ping opacity-20" />
+           <Hand className="w-8 h-8 text-blue-600" strokeWidth={2} />
         </div>
         
         {/* Label */}
-        <div className="bg-black/40 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10 animate-pulse">
-          <span className="text-[10px] font-bold text-white uppercase tracking-[0.2em] whitespace-nowrap">
+        <div className="bg-white/90 backdrop-blur px-4 py-1.5 rounded-full border border-neutral-200 shadow-sm">
+          <span className="text-[10px] font-bold text-neutral-900 uppercase tracking-widest whitespace-nowrap">
             Drag to Rotate
           </span>
         </div>
@@ -383,11 +379,9 @@ export default function FalconViewer() {
   const [hasInteracted, setHasInteracted] = useState(false);
   const cameraControlsRef = useRef<CameraControls>(null);
   
-  // REFS FOR TRACKING PARTS
   const topPartRef = useRef<THREE.Group>(null);
   const middlePartRef = useRef<THREE.Group>(null);
 
-  // Track user interaction with the 3D canvas
   const handleCanvasInteraction = () => {
     if (!hasInteracted) {
       setHasInteracted(true);
@@ -432,10 +426,6 @@ export default function FalconViewer() {
             border: 2px solid rgba(0,0,0,0);
             background-clip: content-box;
         }
-        @keyframes drag-hand {
-            0%, 100% { transform: translateX(-15px) rotate(-10deg); }
-            50% { transform: translateX(15px) rotate(10deg); }
-        }
       `}</style>
 
       {/* 1. HEADER */}
@@ -444,7 +434,7 @@ export default function FalconViewer() {
         <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest mt-1">Interactive 3D Model</p>
       </div>
 
-      {/* 2. WARNING POPUP WITH ARROW */}
+      {/* 2. WARNING POPUP */}
       {warning && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[60] flex flex-col items-center animate-bounce">
           <div className="bg-red-500 text-white px-6 py-3 rounded-lg shadow-xl flex items-center gap-3 mb-2">
@@ -456,7 +446,8 @@ export default function FalconViewer() {
       )}
 
       {/* 3. INTERACTIVE DRAG PROMPT */}
-      {isOverview && <InteractionPrompt hasInteracted={hasInteracted} />}
+      {/* Conditionally Render: Only in Overview and if user hasn't interacted yet */}
+      {isOverview && !hasInteracted && <InteractionPrompt hasInteracted={hasInteracted} />}
 
       {/* 4. OVERVIEW PART SELECTION */}
       <div className={`absolute right-8 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2 transition-all duration-500 ${isOverview ? 'translate-x-0 opacity-100' : 'translate-x-20 opacity-0 pointer-events-none'}`}>

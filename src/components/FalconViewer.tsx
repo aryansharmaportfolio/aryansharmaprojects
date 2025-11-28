@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, CameraControls, Html, Center, ContactShadows, useProgress, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { easing } from "maath";
-import { Search, MousePointer2, AlertCircle, ArrowDown, ChevronRight, ChevronDown, X, CornerUpLeft, Terminal, Copy } from "lucide-react";
+import { Search, MousePointer2, AlertCircle, ArrowDown, ChevronRight, ChevronDown, X, CornerUpLeft } from "lucide-react";
 
 // --- 1. CONFIGURATION ---
 const ROCKET_STACK = {
@@ -28,7 +28,7 @@ const ROCKET_STACK = {
   }
 };
 
-// --- ZOOM CONFIGURATION ---
+// --- ZOOM CONFIGURATION (Finalized Coordinates) ---
 const ZOOM_ZONES = {
   overview:             { pos: [300, 50, 400], look: [0, 10, 0], type: "static" },
   
@@ -255,102 +255,13 @@ function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
   );
 }
 
-// --- NEW DEBUG COORDINATE VIEWER ---
-function DebugCoordinateViewer({ controlsRef, partsRefs, currentZone }: { controlsRef: any, partsRefs: any, currentZone: string }) {
-    const [coords, setCoords] = useState({ 
-        offset: [0,0,0], 
-        lookOffset: [0,0,0],
-        tracking: "Static" 
-    });
-
-    const { camera } = useThree();
-
-    useFrame(() => {
-        if(!controlsRef.current) return;
-
-        const targetConfig = ZOOM_ZONES[currentZone as keyof typeof ZOOM_ZONES] || ZOOM_ZONES.overview;
-        
-        let center = new THREE.Vector3(0,0,0);
-        let trackingLabel = "Static (World Coords)";
-
-        // Logic to find the center we are calculating relative to
-        if(targetConfig.type === "dynamic") {
-            const activePartRef = targetConfig.refId === "middle" ? partsRefs.middle : partsRefs.top;
-            if(activePartRef?.current) {
-                const box = new THREE.Box3().setFromObject(activePartRef.current);
-                box.getCenter(center);
-                trackingLabel = `Dynamic (${targetConfig.refId || 'unknown'})`;
-            }
-        }
-
-        // Calculate Relative Offsets
-        const currentTarget = controlsRef.current.getTarget(new THREE.Vector3());
-        
-        // Relative Camera Position = Current Cam Pos - Mesh Center
-        const relCam = camera.position.clone().sub(center);
-        
-        // Relative Look Target = Current Target - Mesh Center
-        const relLook = currentTarget.clone().sub(center);
-
-        setCoords({
-            offset: [Math.round(relCam.x), Math.round(relCam.y), Math.round(relCam.z)],
-            lookOffset: [Math.round(relLook.x), Math.round(relLook.y), Math.round(relLook.z)],
-            tracking: trackingLabel
-        });
-    });
-
-    return (
-        <Html position={[0,0,0]} style={{ pointerEvents: 'none', zIndex: 200 }} zIndexRange={[200, 0]}>
-             <div className="fixed bottom-4 left-4 font-mono text-[10px] bg-black/80 text-green-400 p-4 rounded-lg shadow-2xl backdrop-blur-md border border-green-500/30 w-64 pointer-events-auto">
-                <div className="flex items-center gap-2 border-b border-green-500/30 pb-2 mb-2">
-                    <Terminal className="w-3 h-3" />
-                    <span className="font-bold uppercase">Debug Coordinates</span>
-                </div>
-                
-                <div className="space-y-3">
-                    <div>
-                        <span className="block text-green-600 mb-0.5 font-bold">Tracking Mode</span>
-                        <span className="text-white">{coords.tracking}</span>
-                    </div>
-
-                    <div>
-                        <div className="flex justify-between items-center mb-0.5">
-                            <span className="block text-green-600 font-bold">Offset (Cam Pos)</span>
-                        </div>
-                        <div className="bg-black/50 p-1.5 rounded text-xs select-all cursor-text">
-                            [{coords.offset.join(', ')}]
-                        </div>
-                    </div>
-
-                    <div>
-                        <div className="flex justify-between items-center mb-0.5">
-                            <span className="block text-green-600 font-bold">LookOffset (Target)</span>
-                        </div>
-                        <div className="bg-black/50 p-1.5 rounded text-xs select-all cursor-text">
-                            [{coords.lookOffset.join(', ')}]
-                        </div>
-                    </div>
-
-                    <div className="text-[9px] text-green-500/50 italic pt-1 border-t border-green-500/20">
-                        * Copy values above to ZOOM_ZONES
-                    </div>
-                </div>
-             </div>
-        </Html>
-    );
-}
-
-
 // --- SCENE CONTROLLER ---
-function SceneController({ currentZone, cameraControlsRef, partsRefs, debugMode }: any) {
+function SceneController({ currentZone, cameraControlsRef, partsRefs }: any) {
   const prevZone = useRef(currentZone);
   const lastCenter = useRef(new THREE.Vector3()); 
 
   useFrame(() => {
     if (!cameraControlsRef.current) return;
-    
-    // If Debug mode is on, we DISABLE automatic camera movement so you can move it yourself
-    if(debugMode) return; 
 
     const targetConfig = ZOOM_ZONES[currentZone as keyof typeof ZOOM_ZONES] || ZOOM_ZONES.overview;
 
@@ -423,7 +334,6 @@ function DetailAccordion({ title, children, defaultOpen = false }: { title: stri
 export default function FalconViewer() {
   const [exploded, setExploded] = useState(0); 
   const [currentZone, setCurrentZone] = useState("overview");
-  const [debugMode, setDebugMode] = useState(false); // NEW STATE
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [hovered, setHovered] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
@@ -473,16 +383,6 @@ export default function FalconViewer() {
       <div className={`absolute top-8 left-8 z-50 transition-all duration-500 ${isOverview ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
         <h1 className="text-4xl font-black text-neutral-900 tracking-tighter">FALCON 9</h1>
         <p className="text-neutral-500 text-xs font-bold uppercase tracking-widest mt-1">Interactive 3D Model</p>
-      </div>
-
-      {/* 1.5 DEBUG TOGGLE */}
-      <div className="absolute top-8 right-8 z-[60]">
-        <button 
-            onClick={() => setDebugMode(!debugMode)}
-            className={`px-3 py-1 rounded text-[10px] font-bold uppercase tracking-wider border transition-all ${debugMode ? 'bg-green-500 text-black border-green-600' : 'bg-white border-neutral-200 text-neutral-400 hover:text-neutral-900'}`}
-        >
-            {debugMode ? 'Debug: ON' : 'Debug: OFF'}
-        </button>
       </div>
 
       {/* 2. WARNING POPUP WITH ARROW */}
@@ -649,19 +549,10 @@ export default function FalconViewer() {
             
             <ZoomIndicator controlsRef={cameraControlsRef} />
             
-            {debugMode && (
-                <DebugCoordinateViewer 
-                    controlsRef={cameraControlsRef} 
-                    partsRefs={{ top: topPartRef, middle: middlePartRef }}
-                    currentZone={currentZone}
-                />
-            )}
-            
             <SceneController 
                 currentZone={currentZone} 
                 cameraControlsRef={cameraControlsRef} 
                 partsRefs={{ top: topPartRef, middle: middlePartRef }}
-                debugMode={debugMode} // Pass debug mode to disable auto-tracking
             />
         </Suspense>
       </Canvas>

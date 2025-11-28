@@ -262,7 +262,7 @@ function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
 }
 
 // --- SCENE CONTROLLER ---
-function SceneController({ currentZone, cameraControlsRef, partsRefs, onInteraction }: any) {
+function SceneController({ currentZone, cameraControlsRef, partsRefs }: any) {
   const prevZone = useRef(currentZone);
   const lastCenter = useRef(new THREE.Vector3()); 
 
@@ -315,75 +315,37 @@ function SceneController({ currentZone, cameraControlsRef, partsRefs, onInteract
   return null;
 }
 
-// --- INTERACTIVE DRAG PROMPT ---
-function DragPrompt({ hasInteracted }: { hasInteracted: boolean }) {
-  const [isVisible, setIsVisible] = useState(true);
-  
+// --- NEW INTERACTION PROMPT ---
+function InteractionPrompt({ hasInteracted }: { hasInteracted: boolean }) {
+  const [visible, setVisible] = useState(true);
+
   useEffect(() => {
     if (hasInteracted) {
-      const timer = setTimeout(() => setIsVisible(false), 500);
-      return () => clearTimeout(timer);
+      setVisible(false);
     }
   }, [hasInteracted]);
 
-  if (!isVisible) return null;
-
   return (
     <div 
-      className={`absolute bottom-8 right-8 z-[60] transition-all duration-700 ease-out ${
-        hasInteracted ? 'opacity-0 scale-90 translate-y-4' : 'opacity-100 scale-100 translate-y-0'
-      }`}
+      className={`absolute bottom-20 right-10 z-50 pointer-events-none transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}
     >
-      <div className="relative group">
-        {/* Pulsing ring effect */}
-        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-2xl blur-xl animate-pulse" />
+      <div className="flex flex-col items-center gap-3">
+        {/* Hand Icon Container */}
+        <div className="relative w-16 h-16 bg-white/10 backdrop-blur-md rounded-full border border-white/20 flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.4)]">
+           <div className="absolute inset-0 bg-blue-500/30 rounded-full animate-ping" />
+           {/* Animated Hand */}
+           <Hand 
+             className="w-8 h-8 text-white drop-shadow-md" 
+             style={{ animation: 'drag-hand 2s ease-in-out infinite' }}
+             strokeWidth={1.5}
+           />
+        </div>
         
-        {/* Main container */}
-        <div className="relative bg-gradient-to-br from-white/95 to-white/80 backdrop-blur-xl border border-white/50 px-6 py-4 rounded-2xl shadow-2xl overflow-hidden">
-          {/* Animated background shimmer */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-100/30 to-transparent -translate-x-full animate-[shimmer_3s_infinite]" />
-          
-          {/* Content */}
-          <div className="relative flex items-center gap-4">
-            {/* Animated hand/mouse icon */}
-            <div className="relative">
-              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg animate-bounce">
-                <Hand className="w-7 h-7 text-white" />
-              </div>
-              {/* Orbital dots */}
-              <div className="absolute -inset-2 animate-spin" style={{ animationDuration: '4s' }}>
-                <div className="absolute top-0 left-1/2 w-2 h-2 bg-blue-400 rounded-full -translate-x-1/2" />
-              </div>
-              <div className="absolute -inset-3 animate-spin" style={{ animationDuration: '6s', animationDirection: 'reverse' }}>
-                <div className="absolute bottom-0 left-1/2 w-1.5 h-1.5 bg-cyan-400 rounded-full -translate-x-1/2" />
-              </div>
-            </div>
-            
-            {/* Text content */}
-            <div className="flex flex-col gap-1">
-              <span className="text-sm font-black text-neutral-800 tracking-tight">
-                Click & Drag to Explore
-              </span>
-              <div className="flex items-center gap-2">
-                <Move3D className="w-3 h-3 text-blue-500" />
-                <span className="text-[10px] font-medium text-neutral-500 uppercase tracking-widest">
-                  360° Interactive View
-                </span>
-              </div>
-            </div>
-          </div>
-          
-          {/* Animated arrow indicators */}
-          <div className="absolute -left-1 top-1/2 -translate-y-1/2 opacity-50">
-            <div className="animate-[pulse_1.5s_infinite] delay-0">
-              <ChevronRight className="w-4 h-4 text-blue-400" />
-            </div>
-          </div>
-          <div className="absolute -right-1 top-1/2 -translate-y-1/2 rotate-180 opacity-50">
-            <div className="animate-[pulse_1.5s_infinite] delay-300">
-              <ChevronRight className="w-4 h-4 text-blue-400" />
-            </div>
-          </div>
+        {/* Label */}
+        <div className="bg-black/40 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10 animate-pulse">
+          <span className="text-[10px] font-bold text-white uppercase tracking-[0.2em] whitespace-nowrap">
+            Drag to Rotate
+          </span>
         </div>
       </div>
     </div>
@@ -470,9 +432,9 @@ export default function FalconViewer() {
             border: 2px solid rgba(0,0,0,0);
             background-clip: content-box;
         }
-        @keyframes shimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(200%); }
+        @keyframes drag-hand {
+            0%, 100% { transform: translateX(-15px) rotate(-10deg); }
+            50% { transform: translateX(15px) rotate(10deg); }
         }
       `}</style>
 
@@ -494,7 +456,7 @@ export default function FalconViewer() {
       )}
 
       {/* 3. INTERACTIVE DRAG PROMPT */}
-      {isOverview && <DragPrompt hasInteracted={hasInteracted} />}
+      {isOverview && <InteractionPrompt hasInteracted={hasInteracted} />}
 
       {/* 4. OVERVIEW PART SELECTION */}
       <div className={`absolute right-8 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2 transition-all duration-500 ${isOverview ? 'translate-x-0 opacity-100' : 'translate-x-20 opacity-0 pointer-events-none'}`}>

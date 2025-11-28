@@ -169,8 +169,7 @@ function Loader() {
 
 // --- ROCKET SECTION COMPONENT ---
 const RocketSection = forwardRef(({ config, exploded, setHovered }: any, ref: any) => {
-  const gltf = useGLTF(config.file) as any;
-  const originalScene = gltf.scene as THREE.Group;
+  const { scene: originalScene } = useGLTF(config.file);
   const scene = useMemo(() => originalScene.clone(), [originalScene]);
   const internalRef = useRef<THREE.Group>(null);
   const groupRef = ref || internalRef;
@@ -237,6 +236,7 @@ const RocketSection = forwardRef(({ config, exploded, setHovered }: any, ref: an
 RocketSection.displayName = "RocketSection";
 
 // --- ZOOM INDICATOR ---
+// UPDATED: Lowered zIndex to 40 so it sits BEHIND the sidebar (z-50)
 function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
   const [zoomPct, setZoomPct] = useState(100);
   const { camera } = useThree();
@@ -250,7 +250,7 @@ function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
   });
 
   return (
-    <Html position={[0, 0, 0]} style={{ pointerEvents: 'none', zIndex: 100 }} zIndexRange={[100, 0]}>
+    <Html position={[0, 0, 0]} style={{ pointerEvents: 'none', zIndex: 40 }} zIndexRange={[40, 0]}>
       <div className="fixed top-20 right-8 flex items-center gap-2 bg-white/90 backdrop-blur px-3 py-1.5 rounded-full shadow-sm border border-black/5">
         <Search className="w-3 h-3 text-neutral-500" />
         <span className="text-xs font-mono font-bold text-neutral-700">{zoomPct}%</span>
@@ -259,12 +259,9 @@ function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
   );
 }
 
-// --- NEW COMPONENT: CAMERA COLLISION SYSTEM ---
-// Prevents the camera from clipping inside the model by creating a force field around active parts
+// --- CAMERA COLLISION SYSTEM ---
 function CameraCollision({ controlsRef, partsRefs }: { controlsRef: any, partsRefs: any }) {
   const { camera } = useThree();
-  
-  // Settings: Minimum distance from the center of any rocket part
   const MIN_COLLISION_RADIUS = 45; 
 
   useFrame(() => {
@@ -276,31 +273,20 @@ function CameraCollision({ controlsRef, partsRefs }: { controlsRef: any, partsRe
       partsRefs.bottom.current
     ];
 
-    let corrected = false;
     const currentCamPos = camera.position.clone();
 
-    // Check collision against each rocket part
     parts.forEach((part) => {
         if (!part) return;
-
-        // Calculate world position of the part (it moves when exploded)
         const partBox = new THREE.Box3().setFromObject(part);
         const partCenter = new THREE.Vector3();
         partBox.getCenter(partCenter);
 
-        // Check distance
         const distance = currentCamPos.distanceTo(partCenter);
 
         if (distance < MIN_COLLISION_RADIUS) {
-            // Camera is too close! Push it out.
             const direction = currentCamPos.sub(partCenter).normalize();
-            
-            // Calculate new safe position
             const safePos = partCenter.add(direction.multiplyScalar(MIN_COLLISION_RADIUS));
-            
-            // Apply correction immediately (no transition/damping) to act like a solid wall
             controlsRef.current.setPosition(safePos.x, safePos.y, safePos.z, false);
-            corrected = true;
         }
     });
   });
@@ -319,7 +305,6 @@ function SceneController({ currentZone, cameraControlsRef, partsRefs }: any) {
     const targetConfig = ZOOM_ZONES[currentZone];
     if (!targetConfig) return;
 
-    // DYNAMIC TRACKING LOGIC
     if (targetConfig.type === "dynamic") {
         const dynamicConfig = targetConfig as DynamicZone;
         const activePartRef = dynamicConfig.refId === "middle" ? partsRefs.middle : partsRefs.top;
@@ -347,7 +332,6 @@ function SceneController({ currentZone, cameraControlsRef, partsRefs }: any) {
             }
         }
     } 
-    // STATIC LOGIC
     else if (prevZone.current !== currentZone) {
         const staticConfig = targetConfig as StaticZone;
         cameraControlsRef.current.setLookAt(
@@ -362,7 +346,7 @@ function SceneController({ currentZone, cameraControlsRef, partsRefs }: any) {
   return null;
 }
 
-// --- FULL SCREEN INSTRUCTION OVERLAY ---
+// --- INSTRUCTION OVERLAY ---
 function InstructionOverlay({ onDismiss }: { onDismiss: () => void }) {
   return (
     <div 
@@ -370,13 +354,11 @@ function InstructionOverlay({ onDismiss }: { onDismiss: () => void }) {
       className="absolute inset-0 z-[200] bg-neutral-950/60 backdrop-blur-[2px] flex flex-col items-center justify-center cursor-pointer transition-all duration-500 hover:bg-neutral-950/50 group"
     >
        <div className="flex flex-col items-center animate-in fade-in zoom-in duration-500">
-           {/* Animated Icon Circle */}
            <div className="relative w-24 h-24 mb-6">
                 <div className="absolute inset-0 bg-blue-500/20 rounded-full animate-ping opacity-75"></div>
                 <div className="relative w-full h-full bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
                     <Rotate3d className="w-10 h-10 text-white animate-[spin_8s_linear_infinite]" />
                 </div>
-                {/* Hand Hint */}
                 <div className="absolute -bottom-2 -right-2 bg-white text-black p-2 rounded-full shadow-lg animate-bounce">
                     <Hand className="w-5 h-5" />
                 </div>
@@ -427,12 +409,10 @@ export default function FalconViewer() {
   const [hasInteracted, setHasInteracted] = useState(false);
   const cameraControlsRef = useRef<CameraControls>(null);
   
-  // REFS FOR TRACKING PARTS
   const topPartRef = useRef<THREE.Group>(null);
   const middlePartRef = useRef<THREE.Group>(null);
-  const bottomPartRef = useRef<THREE.Group>(null); // Added ref for bottom part collision
+  const bottomPartRef = useRef<THREE.Group>(null); 
 
-  // Dismiss overlay on first interaction
   const handleInteraction = () => {
     if (!hasInteracted) {
       setHasInteracted(true);
@@ -494,7 +474,7 @@ export default function FalconViewer() {
         </div>
       )}
 
-      {/* 3. FULL SCREEN INSTRUCTION OVERLAY (Game Style) */}
+      {/* 3. FULL SCREEN INSTRUCTION OVERLAY */}
       {!hasInteracted && <InstructionOverlay onDismiss={handleInteraction} />}
 
       {/* 4. OVERVIEW PART SELECTION */}

@@ -3,7 +3,12 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, CameraControls, Html, Center, ContactShadows, useProgress, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { easing } from "maath";
-import { Search, MousePointer2, AlertCircle, ArrowDown, ChevronRight, ChevronDown, X, CornerUpLeft } from "lucide-react";
+import { Search, MousePointer2, AlertCircle, ArrowDown, ChevronRight, ChevronDown, X, CornerUpLeft, Hand, Move3D } from "lucide-react";
+
+// --- TYPE DEFINITIONS ---
+type StaticZone = { pos: number[]; look: number[]; type: "static" };
+type DynamicZone = { offset: number[]; lookOffset: number[]; type: "dynamic"; refId: string };
+type ZoomZone = StaticZone | DynamicZone;
 
 // --- 1. CONFIGURATION ---
 const ROCKET_STACK = {
@@ -29,7 +34,7 @@ const ROCKET_STACK = {
 };
 
 // --- ZOOM CONFIGURATION (Finalized Coordinates) ---
-const ZOOM_ZONES = {
+const ZOOM_ZONES: Record<string, ZoomZone> = {
   overview:             { pos: [300, 50, 400], look: [0, 10, 0], type: "static" },
   
   // DYNAMIC PARTS
@@ -166,7 +171,8 @@ function Loader() {
 
 // --- ROCKET SECTION COMPONENT ---
 const RocketSection = forwardRef(({ config, exploded, setHovered }: any, ref: any) => {
-  const { scene: originalScene } = useGLTF(config.file);
+  const gltf = useGLTF(config.file) as any;
+  const originalScene = gltf.scene as THREE.Group;
   const scene = useMemo(() => originalScene.clone(), [originalScene]);
   const internalRef = useRef<THREE.Group>(null);
   const groupRef = ref || internalRef;
@@ -256,57 +262,132 @@ function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
 }
 
 // --- SCENE CONTROLLER ---
-function SceneController({ currentZone, cameraControlsRef, partsRefs }: any) {
+function SceneController({ currentZone, cameraControlsRef, partsRefs, onInteraction }: any) {
   const prevZone = useRef(currentZone);
   const lastCenter = useRef(new THREE.Vector3()); 
 
   useFrame(() => {
     if (!cameraControlsRef.current) return;
 
-    const targetConfig = ZOOM_ZONES[currentZone as keyof typeof ZOOM_ZONES] || ZOOM_ZONES.overview;
-
-    // Determine which part to track based on refId
-    const activePartRef = targetConfig.refId === "middle" ? partsRefs.middle : partsRefs.top;
+    const targetConfig = ZOOM_ZONES[currentZone];
+    if (!targetConfig) return;
 
     // DYNAMIC TRACKING LOGIC
-    if (targetConfig.type === "dynamic" && activePartRef?.current) {
-        const box = new THREE.Box3().setFromObject(activePartRef.current);
-        const center = new THREE.Vector3();
-        box.getCenter(center); 
+    if (targetConfig.type === "dynamic") {
+        const dynamicConfig = targetConfig as DynamicZone;
+        const activePartRef = dynamicConfig.refId === "middle" ? partsRefs.middle : partsRefs.top;
+        
+        if (activePartRef?.current) {
+            const box = new THREE.Box3().setFromObject(activePartRef.current);
+            const center = new THREE.Vector3();
+            box.getCenter(center); 
 
-        const zoneChanged = prevZone.current !== currentZone;
-        const partMoved = center.distanceTo(lastCenter.current) > 0.1;
+            const zoneChanged = prevZone.current !== currentZone;
+            const partMoved = center.distanceTo(lastCenter.current) > 0.1;
 
-        if (zoneChanged || partMoved) {
-            // Apply Manual Offsets to the Calculated Center
-            const camPos = new THREE.Vector3().copy(center).add(new THREE.Vector3(...targetConfig.offset));
-            const camLook = new THREE.Vector3().copy(center).add(new THREE.Vector3(...targetConfig.lookOffset));
+            if (zoneChanged || partMoved) {
+                const camPos = new THREE.Vector3().copy(center).add(new THREE.Vector3(...dynamicConfig.offset));
+                const camLook = new THREE.Vector3().copy(center).add(new THREE.Vector3(...dynamicConfig.lookOffset));
 
-            cameraControlsRef.current.setLookAt(
-                camPos.x, camPos.y, camPos.z,
-                camLook.x, camLook.y, camLook.z,
-                true 
-            );
+                cameraControlsRef.current.setLookAt(
+                    camPos.x, camPos.y, camPos.z,
+                    camLook.x, camLook.y, camLook.z,
+                    true 
+                );
 
-            lastCenter.current.copy(center);
-            prevZone.current = currentZone;
+                lastCenter.current.copy(center);
+                prevZone.current = currentZone;
+            }
         }
     } 
     // STATIC LOGIC
     else if (prevZone.current !== currentZone) {
-        const { pos, look } = targetConfig;
-        if(pos && look) {
-            cameraControlsRef.current.setLookAt(
-                pos[0], pos[1], pos[2],
-                look[0], look[1], look[2],
-                true
-            );
-        }
+        const staticConfig = targetConfig as StaticZone;
+        cameraControlsRef.current.setLookAt(
+            staticConfig.pos[0], staticConfig.pos[1], staticConfig.pos[2],
+            staticConfig.look[0], staticConfig.look[1], staticConfig.look[2],
+            true
+        );
         prevZone.current = currentZone;
     }
   });
 
   return null;
+}
+
+// --- INTERACTIVE DRAG PROMPT ---
+function DragPrompt({ hasInteracted }: { hasInteracted: boolean }) {
+  const [isVisible, setIsVisible] = useState(true);
+  
+  useEffect(() => {
+    if (hasInteracted) {
+      const timer = setTimeout(() => setIsVisible(false), 500);
+      return () => clearTimeout(timer);
+    }
+  }, [hasInteracted]);
+
+  if (!isVisible) return null;
+
+  return (
+    <div 
+      className={`absolute bottom-8 right-8 z-[60] transition-all duration-700 ease-out ${
+        hasInteracted ? 'opacity-0 scale-90 translate-y-4' : 'opacity-100 scale-100 translate-y-0'
+      }`}
+    >
+      <div className="relative group">
+        {/* Pulsing ring effect */}
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-cyan-500/20 rounded-2xl blur-xl animate-pulse" />
+        
+        {/* Main container */}
+        <div className="relative bg-gradient-to-br from-white/95 to-white/80 backdrop-blur-xl border border-white/50 px-6 py-4 rounded-2xl shadow-2xl overflow-hidden">
+          {/* Animated background shimmer */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-blue-100/30 to-transparent -translate-x-full animate-[shimmer_3s_infinite]" />
+          
+          {/* Content */}
+          <div className="relative flex items-center gap-4">
+            {/* Animated hand/mouse icon */}
+            <div className="relative">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center shadow-lg animate-bounce">
+                <Hand className="w-7 h-7 text-white" />
+              </div>
+              {/* Orbital dots */}
+              <div className="absolute -inset-2 animate-spin" style={{ animationDuration: '4s' }}>
+                <div className="absolute top-0 left-1/2 w-2 h-2 bg-blue-400 rounded-full -translate-x-1/2" />
+              </div>
+              <div className="absolute -inset-3 animate-spin" style={{ animationDuration: '6s', animationDirection: 'reverse' }}>
+                <div className="absolute bottom-0 left-1/2 w-1.5 h-1.5 bg-cyan-400 rounded-full -translate-x-1/2" />
+              </div>
+            </div>
+            
+            {/* Text content */}
+            <div className="flex flex-col gap-1">
+              <span className="text-sm font-black text-neutral-800 tracking-tight">
+                Click & Drag to Explore
+              </span>
+              <div className="flex items-center gap-2">
+                <Move3D className="w-3 h-3 text-blue-500" />
+                <span className="text-[10px] font-medium text-neutral-500 uppercase tracking-widest">
+                  360° Interactive View
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          {/* Animated arrow indicators */}
+          <div className="absolute -left-1 top-1/2 -translate-y-1/2 opacity-50">
+            <div className="animate-[pulse_1.5s_infinite] delay-0">
+              <ChevronRight className="w-4 h-4 text-blue-400" />
+            </div>
+          </div>
+          <div className="absolute -right-1 top-1/2 -translate-y-1/2 rotate-180 opacity-50">
+            <div className="animate-[pulse_1.5s_infinite] delay-300">
+              <ChevronRight className="w-4 h-4 text-blue-400" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // --- ACCORDION COMPONENT ---
@@ -337,11 +418,19 @@ export default function FalconViewer() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [hovered, setHovered] = useState(false);
   const [warning, setWarning] = useState<string | null>(null);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const cameraControlsRef = useRef<CameraControls>(null);
   
   // REFS FOR TRACKING PARTS
   const topPartRef = useRef<THREE.Group>(null);
   const middlePartRef = useRef<THREE.Group>(null);
+
+  // Track user interaction with the 3D canvas
+  const handleCanvasInteraction = () => {
+    if (!hasInteracted) {
+      setHasInteracted(true);
+    }
+  };
 
   const handleZoneClick = (zoneKey: string) => {
     if (zoneKey === "second stage booster" && exploded < 0.2) {
@@ -361,7 +450,11 @@ export default function FalconViewer() {
   const currentDetails = PART_DETAILS[currentZone];
 
   return (
-    <div className="w-full h-[750px] relative bg-white border border-neutral-200 overflow-hidden shadow-sm group font-sans">
+    <div 
+      className="w-full h-[750px] relative bg-white border border-neutral-200 overflow-hidden shadow-sm group font-sans"
+      onMouseDown={handleCanvasInteraction}
+      onTouchStart={handleCanvasInteraction}
+    >
       
       <style>{`
         .custom-scrollbar::-webkit-scrollbar { width: 8px; }
@@ -376,6 +469,10 @@ export default function FalconViewer() {
             background: rgba(120, 120, 120, 0.8);
             border: 2px solid rgba(0,0,0,0);
             background-clip: content-box;
+        }
+        @keyframes shimmer {
+          0% { transform: translateX(-100%); }
+          100% { transform: translateX(200%); }
         }
       `}</style>
 
@@ -396,13 +493,8 @@ export default function FalconViewer() {
         </div>
       )}
 
-      {/* 3. CLICK TO DRAG PROMPT - UPDATED TO BOUNCE */}
-      <div className={`absolute bottom-8 right-8 z-[60] animate-bounce`}>
-         <div className="flex items-center gap-3 bg-white/90 backdrop-blur border border-neutral-200 px-4 py-2 rounded-full shadow-lg hover:scale-105 transition-transform">
-            <MousePointer2 className="w-4 h-4 text-blue-500" />
-            <span className="text-[10px] font-bold text-neutral-600 uppercase tracking-widest">Click & Drag to Rotate</span>
-         </div>
-      </div>
+      {/* 3. INTERACTIVE DRAG PROMPT */}
+      {isOverview && <DragPrompt hasInteracted={hasInteracted} />}
 
       {/* 4. OVERVIEW PART SELECTION */}
       <div className={`absolute right-8 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2 transition-all duration-500 ${isOverview ? 'translate-x-0 opacity-100' : 'translate-x-20 opacity-0 pointer-events-none'}`}>

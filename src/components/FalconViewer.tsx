@@ -3,7 +3,7 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, CameraControls, Html, Center, ContactShadows, useProgress, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { easing } from "maath";
-import { Search, MousePointer2, AlertCircle, ArrowDown, ChevronRight, ChevronDown, X, CornerUpLeft, Hand, Move3D } from "lucide-react";
+import { Search, MousePointer2, AlertCircle, ArrowDown, ChevronRight, ChevronDown, X, CornerUpLeft, Hand, Move3D, Rotate3d } from "lucide-react";
 
 // --- TYPE DEFINITIONS ---
 type StaticZone = { pos: number[]; look: number[]; type: "static" };
@@ -315,39 +315,36 @@ function SceneController({ currentZone, cameraControlsRef, partsRefs }: any) {
   return null;
 }
 
-// --- NEW INTERACTION PROMPT ---
-function InteractionPrompt({ hasInteracted }: { hasInteracted: boolean }) {
-  const [visible, setVisible] = useState(true);
-
-  useEffect(() => {
-    if (hasInteracted) {
-      setVisible(false);
-    }
-  }, [hasInteracted]);
-
+// --- NEW: FULL SCREEN INSTRUCTION OVERLAY ---
+function InstructionOverlay({ onDismiss }: { onDismiss: () => void }) {
   return (
     <div 
-      className={`absolute bottom-20 right-10 z-50 pointer-events-none transition-opacity duration-1000 ${visible ? 'opacity-100' : 'opacity-0'}`}
+      onClick={onDismiss}
+      className="absolute inset-0 z-[200] bg-neutral-950/60 backdrop-blur-[2px] flex flex-col items-center justify-center cursor-pointer transition-all duration-500 hover:bg-neutral-950/50 group"
     >
-      <div className="flex flex-col items-center gap-3">
-        {/* Hand Icon Container */}
-        <div className="relative w-16 h-16 bg-white/10 backdrop-blur-md rounded-full border border-white/20 flex items-center justify-center shadow-[0_0_30px_rgba(59,130,246,0.4)]">
-           <div className="absolute inset-0 bg-blue-500/30 rounded-full animate-ping" />
-           {/* Animated Hand */}
-           <Hand 
-             className="w-8 h-8 text-white drop-shadow-md" 
-             style={{ animation: 'drag-hand 2s ease-in-out infinite' }}
-             strokeWidth={1.5}
-           />
-        </div>
-        
-        {/* Label */}
-        <div className="bg-black/40 backdrop-blur-md px-4 py-1.5 rounded-full border border-white/10 animate-pulse">
-          <span className="text-[10px] font-bold text-white uppercase tracking-[0.2em] whitespace-nowrap">
-            Drag to Rotate
-          </span>
-        </div>
-      </div>
+       <div className="flex flex-col items-center animate-in fade-in zoom-in duration-500">
+           {/* Animated Icon Circle */}
+           <div className="relative w-24 h-24 mb-6">
+                <div className="absolute inset-0 bg-blue-500/20 rounded-full animate-ping opacity-75"></div>
+                <div className="relative w-full h-full bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                    <Rotate3d className="w-10 h-10 text-white animate-[spin_8s_linear_infinite]" />
+                </div>
+                {/* Hand Hint */}
+                <div className="absolute -bottom-2 -right-2 bg-white text-black p-2 rounded-full shadow-lg animate-bounce">
+                    <Hand className="w-5 h-5" />
+                </div>
+           </div>
+
+           <h2 className="text-4xl font-black text-white tracking-tighter uppercase drop-shadow-lg mb-2 text-center">
+               Click to Explore
+           </h2>
+           
+           <div className="flex items-center gap-4 text-blue-200 text-xs font-bold tracking-[0.2em] uppercase bg-black/40 px-6 py-2 rounded-full border border-white/10">
+               <span>Drag to Rotate</span>
+               <div className="w-1 h-1 bg-white rounded-full opacity-50" />
+               <span>Scroll to Zoom</span>
+           </div>
+       </div>
     </div>
   );
 }
@@ -383,12 +380,11 @@ export default function FalconViewer() {
   const [hasInteracted, setHasInteracted] = useState(false);
   const cameraControlsRef = useRef<CameraControls>(null);
   
-  // REFS FOR TRACKING PARTS
   const topPartRef = useRef<THREE.Group>(null);
   const middlePartRef = useRef<THREE.Group>(null);
 
-  // Track user interaction with the 3D canvas
-  const handleCanvasInteraction = () => {
+  // Dismiss overlay on first interaction
+  const handleInteraction = () => {
     if (!hasInteracted) {
       setHasInteracted(true);
     }
@@ -414,8 +410,6 @@ export default function FalconViewer() {
   return (
     <div 
       className="w-full h-[750px] relative bg-white border border-neutral-200 overflow-hidden shadow-sm group font-sans"
-      onMouseDown={handleCanvasInteraction}
-      onTouchStart={handleCanvasInteraction}
     >
       
       <style>{`
@@ -431,10 +425,6 @@ export default function FalconViewer() {
             background: rgba(120, 120, 120, 0.8);
             border: 2px solid rgba(0,0,0,0);
             background-clip: content-box;
-        }
-        @keyframes drag-hand {
-            0%, 100% { transform: translateX(-15px) rotate(-10deg); }
-            50% { transform: translateX(15px) rotate(10deg); }
         }
       `}</style>
 
@@ -455,8 +445,9 @@ export default function FalconViewer() {
         </div>
       )}
 
-      {/* 3. INTERACTIVE DRAG PROMPT */}
-      {isOverview && <InteractionPrompt hasInteracted={hasInteracted} />}
+      {/* 3. FULL SCREEN INSTRUCTION OVERLAY (Game Style) */}
+      {/* Renders on top of everything until user clicks */}
+      {!hasInteracted && <InstructionOverlay onDismiss={handleInteraction} />}
 
       {/* 4. OVERVIEW PART SELECTION */}
       <div className={`absolute right-8 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2 transition-all duration-500 ${isOverview ? 'translate-x-0 opacity-100' : 'translate-x-20 opacity-0 pointer-events-none'}`}>

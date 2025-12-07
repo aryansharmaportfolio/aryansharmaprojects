@@ -78,11 +78,6 @@ const ClubDetail = () => {
           <div className="absolute bottom-20 right-20 w-16 h-16 bg-primary/20 rounded-full blur-2xl" />
           
           <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="px-3 py-1 bg-primary/20 backdrop-blur-sm rounded-full border border-primary/30">
-                <span className="text-xs font-bold text-primary uppercase tracking-wider">Team Experience</span>
-              </div>
-            </div>
             <h1 className="text-4xl md:text-5xl font-black text-foreground mb-2 tracking-tight">{club.name}</h1>
             <div className="flex items-center gap-2">
               <Target className="w-5 h-5 text-primary" />

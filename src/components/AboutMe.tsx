@@ -7,20 +7,30 @@ import DegreeProgress from "./DegreeProgress";
 import ResumeViewer from "./ResumeViewer";
 
 const AboutMe = () => {
+  const [currentMessage, setCurrentMessage] = useState(0); // 0 = first message, 1 = second message
   const [showBubble, setShowBubble] = useState(false);
-  const [hasTriggered, setHasTriggered] = useState(false); // Ensures it only runs once per page load
+  const [hasTriggered, setHasTriggered] = useState(false);
+  const [isPinging, setIsPinging] = useState(false);
   const sectionRef = useRef<HTMLElement>(null);
+
+  const messages = [
+    "I hope you like my portfolio 🚀",
+    "I ❤️ aerospace"
+  ];
 
   // 1. Handle appearance when scrolling into view
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          // Trigger only if intersecting and hasn't triggered yet
           if (entry.isIntersecting && !hasTriggered) {
             setHasTriggered(true);
-            // Small delay before showing
-            setTimeout(() => setShowBubble(true), 500);
+            setTimeout(() => {
+              setShowBubble(true);
+              setIsPinging(true);
+              // Stop ping after animation
+              setTimeout(() => setIsPinging(false), 600);
+            }, 500);
           }
         });
       },
@@ -34,16 +44,25 @@ const AboutMe = () => {
     return () => observer.disconnect();
   }, [hasTriggered]);
 
-  // 2. Handle auto-dismiss after 5 seconds
+  // 2. Handle message transitions - 2.5 seconds for first, then swap
   useEffect(() => {
-    if (showBubble) {
+    if (showBubble && currentMessage === 0) {
       const timer = setTimeout(() => {
         setShowBubble(false);
-      }, 5000); // Disappear after 5 seconds
+        // After fade out, show second message
+        setTimeout(() => {
+          setCurrentMessage(1);
+          setShowBubble(true);
+          setIsPinging(true);
+          setTimeout(() => setIsPinging(false), 600);
+          // Auto-hide second message after 2.5 seconds
+          setTimeout(() => setShowBubble(false), 2500);
+        }, 400);
+      }, 2500);
 
       return () => clearTimeout(timer);
     }
-  }, [showBubble]);
+  }, [showBubble, currentMessage]);
 
   return (
     <section ref={sectionRef} id="about" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-background/95 backdrop-blur-sm">
@@ -57,24 +76,26 @@ const AboutMe = () => {
             
             {/* Wrapper for Image and Speech Bubble */}
             <div className="relative">
-              {/* Speech Bubble - Interactive & Auto-dismiss */}
+              {/* Speech Bubble - Interactive & Auto-dismiss with ping animation */}
               <div 
                 onClick={() => setShowBubble(false)}
                 className={`absolute -top-16 sm:-top-20 left-1/2 -translate-x-1/2 z-50 cursor-pointer
-                           transition-all duration-700 ease-in-out
+                           transition-all duration-500 ease-out
                            ${showBubble 
                              ? 'opacity-100 translate-y-0 scale-100' 
                              : 'opacity-0 translate-y-4 scale-95 pointer-events-none'}`}
               >
-                <div className="relative bg-white text-background px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl shadow-2xl group hover:scale-105 transition-transform">
-                  {/* Subtle pulse animation on the bubble */}
-                  <div className="absolute inset-0 bg-white rounded-2xl animate-pulse opacity-30" />
+                <div className={`relative bg-white text-background px-4 sm:px-5 py-2.5 sm:py-3 rounded-2xl shadow-2xl group hover:scale-105 transition-transform
+                                ${isPinging ? 'animate-bounce' : ''}`}>
+                  {/* Ping ring effect */}
+                  {isPinging && (
+                    <div className="absolute inset-0 rounded-2xl border-2 border-primary animate-ping opacity-75" />
+                  )}
                   
                   <div className="flex items-center gap-2">
                     <p className="relative text-xs sm:text-sm font-bold whitespace-nowrap text-black">
-                      I hope you like my portfolio 🚀
+                      {messages[currentMessage]}
                     </p>
-                    {/* Tiny close icon for better UX */}
                     <X className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </div>
 

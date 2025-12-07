@@ -11,7 +11,7 @@ const CurrentWork = () => {
     },
     {
       id: "work-2",
-      title: "UTA DBF (2026)",
+      title: "UTA Design-Build-Fly (2026)",
       role: "Structures/Manufacturing",
       image: "https://images.unsplash.com/photo-1559297434-fae8a1916a79?auto=format&fit=crop&w=800",
     },

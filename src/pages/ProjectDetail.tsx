@@ -122,10 +122,10 @@ const ProjectDetail = () => {
                 </div>
                 
                 <div className="flex flex-wrap gap-3">
-                  {project.technologies.map((tech: string, index: number) => (
+                {project.technologies.map((tech: string, index: number) => (
                     <span 
                       key={index} 
-                      className="px-4 py-2 bg-card text-foreground rounded-full text-sm font-medium border border-border hover:border-primary/50 transition-all duration-300"
+                      className="px-4 py-2 bg-white text-black rounded-full text-sm font-medium border border-border hover:border-primary/50 transition-all duration-300"
                     >
                       {tech}
                     </span>
@@ -139,14 +139,14 @@ const ProjectDetail = () => {
                   <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
                     <Code className="w-5 h-5 text-primary" />
                   </div>
-                  <h2 className="text-xl font-bold text-foreground border-l-4 border-primary pl-3">Skills Developed</h2>
+                  <h2 className="text-xl font-bold text-foreground border-l-4 border-primary pl-3">Skills Used</h2>
                 </div>
                 
                 <div className="flex flex-wrap gap-3">
-                  {project.skills.map((skill: string, index: number) => (
+                {project.skills.map((skill: string, index: number) => (
                     <span 
                       key={index} 
-                      className="px-4 py-2 bg-card text-foreground rounded-full text-sm font-medium border border-border hover:border-primary/50 transition-all duration-300"
+                      className="px-4 py-2 bg-white text-black rounded-full text-sm font-medium border border-border hover:border-primary/50 transition-all duration-300"
                     >
                       {skill}
                     </span>

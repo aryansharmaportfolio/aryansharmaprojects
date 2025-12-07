@@ -92,40 +92,26 @@ const ClubDetail = () => {
         </div>
 
         <div className="container mx-auto px-6 py-12 max-w-5xl">
-          {/* Main Content Card */}
-          <div className="relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-8 md:p-10 shadow-xl">
-            {/* Decorative corner accents */}
-            <div className="absolute top-0 left-0 w-20 h-20 border-l-2 border-t-2 border-primary/30 rounded-tl-2xl" />
-            <div className="absolute bottom-0 right-0 w-20 h-20 border-r-2 border-b-2 border-primary/30 rounded-br-2xl" />
-            
-            {/* Header */}
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-3 bg-primary/10 rounded-xl">
-                <Award className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-2xl md:text-3xl font-bold text-foreground">My Role & Achievements</h2>
-                <p className="text-muted-foreground text-sm">Key contributions and accomplishments</p>
-              </div>
+          {/* Header */}
+          <div className="flex items-center gap-3 mb-8">
+            <div className="p-2.5 bg-primary/10 rounded-lg border border-primary/20">
+              <Award className="w-6 h-6 text-primary" />
             </div>
-
-            {/* Achievements List */}
-            <div className="space-y-6">
-              {club.achievements.map((achievement: string, index: number) => (
-                <div 
-                  key={index} 
-                  className="group flex gap-4 p-4 rounded-xl bg-background/50 border border-border/30 hover:border-primary/30 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5"
-                >
-                  <div className="flex-shrink-0 mt-1">
-                    <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center group-hover:from-primary/30 group-hover:to-primary/10 transition-all duration-300">
-                      <Sparkles className="w-4 h-4 text-primary" />
-                    </div>
-                  </div>
-                  <p className="text-base md:text-lg text-foreground/90 leading-relaxed">{achievement}</p>
-                </div>
-              ))}
-            </div>
+            <h2 className="text-2xl md:text-3xl font-bold text-foreground border-l-4 border-primary pl-3">My Role & Achievements</h2>
           </div>
+
+          {/* Achievements List */}
+          <ul className="space-y-5">
+            {club.achievements.map((achievement: string, index: number) => (
+              <li 
+                key={index} 
+                className="flex gap-4 text-foreground/90 leading-relaxed"
+              >
+                <span className="text-primary mt-1">▸</span>
+                <p className="text-base md:text-lg">{achievement}</p>
+              </li>
+            ))}
+          </ul>
         </div>
       </div>
     </>

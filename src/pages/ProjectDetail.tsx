@@ -89,52 +89,43 @@ const ProjectDetail = () => {
         <div className="container mx-auto px-6 py-12 max-w-6xl">
           <div className="grid md:grid-cols-2 gap-8">
             {/* Left Column - Summary */}
-            <div className="relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 md:p-8 shadow-xl">
-              {/* Decorative corner */}
-              <div className="absolute top-0 left-0 w-16 h-16 border-l-2 border-t-2 border-primary/30 rounded-tl-2xl" />
-              
+            <div>
               <div className="flex items-center gap-3 mb-6">
-                <div className="p-2.5 bg-primary/10 rounded-xl">
+                <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
                   <FileText className="w-5 h-5 text-primary" />
                 </div>
-                <h2 className="text-2xl font-bold text-foreground">Summary</h2>
+                <h2 className="text-2xl font-bold text-foreground border-l-4 border-primary pl-3">Summary</h2>
               </div>
               
-              <div className="space-y-4">
+              <ul className="space-y-4">
                 {project.summary.map((item: string, index: number) => (
-                  <div 
+                  <li 
                     key={index} 
-                    className="group flex gap-3 p-3 rounded-xl bg-background/50 border border-border/30 hover:border-primary/30 transition-all duration-300"
+                    className="flex gap-3 text-foreground/90 leading-relaxed"
                   >
-                    <div className="flex-shrink-0 mt-0.5">
-                      <div className="w-6 h-6 rounded-md bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center">
-                        <Sparkles className="w-3 h-3 text-primary" />
-                      </div>
-                    </div>
-                    <p className="text-sm md:text-base text-foreground/90 leading-relaxed">{item}</p>
-                  </div>
+                    <span className="text-primary mt-1.5">▸</span>
+                    <span className="text-base md:text-lg">{item}</span>
+                  </li>
                 ))}
-              </div>
+              </ul>
             </div>
 
             {/* Right Column - Technologies & Skills */}
-            <div className="space-y-6">
+            <div className="space-y-10">
               {/* Technologies Section */}
-              <div className="relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 md:p-8 shadow-xl">
-                <div className="absolute top-0 right-0 w-16 h-16 border-r-2 border-t-2 border-primary/30 rounded-tr-2xl" />
-                
+              <div>
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="p-2.5 bg-primary/10 rounded-xl">
+                  <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
                     <Wrench className="w-5 h-5 text-primary" />
                   </div>
-                  <h2 className="text-xl font-bold text-foreground">Technologies Used</h2>
+                  <h2 className="text-xl font-bold text-foreground border-l-4 border-primary pl-3">Technologies Used</h2>
                 </div>
                 
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-3">
                   {project.technologies.map((tech: string, index: number) => (
                     <span 
                       key={index} 
-                      className="px-4 py-2 bg-gradient-to-br from-card to-background text-foreground rounded-xl text-sm font-medium border border-border/50 hover:border-primary/50 hover:shadow-lg hover:shadow-primary/5 transition-all duration-300"
+                      className="px-4 py-2 bg-card text-foreground rounded-full text-sm font-medium border border-border hover:border-primary/50 transition-all duration-300"
                     >
                       {tech}
                     </span>
@@ -143,21 +134,19 @@ const ProjectDetail = () => {
               </div>
 
               {/* Skills Section */}
-              <div className="relative bg-card/50 backdrop-blur-sm border border-border/50 rounded-2xl p-6 md:p-8 shadow-xl">
-                <div className="absolute bottom-0 right-0 w-16 h-16 border-r-2 border-b-2 border-primary/30 rounded-br-2xl" />
-                
+              <div>
                 <div className="flex items-center gap-3 mb-5">
-                  <div className="p-2.5 bg-primary/10 rounded-xl">
+                  <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
                     <Code className="w-5 h-5 text-primary" />
                   </div>
-                  <h2 className="text-xl font-bold text-foreground">Skills Developed</h2>
+                  <h2 className="text-xl font-bold text-foreground border-l-4 border-primary pl-3">Skills Developed</h2>
                 </div>
                 
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-3">
                   {project.skills.map((skill: string, index: number) => (
                     <span 
                       key={index} 
-                      className="px-4 py-2 bg-primary/10 text-primary rounded-xl text-sm font-medium border border-primary/20 hover:bg-primary/20 hover:border-primary/40 transition-all duration-300"
+                      className="px-4 py-2 bg-card text-foreground rounded-full text-sm font-medium border border-border hover:border-primary/50 transition-all duration-300"
                     >
                       {skill}
                     </span>

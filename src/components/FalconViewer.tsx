@@ -510,12 +510,9 @@ export default function FalconViewer() {
         })}
       </div>
 
-      {/* 5. SIDEBAR: DETAILED VIEW - On mobile, shows as bottom sheet instead of full-width sidebar */}
+      {/* 5. SIDEBAR: DETAILED VIEW */}
       <div 
-        className={`absolute bg-neutral-950/95 backdrop-blur-xl z-50 text-white shadow-2xl transition-transform duration-700 ease-bezier flex flex-col
-          md:top-0 md:left-0 md:h-full md:w-[400px]
-          top-auto bottom-0 left-0 right-0 h-[60vh] w-full rounded-t-2xl md:rounded-none
-          ${!isOverview ? 'translate-y-0 md:translate-x-0' : 'translate-y-full md:translate-y-0 md:-translate-x-full'}`}
+        className={`absolute top-0 left-0 h-full w-full md:w-[400px] bg-neutral-950/95 backdrop-blur-xl z-50 text-white shadow-2xl transition-transform duration-700 ease-bezier flex flex-col ${!isOverview ? 'translate-x-0' : '-translate-x-full'}`}
         style={{ transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
       >
         <div className="p-4 sm:p-6 md:p-8 pb-4 shrink-0 border-b border-white/5 relative z-20 bg-neutral-950/50 backdrop-blur-md">
@@ -586,16 +583,16 @@ export default function FalconViewer() {
         </div>
       </div>
 
-      {/* 6. SLIDER - Fixed width on mobile to prevent cutoff */}
-      <div className={`absolute bottom-4 sm:bottom-20 md:bottom-40 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2 sm:gap-3 w-[90%] max-w-[320px] sm:max-w-none sm:w-80 md:w-96 p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl border shadow-xl backdrop-blur-md transition-all duration-500 
+      {/* 6. SLIDER */}
+      <div className={`absolute bottom-4 sm:bottom-20 md:bottom-40 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2 sm:gap-3 w-[calc(100%-2rem)] sm:w-80 md:w-96 p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl border shadow-xl backdrop-blur-md transition-all duration-500 
         ${!isOverview ? 'opacity-0 pointer-events-none translate-y-20' : 'opacity-100 translate-y-0'}
         ${warning ? 'bg-red-50/90 border-red-200 ring-2 ring-red-400 ring-offset-2' : 'bg-white/90 border-neutral-200'}
       `}>
         
-        <div className="flex justify-between w-full text-[7px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
-          <span className="shrink-0">Stowed</span>
-          <span className="text-neutral-900 text-center px-1 truncate">Stage Separation</span>
-          <span className="shrink-0">Deployed</span>
+        <div className="flex justify-between w-full text-[8px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
+          <span>Stowed</span>
+          <span className="text-neutral-900 text-center">Stage Separation</span>
+          <span>Deployed</span>
         </div>
         <input 
           type="range" 

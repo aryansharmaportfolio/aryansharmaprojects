@@ -92,15 +92,13 @@ const Header = ({ activeSection }: { activeSection: string }) => {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? "bg-background/95 backdrop-blur-sm shadow-lg" 
-          : "md:bg-transparent bg-background"
+        isScrolled ? "bg-background/95 backdrop-blur-sm shadow-lg" : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto px-4 sm:px-6 py-2 md:py-4 flex items-center justify-between">
+      <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
         <button
           onClick={() => scrollToSection("home")}
-          className="text-base sm:text-lg md:text-2xl font-bold text-foreground hover:text-primary transition-colors"
+          className="text-lg sm:text-xl md:text-2xl font-bold text-foreground hover:text-primary transition-colors"
         >
           Aryan Sharma
         </button>
@@ -124,10 +122,10 @@ const Header = ({ activeSection }: { activeSection: string }) => {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-1.5 text-foreground hover:text-primary transition-colors"
+          className="md:hidden p-2 text-foreground hover:text-primary transition-colors"
           aria-label="Toggle menu"
         >
-          {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+          {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
       </div>
 

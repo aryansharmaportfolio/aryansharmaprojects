@@ -64,8 +64,8 @@ const ProjectDetail = () => {
         className="min-h-screen bg-background transition-opacity duration-700 ease-in-out"
         style={{ opacity }}
       >
-        {/* Hero image - respects sidebar on left */}
-        <div className="relative h-[600px] overflow-hidden ml-16">
+        {/* Hero image - respects sidebar on left, responsive margin */}
+        <div className="relative h-[350px] sm:h-[450px] md:h-[600px] overflow-hidden ml-12 sm:ml-14 md:ml-16">
           
           {/* --- CONDITIONAL RENDERING LOGIC --- */}
           {id === "falcon-9-model" ? (
@@ -76,9 +76,9 @@ const ProjectDetail = () => {
             <>
               <img src={project.logo} alt={project.name} className="w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-12">
-                <h1 className="text-5xl font-bold text-foreground mb-2">{project.name}</h1>
-                <p className="text-2xl text-white font-semibold my-[4px] py-[4px]">{project.description}</p>
+              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8 md:p-12">
+                <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-foreground mb-1 sm:mb-2">{project.name}</h1>
+                <p className="text-base sm:text-xl md:text-2xl text-white font-semibold my-1 sm:my-[4px] py-1 sm:py-[4px]">{project.description}</p>
               </div>
             </>
           )}
@@ -86,46 +86,46 @@ const ProjectDetail = () => {
 
         </div>
 
-        <div className="container mx-auto px-6 py-12 max-w-6xl">
-          <div className="grid md:grid-cols-2 gap-8">
+        <div className="container mx-auto px-4 sm:px-6 py-6 sm:py-8 md:py-12 max-w-6xl">
+          <div className="grid md:grid-cols-2 gap-6 sm:gap-8">
             {/* Left Column - Summary */}
             <div>
-              <div className="flex items-center gap-3 mb-6">
-                <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
-                  <FileText className="w-5 h-5 text-primary" />
+              <div className="flex items-center gap-2 sm:gap-3 mb-4 sm:mb-6">
+                <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg border border-primary/20">
+                  <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                 </div>
-                <h2 className="text-2xl font-bold text-foreground border-l-4 border-primary pl-3">Summary</h2>
+                <h2 className="text-xl sm:text-2xl font-bold text-foreground border-l-4 border-primary pl-2 sm:pl-3">Summary</h2>
               </div>
               
-              <ul className="space-y-4">
+              <ul className="space-y-3 sm:space-y-4">
                 {project.summary.map((item: string, index: number) => (
                   <li 
                     key={index} 
-                    className="flex gap-3 text-foreground/90 leading-relaxed"
+                    className="flex gap-2 sm:gap-3 text-foreground/90 leading-relaxed"
                   >
-                    <span className="text-primary mt-1.5">▸</span>
-                    <span className="text-base md:text-lg">{item}</span>
+                    <span className="text-primary mt-1 sm:mt-1.5">▸</span>
+                    <span className="text-sm sm:text-base md:text-lg">{item}</span>
                   </li>
                 ))}
               </ul>
             </div>
 
             {/* Right Column - Technologies & Skills */}
-            <div className="space-y-10">
+            <div className="space-y-6 sm:space-y-8 md:space-y-10">
               {/* Technologies Section */}
               <div>
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
-                    <Wrench className="w-5 h-5 text-primary" />
+                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-5">
+                  <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg border border-primary/20">
+                    <Wrench className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                   </div>
-                  <h2 className="text-xl font-bold text-foreground border-l-4 border-primary pl-3">Technologies Used</h2>
+                  <h2 className="text-lg sm:text-xl font-bold text-foreground border-l-4 border-primary pl-2 sm:pl-3">Technologies Used</h2>
                 </div>
                 
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2 sm:gap-3">
                 {project.technologies.map((tech: string, index: number) => (
                     <span 
                       key={index} 
-                      className="px-4 py-2 bg-white text-black rounded-full text-sm font-medium border border-border hover:border-primary/50 transition-all duration-300"
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-black rounded-full text-xs sm:text-sm font-medium border border-border hover:border-primary/50 transition-all duration-300"
                     >
                       {tech}
                     </span>
@@ -135,18 +135,18 @@ const ProjectDetail = () => {
 
               {/* Skills Section */}
               <div>
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
-                    <Code className="w-5 h-5 text-primary" />
+                <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-5">
+                  <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg border border-primary/20">
+                    <Code className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                   </div>
-                  <h2 className="text-xl font-bold text-foreground border-l-4 border-primary pl-3">Skills Used</h2>
+                  <h2 className="text-lg sm:text-xl font-bold text-foreground border-l-4 border-primary pl-2 sm:pl-3">Skills Used</h2>
                 </div>
                 
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap gap-2 sm:gap-3">
                 {project.skills.map((skill: string, index: number) => (
                     <span 
                       key={index} 
-                      className="px-4 py-2 bg-white text-black rounded-full text-sm font-medium border border-border hover:border-primary/50 transition-all duration-300"
+                      className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white text-black rounded-full text-xs sm:text-sm font-medium border border-border hover:border-primary/50 transition-all duration-300"
                     >
                       {skill}
                     </span>

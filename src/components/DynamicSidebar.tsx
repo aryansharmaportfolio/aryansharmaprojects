@@ -106,13 +106,16 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
         <div
           onClick={isMobile ? () => toggleSidebar(true) : undefined}
           className={cn(
-            "absolute left-0 w-16 bg-black/60 backdrop-blur-md border-t-2 border-b-2 border-r-2 border-white/10 shadow-2xl flex items-center justify-center transition-all duration-500 ease-in-out cursor-pointer",
+            "absolute left-0 bg-black/60 backdrop-blur-md border-t-2 border-b-2 border-r-2 border-white/10 shadow-2xl flex items-center justify-center transition-all duration-500 ease-in-out cursor-pointer",
             !isMobile && "group-hover:opacity-0 group-hover:translate-x-[-100%]",
-            isMobile ? "h-64 top-1/2 -translate-y-1/2 rounded-r-lg" : "h-full top-0"
+            isMobile ? "w-12 h-48 sm:h-56 top-1/2 -translate-y-1/2 rounded-r-lg" : "w-16 h-full top-0"
           )}
         >
           <div className={cn("absolute inset-0 animate-pulse-slow bg-white/10", isMobile && "rounded-r-lg")} />
-          <span className="[writing-mode:vertical-rl] transform rotate-180 text-white text-3xl font-black uppercase tracking-widest text-shadow-glow">
+          <span className={cn(
+            "[writing-mode:vertical-rl] transform rotate-180 text-white font-black uppercase tracking-widest text-shadow-glow",
+            isMobile ? "text-lg sm:text-xl" : "text-3xl"
+          )}>
             Back to Portfolio
           </span>
         </div>
@@ -120,8 +123,9 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
         <div
           onClick={handleLaunch}
           className={cn(
-            "fixed top-0 left-0 h-full w-96 flex items-center justify-center backdrop-blur-xl border-r-2 border-white/10 transition-transform duration-500 ease-in-out cursor-pointer",
+            "fixed top-0 left-0 h-full flex items-center justify-center backdrop-blur-xl border-r-2 border-white/10 transition-transform duration-500 ease-in-out cursor-pointer",
             "bg-gradient-to-l from-transparent via-black/60 to-black",
+            isMobile ? "w-64 sm:w-80" : "w-96",
             isMobile
               ? (isOpen ? "translate-x-0 pointer-events-auto" : "-translate-x-full")
               : "-translate-x-full group-hover:translate-x-0 group-hover:pointer-events-auto"
@@ -135,16 +139,16 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
               }} 
               className="absolute top-4 right-4 text-white hover:text-primary z-20"
             >
-              <X size={32} />
+              <X size={24} />
             </button>
           )}
 
-          <div className="absolute inset-0 w-full h-full bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
+          <div className="absolute inset-0 w-full h-full bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:2rem_2rem] sm:bg-[size:3rem_3rem] [mask-image:radial-gradient(ellipse_50%_50%_at_50%_50%,#000_70%,transparent_100%)]" />
 
-          <div className="relative z-10 flex flex-col items-center gap-6 text-white font-semibold text-2xl tracking-wider transition-all duration-300 pointer-events-none">
-            <div className="relative h-10 w-10 flex items-center justify-center">
+          <div className="relative z-10 flex flex-col items-center gap-4 sm:gap-6 text-white font-semibold text-lg sm:text-2xl tracking-wider transition-all duration-300 pointer-events-none">
+            <div className="relative h-8 w-8 sm:h-10 sm:w-10 flex items-center justify-center">
               <span className={cn(
-                "text-4xl",
+                "text-2xl sm:text-4xl",
                 isLaunching ? "animate-rocket-launch" : "group-hover:animate-rocket-idle rotate-[-135deg]"
               )}>
                 🚀

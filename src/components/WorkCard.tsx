@@ -14,9 +14,10 @@ const WorkCard = ({ id, title, role, image, description = "Contributing to cutti
 
   return (
     <Card 
-      className="group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-64 sm:h-72 md:h-80"
+      className="group relative overflow-visible cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 min-h-[256px] sm:min-h-[288px] md:min-h-[320px]"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
+      onTouchStart={() => setIsHovered(true)}
     >
       {/* Full-bleed image with gradient overlay */}
       <div className="absolute inset-0">
@@ -45,13 +46,13 @@ const WorkCard = ({ id, title, role, image, description = "Contributing to cutti
           <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1 sm:mb-2 drop-shadow-lg text-left">{title}</h3>
           <p className={`text-sm sm:text-base text-white/90 drop-shadow-lg font-medium transition-all duration-300 ${isHovered ? 'mb-3' : ''}`}>{role}</p>
           
-          {/* Description - slides up on hover */}
+          {/* Description - slides up on hover, with auto height for mobile/tablet */}
           <div 
-            className={`overflow-hidden transition-all duration-500 ease-out ${
-              isHovered ? 'max-h-40 opacity-100' : 'max-h-0 opacity-0'
+            className={`transition-all duration-500 ease-out ${
+              isHovered ? 'max-h-[200px] sm:max-h-[250px] opacity-100 overflow-y-auto' : 'max-h-0 opacity-0 overflow-hidden'
             }`}
           >
-            <div className="pt-3 border-t border-white/20">
+            <div className="pt-3 border-t border-white/20 pb-2">
               <p className="text-sm text-white/80 leading-relaxed">
                 {description}
               </p>

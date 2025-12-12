@@ -18,21 +18,23 @@ const Clubs = () => {
       id: "aeromavs",
       name: "Aero Mavs",
       role: "Manufacturing",
-      logo: "https://images.unsplash.com/photo-1581822261290-991b38693d1b?auto=format&fit=crop&w=800",
+      // UPDATED: Points to your local logo file
+      logo: "/aeromavs-logo-thumbnail.png",
       date: "Sep 2025 - Present",
     },
     {
       id: "aiaa",
       name: "UTA Design-Build-Fly Team",
       role: "Structures/Manufacturing",
-      logo: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=800",
+      // UPDATED: Points to your local logo file
+      logo: "/dbf-logo-thumbnail.png",
       date: "Oct 2025 - Present",
     },
     {
       id: "chs-aerospace",
       name: "Coppell High School Aerospace Club",
       role: "Co-Founder/Executive",
-      // UPDATED: Points to the logo for the card
+      // Points to your local logo file (from previous step)
       logo: "/chs-logo.png",
       date: "Aug 2024 - May 2025",
     },

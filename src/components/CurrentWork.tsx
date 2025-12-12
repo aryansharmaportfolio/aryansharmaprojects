@@ -7,13 +7,15 @@ const CurrentWork = () => {
       id: "work-1",
       title: "UTA AeroMavs IREC (2026)",
       role: "Manufacturing",
-      image: "https://images.unsplash.com/photo-1517976487492-5750f3195933?auto=format&fit=crop&w=800",
+      // Updated to point to the file in your public folder
+      image: "/irec-thumbnail.jpg",
     },
     {
       id: "work-2",
       title: "UTA Design-Build-Fly (2026)",
       role: "Structures/Manufacturing",
-      image: "https://images.unsplash.com/photo-1559297434-fae8a1916a79?auto=format&fit=crop&w=800",
+      // Updated to point to the file in your public folder
+      image: "/dbf-thumbnail.jpg",
     },
   ];
 
@@ -21,7 +23,8 @@ const CurrentWork = () => {
     id: "work-3",
     title: "UTARI Composite Research",
     role: "Undergraduate Research Assistant",
-    image: "https://images.unsplash.com/photo-1581822261290-991b38693d1b?auto=format&fit=crop&w=800",
+    // Updated to point to the file in your public folder
+    image: "/utari-thumbnail.jpg",
   };
 
   return (

@@ -21,7 +21,7 @@ const ClubCard = ({
   return (
     <Card 
       onClick={onClick} 
-      className={`group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-64 sm:h-72 md:h-80 ${isExpanded ? 'scale-110 opacity-0' : 'scale-100 opacity-100'}`}
+      className={`group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-64 sm:h-72 md:h-80 border-0 ${isExpanded ? 'scale-110 opacity-0' : 'scale-100 opacity-100'}`}
     >
       {/* Full-bleed image with gradient overlay */}
       <div className="absolute inset-0">

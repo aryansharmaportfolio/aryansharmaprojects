@@ -21,7 +21,8 @@ const ClubDetail = () => {
     aeromavs: {
       name: "Aero Mavs",
       role: "Manufacturing",
-      logo: "https://images.unsplash.com/photo-1581822261290-991b38693d1b?auto=format&fit=crop&w=800",
+      // UPDATED: Points to your local logo file
+      logo: "/aeromavs-logo-thumbnail.png",
       achievements: [
         "Designing and modeling a fully assembled H-motor high-powered rocket in SolidWorks, validating architecture against stability and performance parameters simulated in OpenRocket.",
         "Performing a CFD analysis using SolidWorks Flow Simulation to determine key flight characteristics, such as drag force and aerodynamic stability, on the rocket's comprehensive 3D model before fabrication.",
@@ -32,7 +33,8 @@ const ClubDetail = () => {
     aiaa: {
       name: "UTA Design-Build-Fly Team",
       role: "Structures/Manufacturing",
-      logo: "https://images.unsplash.com/photo-1473968512647-3e447244af8f?auto=format&fit=crop&w=800",
+      // UPDATED: Points to your local logo file
+      logo: "/dbf-logo-thumbnail.png",
       achievements: [
         "Designed and fabricated custom aircraft components for competition",
         "Conducted aerodynamic analysis and performance testing",
@@ -42,7 +44,7 @@ const ClubDetail = () => {
     "chs-aerospace": {
       name: "Coppell High School Aerospace Club",
       role: "Co-Founder/Executive",
-      // UPDATED: Points to the school picture for the hero background
+      // Kept as the inside picture you defined earlier
       logo: "/chs-inside.jpg",
       achievements: [
         "Co-founded and grew the school's first aerospace club to over 115 members, establishing it as the largest student organization in the school's history (est. 1965).",

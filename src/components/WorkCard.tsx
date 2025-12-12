@@ -14,7 +14,7 @@ const WorkCard = ({ id, title, role, image, description = "Contributing to cutti
 
   return (
     <Card 
-      className="group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-64 sm:h-72 md:h-80"
+      className="group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-64 sm:h-72 md:h-80 border-0"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >

@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import DynamicSidebar from "@/components/DynamicSidebar";
 import { useState, useEffect } from "react";
-import { Award, Target, Sparkles } from "lucide-react";
+import { Award, Target } from "lucide-react";
 
 const ClubDetail = () => {
   const { id } = useParams();
@@ -42,7 +42,8 @@ const ClubDetail = () => {
     "chs-aerospace": {
       name: "Coppell High School Aerospace Club",
       role: "Co-Founder/Executive",
-      logo: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?auto=format&fit=crop&w=800",
+      // UPDATED: Points to the school picture for the hero background
+      logo: "/chs-inside.jpg",
       achievements: [
         "Co-founded and grew the school's first aerospace club to over 115 members, establishing it as the largest student organization in the school's history (est. 1965).",
         "Led the astronomy sub-department, coordinating monthly meetings and developing educational presentations.",

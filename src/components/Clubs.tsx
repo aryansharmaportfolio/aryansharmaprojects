@@ -32,7 +32,8 @@ const Clubs = () => {
       id: "chs-aerospace",
       name: "Coppell High School Aerospace Club",
       role: "Co-Founder/Executive",
-      logo: "https://images.unsplash.com/photo-1614732414444-096e5f1122d5?auto=format&fit=crop&w=800",
+      // UPDATED: Points to the logo for the card
+      logo: "/chs-logo.png",
       date: "Aug 2024 - May 2025",
     },
   ];

@@ -6,7 +6,7 @@ const DegreeProgress = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   
   // The specific percentage you requested
-  const TARGET_PERCENTAGE = 29; 
+  const TARGET_PERCENTAGE = 34.6;
 
   useEffect(() => {
     const observer = new IntersectionObserver(

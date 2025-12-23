@@ -76,10 +76,19 @@ const AboutMe = () => {
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_hsl(var(--primary)/0.05)_0%,_transparent_50%)] pointer-events-none" />
       
       <div className="container mx-auto max-w-6xl relative z-10">
-        {/* Sticky section header */}
-        <div className="sticky top-20 z-30 mb-12 sm:mb-16">
-          <div className="text-center backdrop-blur-md bg-background/60 py-6 rounded-2xl border border-border/20">
-            <TypewriterHeader text="About Me" />
+        {/* Section header with 3D depth effect */}
+        <div className="mb-16 sm:mb-20 perspective-1000">
+          <div 
+            className="text-center py-8 relative transform-gpu hover:scale-[1.02] transition-transform duration-500"
+            style={{ transformStyle: 'preserve-3d' }}
+          >
+            {/* Floating backdrop with glass morphism */}
+            <div className="absolute inset-0 backdrop-blur-xl bg-gradient-to-b from-background/80 via-background/60 to-transparent rounded-3xl border border-primary/10 shadow-2xl shadow-primary/5" />
+            <div className="relative z-10">
+              <TypewriterHeader text="About Me" />
+            </div>
+            {/* Subtle reflection/glow beneath */}
+            <div className="absolute -bottom-4 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-primary/10 blur-2xl rounded-full" />
           </div>
         </div>
         

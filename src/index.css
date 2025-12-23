@@ -335,6 +335,46 @@ MASTERPIECE ANIMATION SUITE
   50% { opacity: 0.6; }
 }
 
+/* 3D Perspective utilities */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+.perspective-2000 {
+  perspective: 2000px;
+}
+
+/* Enhanced 3D card depth on hover */
+.card-3d-hover {
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.card-3d-hover:hover {
+  transform: translateZ(20px) rotateX(2deg);
+}
+
+/* Floating animation for subtle depth */
+@keyframes float-subtle {
+  0%, 100% { transform: translateY(0) translateZ(0); }
+  50% { transform: translateY(-8px) translateZ(10px); }
+}
+
+.animate-float-subtle {
+  animation: float-subtle 6s ease-in-out infinite;
+}
+
+/* Parallax layer depths */
+.parallax-slow {
+  will-change: transform;
+  transform: translateZ(-100px) scale(1.1);
+}
+
+.parallax-fast {
+  will-change: transform;
+  transform: translateZ(50px) scale(0.95);
+}
+
 @keyframes fadeOut {
   from { opacity: 1; }
   to { opacity: 0; }

@@ -7,6 +7,17 @@ html {
   scroll-padding-top: 6rem;
 }
 
+/* Dampened smooth scroll for premium feel */
+* {
+  scroll-behavior: smooth;
+}
+
+@supports (scroll-behavior: smooth) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
 @layer base {
   :root {
     --background: 0 0% 17%;
@@ -287,6 +298,46 @@ MASTERPIECE ANIMATION SUITE
 
 .animate-shimmer {
   animation: shimmer-wave 2.5s infinite;
+}
+
+/* ==============================================
+   CINEMATIC SCROLL EFFECTS
+   ============================================== */
+
+/* Scanline overlay for tech/aerospace aesthetic */
+.scanline-overlay {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.03) 2px,
+    rgba(0, 0, 0, 0.03) 4px
+  );
+  pointer-events: none;
+}
+
+/* Subtle CRT glow effect */
+.scanline-overlay::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 0%,
+    rgba(0, 150, 255, 0.02) 50%,
+    transparent 100%
+  );
+  animation: pulse-glow 4s ease-in-out infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 /* ==============================================

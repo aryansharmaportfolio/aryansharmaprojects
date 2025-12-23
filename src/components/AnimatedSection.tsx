@@ -1,20 +1,27 @@
 import { useState, useEffect, useRef } from "react";
+import { cn } from "@/lib/utils";
 
 interface Props {
   children: React.ReactNode;
+  className?: string;
 }
 
-const AnimatedSection = ({ children }: Props) => {
+const AnimatedSection = ({ children, className }: Props) => {
   const [isVisible, setIsVisible] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
-        setIsVisible(entries[0].isIntersecting);
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+          }
+        });
       },
       {
-        threshold: 0.5,
+        threshold: 0.1,
+        rootMargin: "0px 0px -50px 0px",
       }
     );
 
@@ -32,11 +39,13 @@ const AnimatedSection = ({ children }: Props) => {
   return (
     <div
       ref={ref}
-      className={`transition-transform duration-700 ease-in-out ${
+      className={cn(
+        "transition-all duration-1000 ease-out",
         isVisible
-          ? "scale-100 translate-y-0"
-          : "scale-90 translate-y-20"
-      }`}
+          ? "opacity-100 translate-y-0"
+          : "opacity-0 translate-y-16",
+        className
+      )}
     >
       {children}
     </div>

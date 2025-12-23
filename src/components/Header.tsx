@@ -91,8 +91,10 @@ const Header = ({ activeSection }: { activeSection: string }) => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? "bg-background/95 backdrop-blur-sm shadow-lg" : "bg-transparent"
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+        isScrolled 
+          ? "bg-background/80 backdrop-blur-xl shadow-2xl border-b border-border/10" 
+          : "bg-transparent backdrop-blur-none"
       }`}
     >
       <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">

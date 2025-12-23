@@ -1,10 +1,6 @@
 import ProjectCard from "./ProjectCard";
 import TypewriterHeader from "./TypewriterHeader";
 
-// REMOVED the imports because we are using the public folder now
-// import falconThumbnail from "@/assets/Falcon Model Thumbnail.png";
-// import zoomerThumbnail from "@/assets/Zoomer Thumbnail.jpg";
-
 const FeaturedProjects = () => {
   const projects = [
     {
@@ -26,16 +22,22 @@ const FeaturedProjects = () => {
   ];
 
   return (
-    <section id="projects" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-background/95 backdrop-blur-sm">
-      <div className="container mx-auto max-w-7xl">
-        <div className="text-center mb-8 sm:mb-12 md:mb-16 animate-fade-in">
-          <TypewriterHeader text="Personal Projects" className="mb-4 sm:mb-6" />
-          <p className="text-base sm:text-lg md:text-xl italic text-white px-4">
-            A showcase of hands-on projects. Click on a project to view a detailed overview of the design process and its outcome.
-          </p>
+    <section id="projects" className="py-24 sm:py-32 md:py-40 px-4 sm:px-6 bg-background relative overflow-hidden">
+      {/* Background accent */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_hsl(var(--primary)/0.03)_0%,_transparent_50%)] pointer-events-none" />
+      
+      <div className="container mx-auto max-w-7xl relative z-10">
+        {/* Sticky section header */}
+        <div className="sticky top-20 z-30 mb-12 sm:mb-16">
+          <div className="text-center backdrop-blur-md bg-background/60 py-6 rounded-2xl border border-border/20">
+            <TypewriterHeader text="Personal Projects" className="mb-2 sm:mb-4" />
+            <p className="text-base sm:text-lg md:text-xl italic text-white/90 px-4 max-w-3xl mx-auto">
+              A showcase of hands-on projects. Click on a project to view a detailed overview of the design process and its outcome.
+            </p>
+          </div>
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-6 sm:gap-8 animate-fade-in">
+        <div className="grid sm:grid-cols-2 gap-8 sm:gap-10">
           {projects.map(project => <ProjectCard key={project.id} {...project} />)}
         </div>
       </div>

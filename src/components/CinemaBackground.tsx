@@ -23,15 +23,16 @@ export const CinemaBackground = () => {
         return;
       }
 
+      // Map scroll to video time
       const rawProgress = Math.max(0, Math.min(scrollY / totalHeight, 1));
 
-      // 2. The Physics: Smooth Damping (The "Weighty" Feel)
+      // 2. The Physics: Smooth Damping
       // Instead of jumping instantly to the frame, we slide towards it.
       if (video.duration) {
         const targetTime = video.duration * rawProgress;
-        const smoothFactor = 0.08; // Lower = Smoother/Heavier, Higher = Snappier
+        const smoothFactor = 0.08; // Lower (0.05) = Heavier, Higher (0.2) = Snappier
         
-        // If the difference is significant, update time
+        // Only update if there's a noticeable difference to save CPU
         if (Math.abs(video.currentTime - targetTime) > 0.05) {
           video.currentTime += (targetTime - video.currentTime) * smoothFactor;
         }
@@ -53,15 +54,17 @@ export const CinemaBackground = () => {
         muted
         playsInline
         preload="auto"
-        className="w-full h-full object-cover opacity-60" // Reduced opacity so text pops
+        className="w-full h-full object-cover opacity-60 transition-opacity duration-1000"
         onLoadedData={() => setIsLoaded(true)}
+        style={{ opacity: isLoaded ? 0.6 : 0 }} // Fade in once loaded
       >
         <source src={heroVideo} type="video/mp4" />
       </video>
       
-      {/* Cinematic Overlay: Darkens the video so white text is readable */}
-      <div className="absolute inset-0 bg-black/40" />
+      {/* Cinematic Overlays: Darken video so text pops */}
+      <div className="absolute inset-0 bg-black/20" />
       <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black/80" />
+      <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black" />
     </div>
   );
 };

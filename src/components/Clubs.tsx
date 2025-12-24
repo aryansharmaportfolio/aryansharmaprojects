@@ -1,6 +1,8 @@
 import { useNavigate } from "react-router-dom";
 import ClubCard from "./ClubCard";
 import TypewriterHeader from "./TypewriterHeader";
+import MaskedTextReveal from "./motion/MaskedTextReveal";
+import StaggerContainer, { StaggerItem } from "./motion/StaggerContainer";
 
 interface Club {
   id: string;
@@ -18,7 +20,6 @@ const Clubs = () => {
       id: "aeromavs",
       name: "Aero Mavs",
       role: "Manufacturing",
-      // UPDATED: Points to your local logo file
       logo: "/aeromavs-logo-thumbnail.png",
       date: "Sep 2025 - Present",
     },
@@ -26,7 +27,6 @@ const Clubs = () => {
       id: "aiaa",
       name: "UTA Design-Build-Fly Team",
       role: "Structures/Manufacturing",
-      // UPDATED: Points to your local logo file
       logo: "/dbf-logo-thumbnail.png",
       date: "Oct 2025 - Present",
     },
@@ -34,7 +34,6 @@ const Clubs = () => {
       id: "chs-aerospace",
       name: "Coppell High School Aerospace Club",
       role: "Co-Founder/Executive",
-      // Points to your local logo file (from previous step)
       logo: "/chs-logo.png",
       date: "Aug 2024 - May 2025",
     },
@@ -43,23 +42,28 @@ const Clubs = () => {
   return (
     <section id="clubs" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-background relative overflow-hidden">
       <div className="container mx-auto max-w-7xl">
-        <div className="text-center mb-8 sm:mb-12 md:mb-16 animate-fade-in">
-          <TypewriterHeader text="Clubs & Organizations" className="mb-4 sm:mb-6" />
-          <p className="text-base sm:text-lg md:text-xl italic text-white px-4">
-            Actively contributing to aerospace and engineering communities through hands-on collaboration.
-          </p>
+        <div className="text-center mb-8 sm:mb-12 md:mb-16">
+          <MaskedTextReveal>
+            <TypewriterHeader text="Clubs & Organizations" className="mb-4 sm:mb-6" />
+          </MaskedTextReveal>
+          <MaskedTextReveal delay={0.15}>
+            <p className="text-base sm:text-lg md:text-xl italic text-white px-4">
+              Actively contributing to aerospace and engineering communities through hands-on collaboration.
+            </p>
+          </MaskedTextReveal>
         </div>
 
-        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8 animate-fade-in">
+        <StaggerContainer className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
           {clubs.map((club) => (
-            <ClubCard
-              key={club.id}
-              {...club}
-              onClick={() => navigate(`/club/${club.id}`)}
-              isExpanded={false}
-            />
+            <StaggerItem key={club.id}>
+              <ClubCard
+                {...club}
+                onClick={() => navigate(`/club/${club.id}`)}
+                isExpanded={false}
+              />
+            </StaggerItem>
           ))}
-        </div>
+        </StaggerContainer>
       </div>
     </section>
   );

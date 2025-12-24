@@ -1,9 +1,8 @@
 import ProjectCard from "./ProjectCard";
 import TypewriterHeader from "./TypewriterHeader";
-
-// REMOVED the imports because we are using the public folder now
-// import falconThumbnail from "@/assets/Falcon Model Thumbnail.png";
-// import zoomerThumbnail from "@/assets/Zoomer Thumbnail.jpg";
+import MaskedTextReveal from "./motion/MaskedTextReveal";
+import MagneticTilt from "./motion/MagneticTilt";
+import StaggerContainer, { StaggerItem } from "./motion/StaggerContainer";
 
 const FeaturedProjects = () => {
   const projects = [
@@ -28,16 +27,26 @@ const FeaturedProjects = () => {
   return (
     <section id="projects" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-background/95 backdrop-blur-sm">
       <div className="container mx-auto max-w-7xl">
-        <div className="text-center mb-8 sm:mb-12 md:mb-16 animate-fade-in">
-          <TypewriterHeader text="Personal Projects" className="mb-4 sm:mb-6" />
-          <p className="text-base sm:text-lg md:text-xl italic text-white px-4">
-            A showcase of hands-on projects. Click on a project to view a detailed overview of the design process and its outcome.
-          </p>
+        <div className="text-center mb-8 sm:mb-12 md:mb-16">
+          <MaskedTextReveal>
+            <TypewriterHeader text="Personal Projects" className="mb-4 sm:mb-6" />
+          </MaskedTextReveal>
+          <MaskedTextReveal delay={0.15}>
+            <p className="text-base sm:text-lg md:text-xl italic text-white px-4">
+              A showcase of hands-on projects. Click on a project to view a detailed overview of the design process and its outcome.
+            </p>
+          </MaskedTextReveal>
         </div>
 
-        <div className="grid sm:grid-cols-2 gap-6 sm:gap-8 animate-fade-in">
-          {projects.map(project => <ProjectCard key={project.id} {...project} />)}
-        </div>
+        <StaggerContainer className="grid sm:grid-cols-2 gap-6 sm:gap-8">
+          {projects.map(project => (
+            <StaggerItem key={project.id}>
+              <MagneticTilt intensity={5}>
+                <ProjectCard {...project} />
+              </MagneticTilt>
+            </StaggerItem>
+          ))}
+        </StaggerContainer>
       </div>
     </section>
   );

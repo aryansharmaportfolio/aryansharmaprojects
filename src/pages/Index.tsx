@@ -8,6 +8,11 @@ import CurrentWork from "@/components/CurrentWork";
 import Clubs from "@/components/Clubs";
 import Footer from "@/components/Footer";
 import AnimatedSection from "@/components/AnimatedSection";
+import ScrollyVideoTransition from "@/components/ScrollyVideoTransition";
+
+// Import your video assets here
+// Currently reusing heroVideo, but you should import specific transition clips
+import heroVideo from "@/assets/hero-video.mp4"; 
 
 const Index = () => {
   const location = useLocation();
@@ -17,43 +22,39 @@ const Index = () => {
   // Initialize opacity: 0 if we have a target section (to hide the jump), 1 otherwise
   const [pageOpacity, setPageOpacity] = useState(location.state?.section ? 0 : 1);
 
+  // 1. Handle Scroll Jumps from Navigation
   useEffect(() => {
     if (location.state?.section) {
       const sectionId = location.state.section;
 
-      // Small timeout to ensure the DOM elements are fully mounted and height is calculated
+      // Small timeout to ensure the DOM elements are fully mounted
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         if (element) {
-          // 1. Temporarily disable global CSS smooth scrolling to force an instant jump
           const originalScrollBehavior = document.documentElement.style.scrollBehavior;
           document.documentElement.style.scrollBehavior = 'auto';
 
-          // 2. Instant jump to section
           element.scrollIntoView({ behavior: 'auto', block: 'center' });
           
-          // 3. Trigger fade in animation
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               setPageOpacity(1);
-              
-              // 4. Restore smooth scrolling ONLY (Do not clear state)
               setTimeout(() => {
                 document.documentElement.style.scrollBehavior = originalScrollBehavior;
               }, 500);
             });
           });
         } else {
-          // Fallback
           setPageOpacity(1);
         }
       }, 100);
     }
   }, [location]);
 
-  // Logic to update the active section in the header based on scroll position
+  // 2. Handle Active Section Highlighting
   useEffect(() => {
     const handleScrollHighlight = () => {
+      // We look for 'section' tags to identify content blocks
       const sections = document.querySelectorAll('section');
       let currentSectionId = '';
       for (const section of sections) {
@@ -75,23 +76,66 @@ const Index = () => {
 
   return (
     <div 
-      className="min-h-screen transition-opacity duration-700 ease-in-out" 
+      className="min-h-screen bg-black transition-opacity duration-700 ease-in-out" 
       style={{ opacity: pageOpacity }}
     >
       <Header activeSection={activeSection} />
+      
+      {/* --- HERO SECTION --- */}
       <Hero />
-      <AnimatedSection>
-        <AboutMe />
-      </AnimatedSection>
-      <AnimatedSection>
-        <FeaturedProjects />
-      </AnimatedSection>
-      <AnimatedSection>
-        <CurrentWork />
-      </AnimatedSection>
-      <AnimatedSection>
-        <Clubs />
-      </AnimatedSection>
+
+      {/* --- TRANSITION 1: JOURNEY --- */}
+      <ScrollyVideoTransition 
+        src={heroVideo} 
+        overlayText="The Journey" 
+      />
+
+      {/* --- ABOUT ME SECTION --- */}
+      <div className="relative z-10 bg-background shadow-2xl">
+        <AnimatedSection>
+          <AboutMe />
+        </AnimatedSection>
+      </div>
+
+      {/* --- TRANSITION 2: BUILDING --- */}
+      <ScrollyVideoTransition 
+        src={heroVideo} 
+        overlayText="Building Dreams" 
+      />
+
+      {/* --- PROJECTS SECTION --- */}
+      <div className="relative z-10 bg-background shadow-2xl">
+        <AnimatedSection>
+          <FeaturedProjects />
+        </AnimatedSection>
+      </div>
+
+      {/* --- TRANSITION 3: WORK --- */}
+      <ScrollyVideoTransition 
+        src={heroVideo} 
+        overlayText="Engineering Reality" 
+      />
+
+      {/* --- CURRENT WORK SECTION --- */}
+      <div className="relative z-10 bg-background shadow-2xl">
+        <AnimatedSection>
+          <CurrentWork />
+        </AnimatedSection>
+      </div>
+
+      {/* --- TRANSITION 4: COMMUNITY --- */}
+      <ScrollyVideoTransition 
+        src={heroVideo} 
+        overlayText="Community Leadership" 
+      />
+
+      {/* --- CLUBS SECTION --- */}
+      <div className="relative z-10 bg-background shadow-2xl">
+        <AnimatedSection>
+          <Clubs />
+        </AnimatedSection>
+      </div>
+
       <Footer />
     </div>
   );

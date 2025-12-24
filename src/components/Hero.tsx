@@ -3,62 +3,71 @@ import heroVideo from "@/assets/hero-video.mp4";
 import { cn } from "@/lib/utils";
 
 const Hero = () => {
+  const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
   
-  // State for opacity calculations
-  const [scrollY, setScrollY] = useState(0);
+  // We track progress from 0 to 1
+  const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    setIsMounted(true);
+    const video = videoRef.current;
+    const container = containerRef.current;
+    if (!video || !container) return;
 
     let animationFrameId: number;
 
-    const updateVideoPos = () => {
-      // 1. Get current scroll position
-      const currentScroll = window.scrollY;
-      setScrollY(currentScroll);
+    const handleScroll = () => {
+      // 1. Calculate how far we are down the "track"
+      // The track is 400vh tall, but the sticky window is 100vh.
+      // So meaningful scroll distance is: totalHeight - windowHeight
+      const scrollY = window.scrollY;
+      const trackHeight = container.scrollHeight - window.innerHeight;
+      
+      // Calculate progress (0 to 1) clamped between 0 and 1
+      const rawProgress = Math.min(Math.max(scrollY / trackHeight, 0), 1);
+      
+      setProgress(rawProgress);
 
-      if (videoRef.current && videoRef.current.duration) {
-        // 2. Calculate target time based on scroll
-        // Lower number = faster video playback relative to scroll
-        // Higher number = requires more scrolling to advance video
-        const playbackSpeed = 500; 
-        const targetTime = currentScroll / playbackSpeed;
-
-        // 3. Smooth "Lerp" (Linear Interpolation) for that "heavy" GTA feel
-        // The 0.1 factor controls the "weight". Lower (e.g. 0.05) is smoother/slower, Higher (e.g. 0.2) is snappier.
-        const currentTime = videoRef.current.currentTime;
+      // 2. Smoothly interpolate video time ("The Physics")
+      // If we just set currentTime = target, it jitters.
+      // We use a "lerp" (linear interpolation) to make it drift to the target.
+      if (video.duration) {
+        const targetTime = video.duration * rawProgress;
+        const diff = targetTime - video.currentTime;
         
-        if (Math.abs(currentTime - targetTime) > 0.01) {
-             videoRef.current.currentTime += (targetTime - currentTime) * 0.1;
+        // "0.1" is the friction. Lower = heavier/smoother, Higher = snappier
+        if (Math.abs(diff) > 0.05) {
+          video.currentTime += diff * 0.1;
         }
       }
-
-      // 4. Keep the loop running
-      animationFrameId = requestAnimationFrame(updateVideoPos);
     };
 
-    // Start the loop
-    animationFrameId = requestAnimationFrame(updateVideoPos);
-
-    return () => {
-      cancelAnimationFrame(animationFrameId);
+    // Use a loop for smoother visual updates than just the scroll event
+    const loop = () => {
+      handleScroll();
+      animationFrameId = requestAnimationFrame(loop);
     };
-  }, []);
+    loop();
 
-  // Calculate opacity - Text fades faster than video to let the user enjoy the clip
-  const textOpacity = Math.max(0, 1 - scrollY / 300);
-  const videoOpacity = Math.max(0, 1 - scrollY / 1200); // Extended visibility
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [isVideoLoaded]); // Re-run if video load state changes
+
+  // Dynamic Styles based on progress
+  // 1. Text fades out quickly (0% -> 20%)
+  const textOpacity = Math.max(0, 1 - progress * 5); 
+  
+  // 2. "Cinematic Zoom" - video slightly zooms out as you scroll, like GTA 6 intro
+  const scale = 1.1 - (progress * 0.1); 
 
   return (
-    <>
-      {/* Fixed Video Background */}
-      <div 
-        className="fixed inset-0 w-full h-screen z-0"
-        style={{ opacity: isVideoLoaded ? videoOpacity : 0 }}
-      >
+    // THE TRACK: This div is 400vh tall (4 screens worth of scrolling)
+    // The user has to scroll through ALL of this to get to the next section.
+    <div ref={containerRef} className="relative h-[400vh] bg-black">
+      
+      {/* THE STICKY WINDOW: Stays fixed in view while you scroll the track */}
+      <div className="sticky top-0 h-screen w-full overflow-hidden">
+        
         <video
           ref={videoRef}
           muted
@@ -66,41 +75,36 @@ const Hero = () => {
           preload="auto"
           onLoadedData={() => setIsVideoLoaded(true)}
           className={cn(
-            "w-full h-full object-cover transition-opacity duration-1000 ease-in-out",
+            "w-full h-full object-cover transition-opacity duration-1000",
             isVideoLoaded ? "opacity-100" : "opacity-0"
           )}
           style={{
             filter: "brightness(0.7)",
+            transform: `scale(${scale})`, // Apply the cinematic zoom
+            transition: "transform 0.1s linear" // Smooth out the zoom updates
           }}
         >
           <source src={heroVideo} type="video/mp4" />
-          Your browser does not support the video tag.
         </video>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background" />
-      </div>
 
-      {/* Hero Content Section */}
-      <section
-        id="home"
-        className="relative h-screen flex items-center justify-center z-10"
-      >
-        <div
-          className="relative z-20 text-center px-4"
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background/90 pointer-events-none" />
+
+        {/* Text Layer - Fades out as you start scrolling */}
+        <div 
+          className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
           style={{ opacity: textOpacity }}
         >
-          <h1 
-            className={cn(
-              "text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-extrabold text-foreground tracking-tight pb-2 transition-all duration-1000 ease-out",
-              isMounted
-                ? "opacity-100 translate-y-0" 
-                : "opacity-0 translate-y-8"
-            )}
-          >
-            Project Portfolio
-          </h1>
+          <div className="text-center px-4">
+            <h1 className="text-5xl md:text-8xl font-black text-white tracking-tighter mb-4 drop-shadow-2xl">
+              PROJECT <br /> PORTFOLIO
+            </h1>
+            <p className="text-white/80 text-xl font-light tracking-widest uppercase animate-pulse">
+              Scroll to Explore
+            </p>
+          </div>
         </div>
-      </section>
-    </>
+      </div>
+    </div>
   );
 };
 

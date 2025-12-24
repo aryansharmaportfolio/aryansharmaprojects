@@ -1,49 +1,28 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Header from "@/components/Header";
-import Hero from "@/components/Hero";
 import AboutMe from "@/components/AboutMe";
 import FeaturedProjects from "@/components/FeaturedProjects";
 import CurrentWork from "@/components/CurrentWork";
 import Clubs from "@/components/Clubs";
 import Footer from "@/components/Footer";
 import AnimatedSection from "@/components/AnimatedSection";
-import ScrollyVideoTransition from "@/components/ScrollyVideoTransition";
-
-// Import your video assets here
-// Currently reusing heroVideo, but you should import specific transition clips
-import heroVideo from "@/assets/hero-video.mp4"; 
+import { CinemaBackground } from "@/components/CinemaBackground";
 
 const Index = () => {
   const location = useLocation();
-  const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState('');
-  
-  // Initialize opacity: 0 if we have a target section (to hide the jump), 1 otherwise
+  const [activeSection, setActiveSection] = useState('home');
   const [pageOpacity, setPageOpacity] = useState(location.state?.section ? 0 : 1);
 
-  // 1. Handle Scroll Jumps from Navigation
+  // 1. Handle Navigation Jumps
   useEffect(() => {
     if (location.state?.section) {
       const sectionId = location.state.section;
-
-      // Small timeout to ensure the DOM elements are fully mounted
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         if (element) {
-          const originalScrollBehavior = document.documentElement.style.scrollBehavior;
-          document.documentElement.style.scrollBehavior = 'auto';
-
           element.scrollIntoView({ behavior: 'auto', block: 'center' });
-          
-          requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
-              setPageOpacity(1);
-              setTimeout(() => {
-                document.documentElement.style.scrollBehavior = originalScrollBehavior;
-              }, 500);
-            });
-          });
+          setPageOpacity(1);
         } else {
           setPageOpacity(1);
         }
@@ -54,12 +33,10 @@ const Index = () => {
   // 2. Handle Active Section Highlighting
   useEffect(() => {
     const handleScrollHighlight = () => {
-      // We look for 'section' tags to identify content blocks
       const sections = document.querySelectorAll('section');
-      let currentSectionId = '';
+      let currentSectionId = 'home';
       for (const section of sections) {
         const rect = section.getBoundingClientRect();
-        // If the section is roughly in the middle of the screen
         if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
           currentSectionId = section.id;
           break;
@@ -70,73 +47,82 @@ const Index = () => {
       }
     };
     window.addEventListener('scroll', handleScrollHighlight);
-    handleScrollHighlight(); // Run once on mount
     return () => window.removeEventListener('scroll', handleScrollHighlight);
   }, [activeSection]);
 
   return (
-    <div 
-      className="min-h-screen bg-black transition-opacity duration-700 ease-in-out" 
-      style={{ opacity: pageOpacity }}
-    >
-      <Header activeSection={activeSection} />
+    <div className="relative min-h-screen bg-black text-white selection:bg-white/30">
       
-      {/* --- HERO SECTION --- */}
-      <Hero />
+      {/* --- THE ENGINE: Fixed Video Background --- */}
+      <CinemaBackground />
 
-      {/* --- TRANSITION 1: JOURNEY --- */}
-      <ScrollyVideoTransition 
-        src={heroVideo} 
-        overlayText="The Journey" 
-      />
+      {/* --- THE CONTENT: Floating Layer --- */}
+      <div 
+        className="relative z-10 transition-opacity duration-700" 
+        style={{ opacity: pageOpacity }}
+      >
+        <Header activeSection={activeSection} />
 
-      {/* --- ABOUT ME SECTION --- */}
-      <div className="relative z-10 bg-background shadow-2xl">
+        {/* HERO TITLE: Inline here to float over the video */}
+        <section id="home" className="h-screen flex items-center justify-center">
+          <div className="text-center px-4 space-y-6">
+            <h1 className="text-6xl md:text-9xl font-black tracking-tighter mix-blend-overlay opacity-90 drop-shadow-2xl">
+              ARYAN
+            </h1>
+            <div className="h-1 w-24 bg-white/50 mx-auto rounded-full" />
+            <p className="text-xl md:text-2xl font-light tracking-[0.5em] uppercase text-white/80">
+              Aerospace Engineer
+            </p>
+          </div>
+        </section>
+
+        {/* Spacer to force video playback before About Me */}
+        <div className="h-[30vh]" />
+
         <AnimatedSection>
-          <AboutMe />
+          <section id="about" className="py-24">
+             {/* Note: We wrap components to ensure they float nicely */}
+            <div className="container mx-auto">
+              <AboutMe />
+            </div>
+          </section>
         </AnimatedSection>
-      </div>
 
-      {/* --- TRANSITION 2: BUILDING --- */}
-      <ScrollyVideoTransition 
-        src={heroVideo} 
-        overlayText="Building Dreams" 
-      />
+        {/* Spacer */}
+        <div className="h-[30vh]" />
 
-      {/* --- PROJECTS SECTION --- */}
-      <div className="relative z-10 bg-background shadow-2xl">
         <AnimatedSection>
-          <FeaturedProjects />
+          <section id="projects" className="py-24">
+            <div className="container mx-auto">
+              <FeaturedProjects />
+            </div>
+          </section>
         </AnimatedSection>
-      </div>
 
-      {/* --- TRANSITION 3: WORK --- */}
-      <ScrollyVideoTransition 
-        src={heroVideo} 
-        overlayText="Engineering Reality" 
-      />
+        {/* Spacer */}
+        <div className="h-[30vh]" />
 
-      {/* --- CURRENT WORK SECTION --- */}
-      <div className="relative z-10 bg-background shadow-2xl">
         <AnimatedSection>
-          <CurrentWork />
+          <section id="current-work" className="py-24">
+            <div className="container mx-auto">
+              <CurrentWork />
+            </div>
+          </section>
         </AnimatedSection>
-      </div>
 
-      {/* --- TRANSITION 4: COMMUNITY --- */}
-      <ScrollyVideoTransition 
-        src={heroVideo} 
-        overlayText="Community Leadership" 
-      />
+        {/* Spacer */}
+        <div className="h-[30vh]" />
 
-      {/* --- CLUBS SECTION --- */}
-      <div className="relative z-10 bg-background shadow-2xl">
         <AnimatedSection>
-          <Clubs />
+          <section id="clubs" className="py-24">
+            <div className="container mx-auto">
+              <Clubs />
+            </div>
+          </section>
         </AnimatedSection>
-      </div>
 
-      <Footer />
+        <Footer />
+      </div>
     </div>
   );
 };

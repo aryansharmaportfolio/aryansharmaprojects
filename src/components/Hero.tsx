@@ -4,40 +4,63 @@ import { cn } from "@/lib/utils";
 
 const Hero = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [scrollY, setScrollY] = useState(0);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
-
-  const handleScroll = () => {
-    setScrollY(window.scrollY);
-  };
+  
+  // State for opacity calculations
+  const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
     setIsMounted(true);
 
-    if (videoRef.current) {
-      videoRef.current.playbackRate = 0.5;
-    }
+    let animationFrameId: number;
 
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    const updateVideoPos = () => {
+      // 1. Get current scroll position
+      const currentScroll = window.scrollY;
+      setScrollY(currentScroll);
+
+      if (videoRef.current && videoRef.current.duration) {
+        // 2. Calculate target time based on scroll
+        // Lower number = faster video playback relative to scroll
+        // Higher number = requires more scrolling to advance video
+        const playbackSpeed = 500; 
+        const targetTime = currentScroll / playbackSpeed;
+
+        // 3. Smooth "Lerp" (Linear Interpolation) for that "heavy" GTA feel
+        // The 0.1 factor controls the "weight". Lower (e.g. 0.05) is smoother/slower, Higher (e.g. 0.2) is snappier.
+        const currentTime = videoRef.current.currentTime;
+        
+        if (Math.abs(currentTime - targetTime) > 0.01) {
+             videoRef.current.currentTime += (targetTime - currentTime) * 0.1;
+        }
+      }
+
+      // 4. Keep the loop running
+      animationFrameId = requestAnimationFrame(updateVideoPos);
+    };
+
+    // Start the loop
+    animationFrameId = requestAnimationFrame(updateVideoPos);
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+    };
   }, []);
 
-  // Calculate opacity based on scroll - fades out as user scrolls
-  const textOpacity = Math.max(0, 1 - scrollY / 400);
-  const videoOpacity = Math.max(0, 1 - scrollY / 800);
+  // Calculate opacity - Text fades faster than video to let the user enjoy the clip
+  const textOpacity = Math.max(0, 1 - scrollY / 300);
+  const videoOpacity = Math.max(0, 1 - scrollY / 1200); // Extended visibility
 
   return (
     <>
-      {/* Fixed Video Background - stays in place during scroll */}
+      {/* Fixed Video Background */}
       <div 
         className="fixed inset-0 w-full h-screen z-0"
         style={{ opacity: isVideoLoaded ? videoOpacity : 0 }}
       >
         <video
           ref={videoRef}
-          autoPlay
-          loop
           muted
           playsInline
           preload="auto"
@@ -56,12 +79,11 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background" />
       </div>
 
-      {/* Hero Section - scrolls normally but has transparent background */}
+      {/* Hero Content Section */}
       <section
         id="home"
         className="relative h-screen flex items-center justify-center z-10"
       >
-        {/* Text Container */}
         <div
           className="relative z-20 text-center px-4"
           style={{ opacity: textOpacity }}

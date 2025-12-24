@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from "react";
 import heroVideo from "@/assets/hero-video.mp4";
 import { cn } from "@/lib/utils";
+import { motion } from "framer-motion";
+import { ChevronDown } from "lucide-react";
 
 const Hero = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -74,6 +76,35 @@ const Hero = () => {
         >
           Project Portfolio
         </h1>
+
+        {/* Bouncing Scroll Indicator */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isMounted ? 1 : 0 }}
+          transition={{ delay: 1.2, duration: 0.8 }}
+          className="mt-12"
+        >
+          <motion.div
+            animate={{ y: [0, 12, 0] }}
+            transition={{
+              duration: 1.8,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
+            className="flex flex-col items-center gap-1 cursor-pointer"
+            onClick={() => {
+              document.getElementById('about')?.scrollIntoView({ behavior: 'smooth' });
+            }}
+          >
+            <span className="text-xs sm:text-sm text-foreground/70 uppercase tracking-widest font-medium">
+              Scroll
+            </span>
+            <div className="relative">
+              <ChevronDown className="w-6 h-6 sm:w-8 sm:h-8 text-foreground/80" />
+              <ChevronDown className="w-6 h-6 sm:w-8 sm:h-8 text-foreground/40 absolute top-2 left-0" />
+            </div>
+          </motion.div>
+        </motion.div>
       </div>
     </section>
   );

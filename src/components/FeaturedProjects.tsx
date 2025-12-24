@@ -31,11 +31,9 @@ const FeaturedProjects = () => {
           <MaskedTextReveal>
             <TypewriterHeader text="Personal Projects" className="mb-4 sm:mb-6" />
           </MaskedTextReveal>
-          <MaskedTextReveal delay={0.15}>
-            <p className="text-base sm:text-lg md:text-xl italic text-white px-4">
-              A showcase of hands-on projects. Click on a project to view a detailed overview of the design process and its outcome.
-            </p>
-          </MaskedTextReveal>
+          <p className="text-base sm:text-lg md:text-xl italic text-white px-4">
+            A showcase of hands-on projects. Click on a project to view a detailed overview of the design process and its outcome.
+          </p>
         </div>
 
         <StaggerContainer className="grid sm:grid-cols-2 gap-6 sm:gap-8">

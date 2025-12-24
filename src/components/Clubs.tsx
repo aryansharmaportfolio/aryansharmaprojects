@@ -46,11 +46,9 @@ const Clubs = () => {
           <MaskedTextReveal>
             <TypewriterHeader text="Clubs & Organizations" className="mb-4 sm:mb-6" />
           </MaskedTextReveal>
-          <MaskedTextReveal delay={0.15}>
-            <p className="text-base sm:text-lg md:text-xl italic text-white px-4">
-              Actively contributing to aerospace and engineering communities through hands-on collaboration.
-            </p>
-          </MaskedTextReveal>
+          <p className="text-base sm:text-lg md:text-xl italic text-white px-4">
+            Actively contributing to aerospace and engineering communities through hands-on collaboration.
+          </p>
         </div>
 
         <StaggerContainer className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">

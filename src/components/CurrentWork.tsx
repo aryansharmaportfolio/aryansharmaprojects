@@ -36,11 +36,9 @@ const CurrentWork = () => {
           <MaskedTextReveal>
             <TypewriterHeader text="Current & Ongoing Work" className="mb-4 sm:mb-6" />
           </MaskedTextReveal>
-          <MaskedTextReveal delay={0.15}>
-            <p className="text-base sm:text-lg md:text-xl italic text-white px-4">
-              Continuously developing my technical abilities and practical knowledge by seeking hands-on experiences.
-            </p>
-          </MaskedTextReveal>
+          <p className="text-base sm:text-lg md:text-xl italic text-white px-4">
+            Continuously developing my technical abilities and practical knowledge by seeking hands-on experiences.
+          </p>
         </div>
 
         {/* Top row - two cards side by side with stagger */}

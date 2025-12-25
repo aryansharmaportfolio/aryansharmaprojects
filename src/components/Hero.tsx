@@ -7,11 +7,7 @@ const Hero = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   
-  // State for visual styling (opacity, scale, clip)
-  // We use state for these to ensure React re-renders the styles correctly
-  const [progress, setProgress] = useState(0);
-
-  // Refs for the physics loop to keep video scrubbing smooth without re-renders
+  // Store current video time for lerping
   const currentTimeRef = useRef(0);
   const targetTimeRef = useRef(0);
   const rafIdRef = useRef<number | null>(null);
@@ -21,124 +17,131 @@ const Hero = () => {
     const container = containerRef.current;
     if (!video || !container) return;
 
-    // 1. Force pause to take manual control of the playback
+    // Force pause - we control playback manually
     video.pause();
 
-    const updateProgress = () => {
+    const updateTargetTime = () => {
+      if (!video.duration || isNaN(video.duration)) return;
+      
       const scrollY = window.scrollY;
       const trackHeight = container.scrollHeight - window.innerHeight;
       
-      // Calculate global scroll progress (0 to 1)
-      const rawProgress = Math.min(Math.max(scrollY / trackHeight, 0), 1);
+      // Calculate progress (0 to 1)
+      const progress = Math.min(Math.max(scrollY / trackHeight, 0), 1);
       
-      setProgress(rawProgress);
-
-      // Update the target time for the video based on scroll
-      if (video.duration && !isNaN(video.duration)) {
-        targetTimeRef.current = rawProgress * video.duration;
-      }
+      // Map progress to video duration
+      targetTimeRef.current = progress * video.duration;
     };
 
     const animate = () => {
-      // 2. Physics Loop (The "Lerp")
-      // This makes the video seek smoothly to the target time
-      const lerpFactor = 0.1; // Lower = smoother/heavier, Higher = faster/snappier
-      const diff = targetTimeRef.current - currentTimeRef.current;
+      if (!video.duration || isNaN(video.duration)) {
+        rafIdRef.current = requestAnimationFrame(animate);
+        return;
+      }
 
-      // Only seek if the difference is visible to save resources
+      // Lerp factor - lower = smoother/heavier, higher = snappier
+      const lerpFactor = 0.08;
+      
+      // Calculate the difference
+      const diff = targetTimeRef.current - currentTimeRef.current;
+      
+      // Only update if difference is significant enough
       if (Math.abs(diff) > 0.001) {
+        // Apply lerp - smooth interpolation
         currentTimeRef.current += diff * lerpFactor;
         
-        // Clamp time to ensure we don't seek past the video limits
-        if (video.duration) {
-             const safeTime = Math.max(0, Math.min(currentTimeRef.current, video.duration));
-             video.currentTime = safeTime;
-        }
+        // Clamp to valid range
+        currentTimeRef.current = Math.max(0, Math.min(currentTimeRef.current, video.duration));
+        
+        // Update video time
+        video.currentTime = currentTimeRef.current;
       }
 
       rafIdRef.current = requestAnimationFrame(animate);
     };
 
-    // Listeners
-    window.addEventListener('scroll', updateProgress, { passive: true });
+    // Handle scroll events
+    const handleScroll = () => {
+      updateTargetTime();
+    };
+
+    // Initialize on video load
+    const handleVideoLoad = () => {
+      setIsVideoLoaded(true);
+      updateTargetTime();
+      currentTimeRef.current = targetTimeRef.current;
+      if (video.duration) {
+        video.currentTime = currentTimeRef.current;
+      }
+    };
+
+    video.addEventListener('loadedmetadata', handleVideoLoad);
+    window.addEventListener('scroll', handleScroll, { passive: true });
     
-    // Start the physics loop
+    // Start animation loop
     rafIdRef.current = requestAnimationFrame(animate);
 
-    // Initial call to set starting state
-    updateProgress();
+    // Initial calculation
+    updateTargetTime();
 
     return () => {
-      window.removeEventListener('scroll', updateProgress);
-      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
+      video.removeEventListener('loadedmetadata', handleVideoLoad);
+      window.removeEventListener('scroll', handleScroll);
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
     };
-  }, [isVideoLoaded]); // Re-bind if video load state changes
+  }, []);
 
-  // --- VISUAL EFFECTS CALCULATIONS ---
+  // Calculate visual effects based on scroll
+  const [scrollProgress, setScrollProgress] = useState(0);
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      const container = containerRef.current;
+      if (!container) return;
+      
+      const scrollY = window.scrollY;
+      const trackHeight = container.scrollHeight - window.innerHeight;
+      const progress = Math.min(Math.max(scrollY / trackHeight, 0), 1);
+      setScrollProgress(progress);
+    };
 
-  // 1. Text Opacity: Fades out quickly in the first 15% of scroll
-  const textOpacity = Math.max(0, 1 - progress * 7);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
-  // 2. Cinematic Zoom: Video slowly scales down as you scroll
-  const scale = 1.1 - (progress * 0.1);
+  // Visual effects
+  const textOpacity = Math.max(0, 1 - scrollProgress * 5);
+  const scale = 1.1 - (scrollProgress * 0.1);
 
-  // 3. THE "RISING TIDE" TRANSITION (The GTA VI Effect)
-  // We want the transition to happen in the last 20% of the scroll.
-  // This calculates a percentage (0 to 100) representing how much of the video is "eaten" by the next section.
-  const transitionStart = 0.8; 
-  const transitionProgress = Math.min(Math.max((progress - transitionStart) / (1 - transitionStart), 0), 1) * 100;
+  // Dynamic brightness - starts at 0.7, goes to 1.0 as text fades
+  const brightness = 0.7 + (Math.min(scrollProgress * 5, 1) * 0.3);
 
   return (
-    // Height 800vh provides a nice long track for a 4-second video
-    <div ref={containerRef} className="relative h-[800vh] bg-[#0a0a0a]">
+    <div ref={containerRef} className="relative h-[400vh]">
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        
-        {/* VIDEO CONTAINER */}
-        {/* We apply the clip-path here. It physically crops the container from the bottom up. */}
-        <div 
-          className="absolute inset-0 w-full h-full"
+        <video
+          ref={videoRef}
+          muted
+          playsInline
+          preload="auto"
+          autoPlay={false}
+          className={cn(
+            "w-full h-full object-cover transition-opacity duration-1000",
+            isVideoLoaded ? "opacity-100" : "opacity-0"
+          )}
           style={{
-            // inset(top right bottom left)
-            // We increase the bottom value from 0% to 100% to make it look like it's sinking
-            clipPath: `inset(0 0 ${transitionProgress}% 0)`,
-            WebkitClipPath: `inset(0 0 ${transitionProgress}% 0)`, // For Safari support
-            transform: `scale(${scale})`, // Apply the smooth zoom here
-            transition: 'transform 0.1s linear' // Slight smoothing for the zoom
+            filter: `brightness(${brightness})`,
+            transform: `scale(${scale})`,
           }}
         >
-          <video
-            ref={videoRef}
-            muted
-            playsInline
-            preload="auto"
-            crossOrigin="anonymous" // Helps with some CORS seeking issues
-            onLoadedData={() => setIsVideoLoaded(true)}
-            className={cn(
-              "w-full h-full object-cover transition-opacity duration-1000",
-              isVideoLoaded ? "opacity-100" : "opacity-0"
-            )}
-            style={{
-              filter: "brightness(0.8)", // Slight tint so text pops
-            }}
-          >
-            <source src={heroVideo} type="video/mp4" />
-          </video>
-        </div>
+          <source src={heroVideo} type="video/mp4" />
+        </video>
 
-        {/* RISING BACKGROUND LAYER */}
-        {/* This div matches the background color and slides up *behind* the clip-path 
-            to ensure there are no visual glitches at the seam. */}
-        <div 
-          className="absolute inset-0 bg-[#0a0a0a] pointer-events-none z-0"
-          style={{ 
-            // It moves up in sync with the clip-path
-            transform: `translateY(${100 - transitionProgress}%)`,
-          }}
-        />
-
-        {/* TEXT LAYER */}
-        {/* Stays fixed on top until it fades out */}
-        <div 
+        <div
           className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
           style={{ opacity: textOpacity }}
         >
@@ -146,12 +149,8 @@ const Hero = () => {
             <h1 className="text-5xl md:text-8xl font-black text-white tracking-tighter mb-4 drop-shadow-2xl">
               PROJECT <br /> PORTFOLIO
             </h1>
-            <p className="text-white/80 text-xl font-light tracking-widest uppercase animate-pulse">
-              Scroll to Explore
-            </p>
           </div>
         </div>
-
       </div>
     </div>
   );

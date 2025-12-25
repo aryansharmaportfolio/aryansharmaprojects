@@ -12,13 +12,13 @@ const Hero = () => {
   const targetTimeRef = useRef(0);
   const rafIdRef = useRef<number | null>(null);
 
+  // 1. SCROLLYTELLING PHYSICS LOOP
   useEffect(() => {
     const video = videoRef.current;
     const container = containerRef.current;
     if (!video || !container) return;
 
-    // Force pause - we control playback manually
-    video.pause();
+    video.pause(); // We control playback manually
 
     const updateTargetTime = () => {
       if (!video.duration || isNaN(video.duration)) return;
@@ -39,61 +39,46 @@ const Hero = () => {
         return;
       }
 
-      // Lerp factor - lower = smoother/heavier, higher = snappier
+      // Lerp factor: 0.08 is smooth/heavy
       const lerpFactor = 0.08;
-      
-      // Calculate the difference
       const diff = targetTimeRef.current - currentTimeRef.current;
       
-      // Only update if difference is significant enough
       if (Math.abs(diff) > 0.001) {
-        // Apply lerp - smooth interpolation
         currentTimeRef.current += diff * lerpFactor;
-        
         // Clamp to valid range
         currentTimeRef.current = Math.max(0, Math.min(currentTimeRef.current, video.duration));
-        
-        // Update video time
         video.currentTime = currentTimeRef.current;
       }
 
       rafIdRef.current = requestAnimationFrame(animate);
     };
 
-    // Handle scroll events
     const handleScroll = () => {
       updateTargetTime();
     };
 
-    // Initialize on video load
     const handleVideoLoad = () => {
       setIsVideoLoaded(true);
       updateTargetTime();
+      // Initialize time immediately to avoid jump
       currentTimeRef.current = targetTimeRef.current;
-      if (video.duration) {
-        video.currentTime = currentTimeRef.current;
-      }
+      if (video.duration) video.currentTime = currentTimeRef.current;
     };
 
     video.addEventListener('loadedmetadata', handleVideoLoad);
     window.addEventListener('scroll', handleScroll, { passive: true });
     
-    // Start animation loop
     rafIdRef.current = requestAnimationFrame(animate);
-
-    // Initial calculation
     updateTargetTime();
 
     return () => {
       video.removeEventListener('loadedmetadata', handleVideoLoad);
       window.removeEventListener('scroll', handleScroll);
-      if (rafIdRef.current) {
-        cancelAnimationFrame(rafIdRef.current);
-      }
+      if (rafIdRef.current) cancelAnimationFrame(rafIdRef.current);
     };
   }, []);
 
-  // Calculate visual effects based on scroll
+  // 2. VISUAL EFFECTS STATE
   const [scrollProgress, setScrollProgress] = useState(0);
   
   useEffect(() => {
@@ -113,16 +98,27 @@ const Hero = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // Visual effects
+  // --- STYLE CALCULATIONS ---
+
+  // Text fades out quickly (0% -> 20%)
   const textOpacity = Math.max(0, 1 - scrollProgress * 5);
+  
+  // Cinematic Zoom: Video zooms out slowly
   const scale = 1.1 - (scrollProgress * 0.1);
 
-  // Dynamic brightness - starts at 0.7, goes to 1.0 as text fades
+  // Brightness: Starts dark (0.7), brightens as text leaves, then stays consistent
   const brightness = 0.7 + (Math.min(scrollProgress * 5, 1) * 0.3);
 
+  // EXIT FADE: The "Curtain" Effect
+  // Starts fading to black at 85% scroll, fully black at 100%
+  // This ensures the boundary between this section and the next is invisible.
+  const exitOpacity = Math.max(0, (scrollProgress - 0.85) * 6.66);
+
   return (
-    <div ref={containerRef} className="relative h-[400vh]">
+    <div ref={containerRef} className="relative h-[400vh] bg-black">
       <div className="sticky top-0 h-screen w-full overflow-hidden">
+        
+        {/* VIDEO LAYER */}
         <video
           ref={videoRef}
           muted
@@ -141,6 +137,16 @@ const Hero = () => {
           <source src={heroVideo} type="video/mp4" />
         </video>
 
+        {/* 1. PERMANENT SHADOW: Bottom gradient to blend floor/edges at all times */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+
+        {/* 2. EXIT CURTAIN: Fades to solid black at the end of scroll */}
+        <div 
+            className="absolute inset-0 bg-black pointer-events-none"
+            style={{ opacity: exitOpacity }}
+        />
+
+        {/* TEXT LAYER */}
         <div
           className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
           style={{ opacity: textOpacity }}

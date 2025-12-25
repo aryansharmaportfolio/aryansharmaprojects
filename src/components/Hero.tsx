@@ -7,29 +7,26 @@ const Hero = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   
-  // Store current video time for lerping
+  // Physics State
   const currentTimeRef = useRef(0);
   const targetTimeRef = useRef(0);
   const rafIdRef = useRef<number | null>(null);
 
-  // 1. SCROLLYTELLING PHYSICS LOOP
+  // 1. VIDEO PHYSICS ENGINE (Unchanged - Keeps your smooth scrubbing)
   useEffect(() => {
     const video = videoRef.current;
     const container = containerRef.current;
     if (!video || !container) return;
 
-    video.pause(); // We control playback manually
+    video.pause();
 
     const updateTargetTime = () => {
       if (!video.duration || isNaN(video.duration)) return;
       
       const scrollY = window.scrollY;
       const trackHeight = container.scrollHeight - window.innerHeight;
-      
-      // Calculate progress (0 to 1)
       const progress = Math.min(Math.max(scrollY / trackHeight, 0), 1);
       
-      // Map progress to video duration
       targetTimeRef.current = progress * video.duration;
     };
 
@@ -39,13 +36,11 @@ const Hero = () => {
         return;
       }
 
-      // Lerp factor: 0.08 is smooth/heavy
       const lerpFactor = 0.08;
       const diff = targetTimeRef.current - currentTimeRef.current;
       
       if (Math.abs(diff) > 0.001) {
         currentTimeRef.current += diff * lerpFactor;
-        // Clamp to valid range
         currentTimeRef.current = Math.max(0, Math.min(currentTimeRef.current, video.duration));
         video.currentTime = currentTimeRef.current;
       }
@@ -53,14 +48,11 @@ const Hero = () => {
       rafIdRef.current = requestAnimationFrame(animate);
     };
 
-    const handleScroll = () => {
-      updateTargetTime();
-    };
+    const handleScroll = () => updateTargetTime();
 
     const handleVideoLoad = () => {
       setIsVideoLoaded(true);
       updateTargetTime();
-      // Initialize time immediately to avoid jump
       currentTimeRef.current = targetTimeRef.current;
       if (video.duration) video.currentTime = currentTimeRef.current;
     };
@@ -98,21 +90,20 @@ const Hero = () => {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  // --- STYLE CALCULATIONS ---
+  // --- NEW VISUAL CALCULATIONS ---
 
-  // Text fades out quickly (0% -> 20%)
   const textOpacity = Math.max(0, 1 - scrollProgress * 5);
-  
-  // Cinematic Zoom: Video zooms out slowly
   const scale = 1.1 - (scrollProgress * 0.1);
-
-  // Brightness: Starts dark (0.7), brightens as text leaves, then stays consistent
   const brightness = 0.7 + (Math.min(scrollProgress * 5, 1) * 0.3);
 
-  // EXIT FADE: The "Curtain" Effect
-  // Starts fading to black at 85% scroll, fully black at 100%
-  // This ensures the boundary between this section and the next is invisible.
-  const exitOpacity = Math.max(0, (scrollProgress - 0.85) * 6.66);
+  // THE "FILL UP" EFFECT
+  // We want the black background to start rising when the user is 40% down.
+  // It finishes filling the screen when the user is 95% down.
+  // result: A value from 0 to 100 representing the gradient stop position.
+  const fillStart = 0.4;
+  const fillEnd = 0.95;
+  const fillRatio = Math.max(0, (scrollProgress - fillStart) / (fillEnd - fillStart));
+  const gradientPercent = fillRatio * 100;
 
   return (
     <div ref={containerRef} className="relative h-[400vh] bg-black">
@@ -137,13 +128,19 @@ const Hero = () => {
           <source src={heroVideo} type="video/mp4" />
         </video>
 
-        {/* 1. PERMANENT SHADOW: Bottom gradient to blend floor/edges at all times */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+        {/* 1. PERMANENT BASE SHADOW (Subtle footer gradient) */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent pointer-events-none" />
 
-        {/* 2. EXIT CURTAIN: Fades to solid black at the end of scroll */}
+        {/* 2. THE RISING BLACK FILL (The GTA 6 Effect) */}
+        {/* We animate the gradient stops directly. 
+            'transparent ${gradientPercent}%' -> The top part of the gradient.
+            'black ${gradientPercent - 20}%' -> The solid black part rising from below.
+         */}
         <div 
-            className="absolute inset-0 bg-black pointer-events-none"
-            style={{ opacity: exitOpacity }}
+            className="absolute inset-0 pointer-events-none z-10"
+            style={{
+                background: `linear-gradient(to top, black ${Math.max(0, gradientPercent - 20)}%, transparent ${gradientPercent + 20}%)`
+            }}
         />
 
         {/* TEXT LAYER */}

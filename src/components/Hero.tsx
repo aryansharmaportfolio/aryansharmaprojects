@@ -1,13 +1,11 @@
 import { useState, useRef, useEffect } from "react";
-import heroVideo from "@/assets/hero-video.mp4"; // Make sure your new converted file is named this!
+import heroVideo from "@/assets/hero-video.mp4"; 
 import { cn } from "@/lib/utils";
 
 const Hero = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  
-  // We track progress from 0 to 1 for animations
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -15,8 +13,7 @@ const Hero = () => {
     const container = containerRef.current;
     if (!video || !container) return;
 
-    // 1. Force pause so the browser doesn't try to play it automatically.
-    // We want the scrollbar to be the only thing "playing" the video.
+    // 1. Force pause to take manual control
     video.pause();
 
     let animationFrameId: number;
@@ -24,34 +21,30 @@ const Hero = () => {
     const loop = () => {
       // 2. Calculate Scroll Progress
       const scrollY = window.scrollY;
-      
-      // The track is 400vh tall, but the meaningful scroll distance is (total - 1 screen)
+      // We use a much taller track now (800vh), so we subtract 1 window height to get the scrollable area
       const trackHeight = container.scrollHeight - window.innerHeight;
       
-      // Calculate progress (0 to 1) clamped strictly between 0 and 1
+      // Get percentage (0 to 1)
       const rawProgress = Math.min(Math.max(scrollY / trackHeight, 0), 1);
       
       setProgress(rawProgress);
 
-      // 3. Video Physics (The "GTA 6" Scrubbing Logic)
-      if (video.duration) {
+      // 3. Video Physics
+      if (video.duration && !isNaN(video.duration)) {
         const targetTime = video.duration * rawProgress;
         const diff = targetTime - video.currentTime;
         
-        // EDGE CASE SNAPPING:
-        // If we are at the very start or end, force the video to that exact frame.
-        // This ensures the rocket fully resets or fully completes its launch.
-        if (rawProgress < 0.01) {
+        // EDGE CASE SNAPPING
+        // If we are at the very start (top) or very end (bottom), force exact time
+        if (rawProgress < 0.005) {
            video.currentTime = 0;
-        } else if (rawProgress > 0.99) {
-           video.currentTime = video.duration;
+        } else if (rawProgress > 0.995) {
+           video.currentTime = video.duration; // Forces the END of the video (4s)
         } else {
-            // STANDARD SCROLLING:
-            // "0.2" is the friction/speed. 
-            // 0.1 is "heavy/smooth", 0.2 is "snappy/responsive".
-            // Since you have Keyframe Interval 1, we can use 0.2 safely.
-            if (Math.abs(diff) > 0.001) {
-              video.currentTime += diff * 0.2;
+            // STANDARD SCROLLING
+            // Increased speed from 0.1 to 0.33 so it keeps up with you better
+            if (Math.abs(diff) > 0.01) {
+              video.currentTime += diff * 0.33;
             }
         }
       }
@@ -59,31 +52,25 @@ const Hero = () => {
       animationFrameId = requestAnimationFrame(loop);
     };
 
-    // Start the physics loop
     loop();
-
     return () => cancelAnimationFrame(animationFrameId);
   }, [isVideoLoaded]); 
 
-  // Dynamic Styles
-  // Text fades out quickly as you scroll down (0% -> 20%)
+  // Styles
   const textOpacity = Math.max(0, 1 - progress * 5); 
-  
-  // Cinematic Zoom: Video zooms OUT slightly as you scroll down
   const scale = 1.1 - (progress * 0.1); 
 
   return (
-    // THE TRACK: 400vh tall (4 screens worth of scrolling)
-    <div ref={containerRef} className="relative h-[400vh] bg-black">
+    // CHANGE 1: Increased height from 400vh to 800vh
+    // This makes the scroll "longer", forcing the full video to play out over more scrolling.
+    <div ref={containerRef} className="relative h-[800vh] bg-black">
       
-      {/* THE STICKY WINDOW: Stays fixed in view while you scroll the track */}
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        
         <video
           ref={videoRef}
           muted
           playsInline
-          preload="auto"
+          preload="auto" // Important for loading duration data
           autoPlay={false}
           onLoadedData={() => setIsVideoLoaded(true)}
           className={cn(
@@ -93,17 +80,13 @@ const Hero = () => {
           style={{
             filter: "brightness(0.7)",
             transform: `scale(${scale})`,
-            // IMPORTANT: No CSS transition on transform. 
-            // We want the JS loop to handle the zoom perfectly in sync with the video.
           }}
         >
           <source src={heroVideo} type="video/mp4" />
         </video>
 
-        {/* Gradient Overlay for better text readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background/90 pointer-events-none" />
 
-        {/* Text Layer - Fades out as you start scrolling */}
         <div 
           className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
           style={{ opacity: textOpacity }}

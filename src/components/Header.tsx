@@ -9,6 +9,7 @@ interface SmokePuff {
 
 const Header = ({ activeSection }: { activeSection: string }) => {
   const [isScrolled, setIsScrolled] = useState(false);
+  const [isPastHero, setIsPastHero] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [smoke, setSmoke] = useState<SmokePuff[]>([]);
   const [scrollDirection, setScrollDirection] = useState("down");
@@ -21,6 +22,9 @@ const Header = ({ activeSection }: { activeSection: string }) => {
       const scrollY = window.scrollY;
       const totalHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
       
+      // Hero section is 400vh, show background when past it
+      const heroHeight = window.innerHeight * 4;
+      setIsPastHero(scrollY >= heroHeight - 100);
       setIsScrolled(scrollY > 10);
       
       if (scrollY > lastScrollY.current) {
@@ -92,7 +96,7 @@ const Header = ({ activeSection }: { activeSection: string }) => {
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? "bg-background/95 backdrop-blur-sm shadow-lg" : "bg-transparent"
+        isPastHero ? "bg-background/95 backdrop-blur-sm shadow-lg" : "bg-transparent"
       }`}
     >
       <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">

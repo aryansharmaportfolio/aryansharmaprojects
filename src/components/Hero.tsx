@@ -141,6 +141,15 @@ const Hero = () => {
           <source src={heroVideo} type="video/mp4" />
         </video>
 
+        {/* Subtle bottom fade gradient - appears as user scrolls */}
+        <div 
+          className="absolute inset-x-0 bottom-0 h-[40vh] pointer-events-none"
+          style={{
+            background: `linear-gradient(to bottom, transparent 0%, hsl(var(--background)) 100%)`,
+            opacity: Math.min(scrollProgress * 3, 1),
+          }}
+        />
+
         <div
           className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
           style={{ opacity: textOpacity }}

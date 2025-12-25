@@ -117,8 +117,11 @@ const Hero = () => {
   const textOpacity = Math.max(0, 1 - scrollProgress * 5);
   const scale = 1.1 - (scrollProgress * 0.1);
 
+  // Dynamic brightness - starts at 0.7, goes to 1.0 as text fades
+  const brightness = 0.7 + (Math.min(scrollProgress * 5, 1) * 0.3);
+
   return (
-    <div ref={containerRef} className="relative h-[800vh] bg-black">
+    <div ref={containerRef} className="relative h-[400vh]">
       <div className="sticky top-0 h-screen w-full overflow-hidden">
         <video
           ref={videoRef}
@@ -131,14 +134,12 @@ const Hero = () => {
             isVideoLoaded ? "opacity-100" : "opacity-0"
           )}
           style={{
-            filter: "brightness(0.7)",
+            filter: `brightness(${brightness})`,
             transform: `scale(${scale})`,
           }}
         >
           <source src={heroVideo} type="video/mp4" />
         </video>
-
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background/90 pointer-events-none" />
 
         <div
           className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
@@ -148,9 +149,6 @@ const Hero = () => {
             <h1 className="text-5xl md:text-8xl font-black text-white tracking-tighter mb-4 drop-shadow-2xl">
               PROJECT <br /> PORTFOLIO
             </h1>
-            <p className="text-white/80 text-xl font-light tracking-widest uppercase animate-pulse">
-              Scroll to Explore
-            </p>
           </div>
         </div>
       </div>

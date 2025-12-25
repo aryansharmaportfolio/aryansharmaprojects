@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import heroVideo from "@/assets/hero-video.mp4";
+import heroVideo from "@/assets/hero-video.mp4"; // Make sure your new converted file is named this!
 import { cn } from "@/lib/utils";
 
 const Hero = () => {
@@ -7,7 +7,7 @@ const Hero = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
   
-  // We track progress from 0 to 1
+  // We track progress from 0 to 1 for animations
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
@@ -15,54 +15,65 @@ const Hero = () => {
     const container = containerRef.current;
     if (!video || !container) return;
 
+    // 1. Force pause so the browser doesn't try to play it automatically.
+    // We want the scrollbar to be the only thing "playing" the video.
+    video.pause();
+
     let animationFrameId: number;
 
-    const handleScroll = () => {
-      // 1. Calculate how far we are down the "track"
-      // The track is 400vh tall, but the sticky window is 100vh.
-      // So meaningful scroll distance is: totalHeight - windowHeight
+    const loop = () => {
+      // 2. Calculate Scroll Progress
       const scrollY = window.scrollY;
+      
+      // The track is 400vh tall, but the meaningful scroll distance is (total - 1 screen)
       const trackHeight = container.scrollHeight - window.innerHeight;
       
-      // Calculate progress (0 to 1) clamped between 0 and 1
+      // Calculate progress (0 to 1) clamped strictly between 0 and 1
       const rawProgress = Math.min(Math.max(scrollY / trackHeight, 0), 1);
       
       setProgress(rawProgress);
 
-      // 2. Smoothly interpolate video time ("The Physics")
-      // If we just set currentTime = target, it jitters.
-      // We use a "lerp" (linear interpolation) to make it drift to the target.
+      // 3. Video Physics (The "GTA 6" Scrubbing Logic)
       if (video.duration) {
         const targetTime = video.duration * rawProgress;
         const diff = targetTime - video.currentTime;
         
-        // "0.1" is the friction. Lower = heavier/smoother, Higher = snappier
-        if (Math.abs(diff) > 0.05) {
-          video.currentTime += diff * 0.1;
+        // EDGE CASE SNAPPING:
+        // If we are at the very start or end, force the video to that exact frame.
+        // This ensures the rocket fully resets or fully completes its launch.
+        if (rawProgress < 0.01) {
+           video.currentTime = 0;
+        } else if (rawProgress > 0.99) {
+           video.currentTime = video.duration;
+        } else {
+            // STANDARD SCROLLING:
+            // "0.2" is the friction/speed. 
+            // 0.1 is "heavy/smooth", 0.2 is "snappy/responsive".
+            // Since you have Keyframe Interval 1, we can use 0.2 safely.
+            if (Math.abs(diff) > 0.001) {
+              video.currentTime += diff * 0.2;
+            }
         }
       }
-    };
 
-    // Use a loop for smoother visual updates than just the scroll event
-    const loop = () => {
-      handleScroll();
       animationFrameId = requestAnimationFrame(loop);
     };
+
+    // Start the physics loop
     loop();
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, [isVideoLoaded]); // Re-run if video load state changes
+  }, [isVideoLoaded]); 
 
-  // Dynamic Styles based on progress
-  // 1. Text fades out quickly (0% -> 20%)
+  // Dynamic Styles
+  // Text fades out quickly as you scroll down (0% -> 20%)
   const textOpacity = Math.max(0, 1 - progress * 5); 
   
-  // 2. "Cinematic Zoom" - video slightly zooms out as you scroll, like GTA 6 intro
+  // Cinematic Zoom: Video zooms OUT slightly as you scroll down
   const scale = 1.1 - (progress * 0.1); 
 
   return (
-    // THE TRACK: This div is 400vh tall (4 screens worth of scrolling)
-    // The user has to scroll through ALL of this to get to the next section.
+    // THE TRACK: 400vh tall (4 screens worth of scrolling)
     <div ref={containerRef} className="relative h-[400vh] bg-black">
       
       {/* THE STICKY WINDOW: Stays fixed in view while you scroll the track */}
@@ -73,6 +84,7 @@ const Hero = () => {
           muted
           playsInline
           preload="auto"
+          autoPlay={false}
           onLoadedData={() => setIsVideoLoaded(true)}
           className={cn(
             "w-full h-full object-cover transition-opacity duration-1000",
@@ -80,13 +92,15 @@ const Hero = () => {
           )}
           style={{
             filter: "brightness(0.7)",
-            transform: `scale(${scale})`, // Apply the cinematic zoom
-            transition: "transform 0.1s linear" // Smooth out the zoom updates
+            transform: `scale(${scale})`,
+            // IMPORTANT: No CSS transition on transform. 
+            // We want the JS loop to handle the zoom perfectly in sync with the video.
           }}
         >
           <source src={heroVideo} type="video/mp4" />
         </video>
 
+        {/* Gradient Overlay for better text readability */}
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background/90 pointer-events-none" />
 
         {/* Text Layer - Fades out as you start scrolling */}

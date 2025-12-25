@@ -1,78 +1,131 @@
-import { useState, useRef, useEffect } from "react";
-import heroVideo from "@/assets/hero-video.mp4"; 
+import { useRef, useEffect, useState } from "react";
+import heroVideo from "@/assets/hero-video.mp4";
 import { cn } from "@/lib/utils";
 
 const Hero = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isVideoLoaded, setIsVideoLoaded] = useState(false);
-  const [progress, setProgress] = useState(0);
+  
+  // Store current video time for lerping
+  const currentTimeRef = useRef(0);
+  const targetTimeRef = useRef(0);
+  const rafIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     const video = videoRef.current;
     const container = containerRef.current;
     if (!video || !container) return;
 
-    // 1. Force pause to take manual control
+    // Force pause - we control playback manually
     video.pause();
 
-    let animationFrameId: number;
-
-    const loop = () => {
-      // 2. Calculate Scroll Progress
+    const updateTargetTime = () => {
+      if (!video.duration || isNaN(video.duration)) return;
+      
       const scrollY = window.scrollY;
-      // We use a much taller track now (800vh), so we subtract 1 window height to get the scrollable area
       const trackHeight = container.scrollHeight - window.innerHeight;
       
-      // Get percentage (0 to 1)
-      const rawProgress = Math.min(Math.max(scrollY / trackHeight, 0), 1);
+      // Calculate progress (0 to 1)
+      const progress = Math.min(Math.max(scrollY / trackHeight, 0), 1);
       
-      setProgress(rawProgress);
-
-      // 3. Video Physics
-      if (video.duration && !isNaN(video.duration)) {
-        const targetTime = video.duration * rawProgress;
-        const diff = targetTime - video.currentTime;
-        
-        // EDGE CASE SNAPPING
-        // If we are at the very start (top) or very end (bottom), force exact time
-        if (rawProgress < 0.005) {
-           video.currentTime = 0;
-        } else if (rawProgress > 0.995) {
-           video.currentTime = video.duration; // Forces the END of the video (4s)
-        } else {
-            // STANDARD SCROLLING
-            // Increased speed from 0.1 to 0.33 so it keeps up with you better
-            if (Math.abs(diff) > 0.01) {
-              video.currentTime += diff * 0.33;
-            }
-        }
-      }
-
-      animationFrameId = requestAnimationFrame(loop);
+      // Map progress to video duration
+      targetTimeRef.current = progress * video.duration;
     };
 
-    loop();
-    return () => cancelAnimationFrame(animationFrameId);
-  }, [isVideoLoaded]); 
+    const animate = () => {
+      if (!video.duration || isNaN(video.duration)) {
+        rafIdRef.current = requestAnimationFrame(animate);
+        return;
+      }
 
-  // Styles
-  const textOpacity = Math.max(0, 1 - progress * 5); 
-  const scale = 1.1 - (progress * 0.1); 
+      // Lerp factor - lower = smoother/heavier, higher = snappier
+      const lerpFactor = 0.08;
+      
+      // Calculate the difference
+      const diff = targetTimeRef.current - currentTimeRef.current;
+      
+      // Only update if difference is significant enough
+      if (Math.abs(diff) > 0.001) {
+        // Apply lerp - smooth interpolation
+        currentTimeRef.current += diff * lerpFactor;
+        
+        // Clamp to valid range
+        currentTimeRef.current = Math.max(0, Math.min(currentTimeRef.current, video.duration));
+        
+        // Update video time
+        video.currentTime = currentTimeRef.current;
+      }
+
+      rafIdRef.current = requestAnimationFrame(animate);
+    };
+
+    // Handle scroll events
+    const handleScroll = () => {
+      updateTargetTime();
+    };
+
+    // Initialize on video load
+    const handleVideoLoad = () => {
+      setIsVideoLoaded(true);
+      updateTargetTime();
+      currentTimeRef.current = targetTimeRef.current;
+      if (video.duration) {
+        video.currentTime = currentTimeRef.current;
+      }
+    };
+
+    video.addEventListener('loadedmetadata', handleVideoLoad);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Start animation loop
+    rafIdRef.current = requestAnimationFrame(animate);
+
+    // Initial calculation
+    updateTargetTime();
+
+    return () => {
+      video.removeEventListener('loadedmetadata', handleVideoLoad);
+      window.removeEventListener('scroll', handleScroll);
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
+    };
+  }, []);
+
+  // Calculate visual effects based on scroll
+  const [scrollProgress, setScrollProgress] = useState(0);
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      const container = containerRef.current;
+      if (!container) return;
+      
+      const scrollY = window.scrollY;
+      const trackHeight = container.scrollHeight - window.innerHeight;
+      const progress = Math.min(Math.max(scrollY / trackHeight, 0), 1);
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Visual effects
+  const textOpacity = Math.max(0, 1 - scrollProgress * 5);
+  const scale = 1.1 - (scrollProgress * 0.1);
 
   return (
-    // CHANGE 1: Increased height from 400vh to 800vh
-    // This makes the scroll "longer", forcing the full video to play out over more scrolling.
     <div ref={containerRef} className="relative h-[800vh] bg-black">
-      
       <div className="sticky top-0 h-screen w-full overflow-hidden">
         <video
           ref={videoRef}
           muted
           playsInline
-          preload="auto" // Important for loading duration data
+          preload="auto"
           autoPlay={false}
-          onLoadedData={() => setIsVideoLoaded(true)}
           className={cn(
             "w-full h-full object-cover transition-opacity duration-1000",
             isVideoLoaded ? "opacity-100" : "opacity-0"
@@ -87,7 +140,7 @@ const Hero = () => {
 
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background/90 pointer-events-none" />
 
-        <div 
+        <div
           className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
           style={{ opacity: textOpacity }}
         >

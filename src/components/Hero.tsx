@@ -1,122 +1,145 @@
 import { useRef, useEffect, useState } from "react";
+import heroVideo from "@/assets/hero-video.mp4";
 import { cn } from "@/lib/utils";
 
 const Hero = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [images, setImages] = useState<HTMLImageElement[]>([]);
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [scrollProgress, setScrollProgress] = useState(0);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  
+  // Store current video time for lerping
+  const currentTimeRef = useRef(0);
+  const targetTimeRef = useRef(0);
+  const rafIdRef = useRef<number | null>(null);
 
-  // Configuration
-  const frameCount = 100; // Change this to match your total number of images
-  const currentFrameRef = useRef(0);
-
-  // 1. Preload Images
   useEffect(() => {
-    const loadedImages: HTMLImageElement[] = [];
-    let loadedCount = 0;
+    const video = videoRef.current;
+    const container = containerRef.current;
+    if (!video || !container) return;
 
-    for (let i = 1; i <= frameCount; i++) {
-      const img = new Image();
-      // Ensure the path matches where you put your images in the /public folder
-      img.src = `/hero-frames/frame-${i.toString().padStart(3, '0')}.jpg`;
-      img.onload = () => {
-        loadedCount++;
-        if (loadedCount === frameCount) {
-          setImages(loadedImages);
-          setIsLoaded(true);
-        }
-      };
-      loadedImages.push(img);
-    }
-  }, []);
+    // Force pause - we control playback manually
+    video.pause();
 
-  // 2. Main Draw Logic
-  useEffect(() => {
-    if (!isLoaded || images.length === 0 || !canvasRef.current) return;
-
-    const canvas = canvasRef.current;
-    const context = canvas.getContext("2d");
-
-    const render = () => {
-      const container = containerRef.current;
-      if (!container || !context) return;
-
-      const scrollY = window.scrollY;
-      const maxScroll = container.scrollHeight - window.innerHeight;
-      const progress = Math.min(Math.max(scrollY / maxScroll, 0), 1);
+    const updateTargetTime = () => {
+      if (!video.duration || isNaN(video.duration)) return;
       
-      setScrollProgress(progress);
+      const scrollY = window.scrollY;
+      const trackHeight = container.scrollHeight - window.innerHeight;
+      
+      // Calculate progress (0 to 1)
+      const progress = Math.min(Math.max(scrollY / trackHeight, 0), 1);
+      
+      // Map progress to video duration
+      targetTimeRef.current = progress * video.duration;
+    };
 
-      // Calculate current frame index
-      const frameIndex = Math.min(
-        frameCount - 1,
-        Math.floor(progress * frameCount)
-      );
+    const animate = () => {
+      if (!video.duration || isNaN(video.duration)) {
+        rafIdRef.current = requestAnimationFrame(animate);
+        return;
+      }
 
-      if (images[frameIndex]) {
-        // Draw image and handle "object-cover" logic manually
-        const img = images[frameIndex];
-        const canvasWidth = canvas.width;
-        const canvasHeight = canvas.height;
-        const imgWidth = img.width;
-        const imgHeight = img.height;
+      // Lerp factor - lower = smoother/heavier, higher = snappier
+      const lerpFactor = 0.08;
+      
+      // Calculate the difference
+      const diff = targetTimeRef.current - currentTimeRef.current;
+      
+      // Only update if difference is significant enough
+      if (Math.abs(diff) > 0.001) {
+        // Apply lerp - smooth interpolation
+        currentTimeRef.current += diff * lerpFactor;
         
-        const ratio = Math.max(canvasWidth / imgWidth, canvasHeight / imgHeight);
-        const newWidth = imgWidth * ratio;
-        const newHeight = imgHeight * ratio;
-        const x = (canvasWidth - newWidth) / 2;
-        const y = (canvasHeight - newHeight) / 2;
+        // Clamp to valid range
+        currentTimeRef.current = Math.max(0, Math.min(currentTimeRef.current, video.duration));
+        
+        // Update video time
+        video.currentTime = currentTimeRef.current;
+      }
 
-        context.clearRect(0, 0, canvasWidth, canvasHeight);
-        context.drawImage(img, x, y, newWidth, newHeight);
+      rafIdRef.current = requestAnimationFrame(animate);
+    };
+
+    // Handle scroll events
+    const handleScroll = () => {
+      updateTargetTime();
+    };
+
+    // Initialize on video load
+    const handleVideoLoad = () => {
+      setIsVideoLoaded(true);
+      updateTargetTime();
+      currentTimeRef.current = targetTimeRef.current;
+      if (video.duration) {
+        video.currentTime = currentTimeRef.current;
       }
     };
 
-    // Responsive Canvas
-    const resizeCanvas = () => {
-      canvas.width = window.innerWidth;
-      canvas.height = window.innerHeight;
-      render();
-    };
+    video.addEventListener('loadedmetadata', handleVideoLoad);
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    
+    // Start animation loop
+    rafIdRef.current = requestAnimationFrame(animate);
 
-    window.addEventListener("scroll", render, { passive: true });
-    window.addEventListener("resize", resizeCanvas);
-    resizeCanvas();
+    // Initial calculation
+    updateTargetTime();
 
     return () => {
-      window.removeEventListener("scroll", render);
-      window.removeEventListener("resize", resizeCanvas);
+      video.removeEventListener('loadedmetadata', handleVideoLoad);
+      window.removeEventListener('scroll', handleScroll);
+      if (rafIdRef.current) {
+        cancelAnimationFrame(rafIdRef.current);
+      }
     };
-  }, [isLoaded, images]);
+  }, []);
 
-  // UI Effects
-  const textOpacity = Math.max(0, 1 - scrollProgress * 4);
+  // Calculate visual effects based on scroll
+  const [scrollProgress, setScrollProgress] = useState(0);
+  
+  useEffect(() => {
+    const handleScroll = () => {
+      const container = containerRef.current;
+      if (!container) return;
+      
+      const scrollY = window.scrollY;
+      const trackHeight = container.scrollHeight - window.innerHeight;
+      const progress = Math.min(Math.max(scrollY / trackHeight, 0), 1);
+      setScrollProgress(progress);
+    };
+
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  // Visual effects
+  const textOpacity = Math.max(0, 1 - scrollProgress * 5);
   const scale = 1.1 - (scrollProgress * 0.1);
-  const brightness = 0.7 + (scrollProgress * 0.3);
+
+  // Dynamic brightness - starts at 0.7, goes to 1.0 as text fades
+  const brightness = 0.7 + (Math.min(scrollProgress * 5, 1) * 0.3);
 
   return (
-    <div ref={containerRef} className="relative h-[400vh] bg-black">
+    <div ref={containerRef} className="relative h-[400vh]">
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        {/* Loading Spinner */}
-        {!isLoaded && (
-          <div className="absolute inset-0 flex items-center justify-center text-white">
-            <p className="animate-pulse font-mono tracking-widest">LOADING EXPERIENCE...</p>
-          </div>
-        )}
-
-        <canvas
-          ref={canvasRef}
+        <video
+          ref={videoRef}
+          muted
+          playsInline
+          preload="auto"
+          autoPlay={false}
           className={cn(
-            "w-full h-full block transition-opacity duration-1000",
-            isLoaded ? "opacity-100" : "opacity-0"
+            "w-full h-full object-cover transition-opacity duration-1000",
+            isVideoLoaded ? "opacity-100" : "opacity-0"
           )}
           style={{
             filter: `brightness(${brightness})`,
             transform: `scale(${scale})`,
           }}
-        />
+        >
+          <source src={heroVideo} type="video/mp4" />
+        </video>
 
         <div
           className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"

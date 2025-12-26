@@ -14,7 +14,7 @@ const Index = () => {
   const [activeSection, setActiveSection] = useState('');
   const [pageOpacity, setPageOpacity] = useState(location.state?.section ? 0 : 1);
 
-  // --- Scroll & Navigation Logic (Same as before) ---
+  // --- Scroll & Navigation Logic ---
   useEffect(() => {
     if (location.state?.section) {
       const sectionId = location.state.section;
@@ -60,21 +60,24 @@ const Index = () => {
   }, [activeSection]);
 
   return (
-    // FORCE CONSISTENT BACKGROUND COLOR: bg-[#0a0a0a]
+    // GLOBAL CONTAINER: Forces dark grey background everywhere
     <div 
-      className="min-h-screen transition-opacity duration-700 ease-in-out bg-[#0a0a0a]" 
+      className="min-h-screen transition-opacity duration-700 ease-in-out bg-[#0a0a0a] text-white overflow-x-hidden" 
       style={{ opacity: pageOpacity }}
     >
       <Header activeSection={activeSection} />
       
-      {/* 1. HERO SECTION (Fixed Background) */}
+      {/* 1. HERO SECTION (Fixed Video Background) */}
       <Hero />
 
-      {/* 2. CONTENT SECTIONS 
-          We use z-10 to ensure this sits logically 'after' the hero interaction.
-          The background must match the Hero's mask overlay exactly.
+      {/* 2. MAIN CONTENT STREAM
+          - relative z-10: Puts this ON TOP of the fixed hero video.
+          - bg-[#0a0a0a]: Matches the end-state of the hero fade perfectly.
+          - space-y-0: Removes gaps between sections.
       */}
-      <div className="relative z-10 bg-[#0a0a0a]">
+      <div className="relative z-10 bg-[#0a0a0a] flex flex-col w-full">
+        
+        {/* We use AnimatedSection to trigger fade-ins, but the background remains solid */}
         <AnimatedSection>
           <AboutMe />
         </AnimatedSection>

@@ -1,45 +1,26 @@
-import { useState, useEffect, useRef } from "react";
+import { motion, useInView } from "framer-motion";
+import { useRef, ReactNode } from "react";
 
-interface Props {
-  children: React.ReactNode;
+interface AnimatedSectionProps {
+  children: ReactNode;
+  className?: string;
 }
 
-const AnimatedSection = ({ children }: Props) => {
-  const [isVisible, setIsVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        setIsVisible(entries[0].isIntersecting);
-      },
-      {
-        threshold: 0.5,
-      }
-    );
-
-    if (ref.current) {
-      observer.observe(ref.current);
-    }
-
-    return () => {
-      if (ref.current) {
-        observer.unobserve(ref.current);
-      }
-    };
-  }, []);
+const AnimatedSection = ({ children, className = "" }: AnimatedSectionProps) => {
+  const ref = useRef(null);
+  // Trigger animation when 10% of the component is in view
+  const isInView = useInView(ref, { once: true, margin: "-10% 0px" });
 
   return (
-    <div
+    <motion.div
       ref={ref}
-      className={`transition-transform duration-700 ease-in-out ${
-        isVisible
-          ? "scale-100 translate-y-0"
-          : "scale-90 translate-y-20"
-      }`}
+      initial={{ opacity: 0, y: 30 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
+      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }} // smooth "cubic-bezier" ease
+      className={`w-full ${className}`}
     >
       {children}
-    </div>
+    </motion.div>
   );
 };
 

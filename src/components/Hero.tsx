@@ -50,22 +50,13 @@ const Hero = () => {
 
     const render = () => {
       const container = containerRef.current;
-      // If container is gone, stop rendering
       if (!container) return;
 
-      // Calculate Scroll based on the SPACER container
       const scrollableDistance = container.scrollHeight - window.innerHeight;
       const rawProgress = window.scrollY / scrollableDistance;
       const progress = Math.min(Math.max(rawProgress, 0), 1);
       
       setScrollProgress(progress);
-
-      // OPTIMIZATION: Stop drawing if we are fully scrolled past the hero
-      // This saves battery/GPU when the user is looking at the footer
-      if (rawProgress > 1.2) {
-        requestRef.current = requestAnimationFrame(render);
-        return; 
-      }
 
       if (imagesRef.current.length > 0) {
         const frameIndex = Math.min(
@@ -79,7 +70,6 @@ const Hero = () => {
           canvas.width = window.innerWidth;
           canvas.height = window.innerHeight;
 
-          // Manual object-cover
           const scale = Math.max(
             canvas.width / img.width,
             canvas.height / img.height
@@ -101,29 +91,31 @@ const Hero = () => {
     };
   }, [isLoaded]);
 
-  // 3. VISUAL EFFECTS
-  const textOpacity = Math.max(0, 1 - scrollProgress * 3);
-  const scale = 1.1 - (scrollProgress * 0.1);
-  const brightness = 0.7 + (scrollProgress * 0.3);
+  // 3. DYNAMIC VISUAL EFFECTS
+  const textOpacity = Math.max(0, 1 - scrollProgress * 4); // Text fades out fast
+  const scale = 1.1 - (scrollProgress * 0.1); // Video scales down slightly
+  
+  // --- THE GTA 6 TRANSITION LOGIC ---
+  // We want the mask to start appearing at 80% scroll and be fully closed at 100%
+  // clip-path: circle(radius at center)
+  // At 0.8 progress -> radius = 0% (invisible)
+  // At 1.0 progress -> radius = 150% (fully covers screen)
+  const maskTriggerStart = 0.8;
+  const maskProgress = Math.max(0, (scrollProgress - maskTriggerStart) / (1 - maskTriggerStart));
+  const maskRadius = maskProgress * 150; // Expands to 150% of screen
 
   return (
     <div className="relative w-full">
-      {/* A. THE SCROLL SPACER 
-        This is an invisible div that takes up space (300vh) to allow scrolling.
-        It sits in the normal document flow.
-      */}
-      <div ref={containerRef} className="h-[300vh] w-full pointer-events-none" />
+      {/* SCROLL SPACER */}
+      <div ref={containerRef} className="h-[350vh] w-full pointer-events-none" />
 
-      {/* B. THE FIXED CANVAS CONTAINER 
-        This sits BEHIND everything (z-0) and stays fixed to the viewport.
-        The next section in your app will slide OVER this.
-      */}
+      {/* FIXED CONTAINER */}
       <div className="fixed top-0 left-0 w-full h-full z-0 overflow-hidden">
         
         {/* Loading Overlay */}
         <div 
           className={cn(
-            "absolute inset-0 z-50 flex flex-col items-center justify-center bg-black transition-opacity duration-1000",
+            "absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#0a0a0a] transition-opacity duration-1000",
             isLoaded ? "opacity-0 pointer-events-none" : "opacity-100"
           )}
         >
@@ -146,11 +138,11 @@ const Hero = () => {
               ref={canvasRef}
               className="w-full h-full block object-cover"
               style={{
-                filter: `brightness(${brightness})`,
                 transform: `scale(${scale})`,
               }}
             />
 
+            {/* Title Text */}
             <div
               className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
               style={{ opacity: textOpacity }}
@@ -161,6 +153,21 @@ const Hero = () => {
                 </h1>
               </div>
             </div>
+
+            {/* --- THE MASK OVERLAY (The seamless transition) --- */}
+            {/* This div sits ON TOP of the canvas. 
+                Its clip-path starts at 0% (invisible) and expands to cover the screen. 
+                It MUST match the background color of the next section (#0a0a0a).
+            */}
+            <div 
+              className="absolute inset-0 z-30 pointer-events-none bg-[#0a0a0a]"
+              style={{
+                // "circle(0% at 50% 50%)" means a tiny dot in the center.
+                // We want to REVEAL the darkness, so we simply draw the darkness on top.
+                clipPath: `circle(${maskRadius}% at 50% 50%)`,
+                transition: 'clip-path 0.1s linear' // Smooth out frame jitters
+              }}
+            />
         </div>
       </div>
     </div>

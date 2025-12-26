@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import AboutMe from "@/components/AboutMe";
@@ -11,25 +11,19 @@ import AnimatedSection from "@/components/AnimatedSection";
 
 const Index = () => {
   const location = useLocation();
-  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState('');
-  
-  // Initialize opacity: 0 if we have a target section (to hide the jump), 1 otherwise
   const [pageOpacity, setPageOpacity] = useState(location.state?.section ? 0 : 1);
 
-  // Handle Hash/State Navigation (Preserved from your original code)
+  // --- Scroll & Navigation Logic (Same as before) ---
   useEffect(() => {
     if (location.state?.section) {
       const sectionId = location.state.section;
-
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         if (element) {
           const originalScrollBehavior = document.documentElement.style.scrollBehavior;
           document.documentElement.style.scrollBehavior = 'auto';
-
           element.scrollIntoView({ behavior: 'auto', block: 'center' });
-          
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               setPageOpacity(1);
@@ -45,7 +39,6 @@ const Index = () => {
     }
   }, [location]);
 
-  // Logic to update the active section in the header based on scroll position
   useEffect(() => {
     const handleScrollHighlight = () => {
       const sections = document.querySelectorAll('section');
@@ -67,22 +60,19 @@ const Index = () => {
   }, [activeSection]);
 
   return (
+    // FORCE CONSISTENT BACKGROUND COLOR: bg-[#0a0a0a]
     <div 
-      className="min-h-screen transition-opacity duration-700 ease-in-out bg-black" 
+      className="min-h-screen transition-opacity duration-700 ease-in-out bg-[#0a0a0a]" 
       style={{ opacity: pageOpacity }}
     >
       <Header activeSection={activeSection} />
       
-      {/* 1. THE HERO SECTION
-        Contains the Fixed Canvas (z-0) and the Scroll Spacer.
-        It sits at the "bottom" of the stack visually.
-      */}
+      {/* 1. HERO SECTION (Fixed Background) */}
       <Hero />
 
-      {/* 2. THE CONTENT CURTAIN (z-10)
-        This wrapper contains all the other sections.
-        Crucially, it has a background color (darkish grey) and a higher z-index.
-        As you scroll past the Hero's spacer, this div slides UP over the fixed Hero canvas.
+      {/* 2. CONTENT SECTIONS 
+          We use z-10 to ensure this sits logically 'after' the hero interaction.
+          The background must match the Hero's mask overlay exactly.
       */}
       <div className="relative z-10 bg-[#0a0a0a]">
         <AnimatedSection>

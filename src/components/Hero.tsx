@@ -1,122 +1,139 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect, useState, useCallback } from "react";
 import heroVideo from "@/assets/hero-video.mp4";
 import { cn } from "@/lib/utils";
 
 const Hero = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [isVideoLoaded, setIsVideoLoaded] = useState(false);
+  const [isVideoReady, setIsVideoReady] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
   
-  // Store current video time for lerping
+  // Refs for smooth lerping animation
   const currentTimeRef = useRef(0);
   const targetTimeRef = useRef(0);
   const rafIdRef = useRef<number | null>(null);
+  const videoDurationRef = useRef(0);
+
+  // Calculate target time from scroll position
+  const updateTargetTime = useCallback(() => {
+    const container = containerRef.current;
+    if (!container || !videoDurationRef.current) return;
+    
+    const scrollY = window.scrollY;
+    const trackHeight = container.scrollHeight - window.innerHeight;
+    
+    // Calculate progress (0 to 1)
+    const progress = Math.max(0, Math.min(scrollY / trackHeight, 1));
+    
+    // Map progress to video duration
+    targetTimeRef.current = progress * videoDurationRef.current;
+    setScrollProgress(progress);
+  }, []);
+
+  // Animation loop with lerp for smooth scrubbing
+  const animate = useCallback(() => {
+    const video = videoRef.current;
+    if (!video || !videoDurationRef.current) {
+      rafIdRef.current = requestAnimationFrame(animate);
+      return;
+    }
+
+    // Lerp factor - 0.08 gives that "weight" feel
+    const lerpFactor = 0.08;
+    const diff = targetTimeRef.current - currentTimeRef.current;
+    
+    // Only update if difference is significant
+    if (Math.abs(diff) > 0.0001) {
+      currentTimeRef.current += diff * lerpFactor;
+      
+      // Clamp to valid range
+      currentTimeRef.current = Math.max(0, Math.min(currentTimeRef.current, videoDurationRef.current));
+      
+      // Set the video time - this is where the magic happens
+      try {
+        video.currentTime = currentTimeRef.current;
+      } catch (e) {
+        // Video might not be ready yet
+      }
+    }
+
+    rafIdRef.current = requestAnimationFrame(animate);
+  }, []);
 
   useEffect(() => {
     const video = videoRef.current;
-    const container = containerRef.current;
-    if (!video || !container) return;
+    if (!video) return;
 
-    // Force pause - we control playback manually
+    // Critical: Prevent the video from playing on its own
     video.pause();
-
-    const updateTargetTime = () => {
-      if (!video.duration || isNaN(video.duration)) return;
-      
-      const scrollY = window.scrollY;
-      const trackHeight = container.scrollHeight - window.innerHeight;
-      
-      // Calculate progress (0 to 1)
-      const progress = Math.min(Math.max(scrollY / trackHeight, 0), 1);
-      
-      // Map progress to video duration
-      targetTimeRef.current = progress * video.duration;
+    
+    // Handler when video metadata is loaded
+    const handleLoadedMetadata = () => {
+      videoDurationRef.current = video.duration;
+      video.pause();
+      video.currentTime = 0;
+      currentTimeRef.current = 0;
+      targetTimeRef.current = 0;
+      updateTargetTime();
     };
 
-    const animate = () => {
-      if (!video.duration || isNaN(video.duration)) {
-        rafIdRef.current = requestAnimationFrame(animate);
-        return;
-      }
-
-      // Lerp factor - lower = smoother/heavier, higher = snappier
-      const lerpFactor = 0.08;
-      
-      // Calculate the difference
-      const diff = targetTimeRef.current - currentTimeRef.current;
-      
-      // Only update if difference is significant enough
-      if (Math.abs(diff) > 0.001) {
-        // Apply lerp - smooth interpolation
-        currentTimeRef.current += diff * lerpFactor;
-        
-        // Clamp to valid range
-        currentTimeRef.current = Math.max(0, Math.min(currentTimeRef.current, video.duration));
-        
-        // Update video time
-        video.currentTime = currentTimeRef.current;
-      }
-
-      rafIdRef.current = requestAnimationFrame(animate);
+    // Handler when video can play through
+    const handleCanPlayThrough = () => {
+      setIsVideoReady(true);
+      video.pause();
     };
 
-    // Handle scroll events
+    // Prevent any attempts to play
+    const handlePlay = () => {
+      video.pause();
+    };
+
+    // Add event listeners
+    video.addEventListener('loadedmetadata', handleLoadedMetadata);
+    video.addEventListener('canplaythrough', handleCanPlayThrough);
+    video.addEventListener('play', handlePlay);
+    
+    // Force load the video
+    video.load();
+
+    return () => {
+      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+      video.removeEventListener('canplaythrough', handleCanPlayThrough);
+      video.removeEventListener('play', handlePlay);
+    };
+  }, [updateTargetTime]);
+
+  // Scroll event listener
+  useEffect(() => {
     const handleScroll = () => {
       updateTargetTime();
     };
 
-    // Initialize on video load
-    const handleVideoLoad = () => {
-      setIsVideoLoaded(true);
-      updateTargetTime();
-      currentTimeRef.current = targetTimeRef.current;
-      if (video.duration) {
-        video.currentTime = currentTimeRef.current;
-      }
-    };
-
-    video.addEventListener('loadedmetadata', handleVideoLoad);
     window.addEventListener('scroll', handleScroll, { passive: true });
     
-    // Start animation loop
-    rafIdRef.current = requestAnimationFrame(animate);
-
     // Initial calculation
     updateTargetTime();
-
+    
     return () => {
-      video.removeEventListener('loadedmetadata', handleVideoLoad);
       window.removeEventListener('scroll', handleScroll);
+    };
+  }, [updateTargetTime]);
+
+  // Start animation loop
+  useEffect(() => {
+    rafIdRef.current = requestAnimationFrame(animate);
+    
+    return () => {
       if (rafIdRef.current) {
         cancelAnimationFrame(rafIdRef.current);
       }
     };
-  }, []);
+  }, [animate]);
 
-  // Calculate visual effects based on scroll
-  const [scrollProgress, setScrollProgress] = useState(0);
-  
-  useEffect(() => {
-    const handleScroll = () => {
-      const container = containerRef.current;
-      if (!container) return;
-      
-      const scrollY = window.scrollY;
-      const trackHeight = container.scrollHeight - window.innerHeight;
-      const progress = Math.min(Math.max(scrollY / trackHeight, 0), 1);
-      setScrollProgress(progress);
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    handleScroll();
-    
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  // Visual effects
+  // Visual effects calculated from scroll progress
   const textOpacity = Math.max(0, 1 - scrollProgress * 5);
   const scale = 1.1 - (scrollProgress * 0.1);
-
+  
   // Dynamic brightness - starts at 0.7, goes to 1.0 as text fades
   const brightness = 0.7 + (Math.min(scrollProgress * 5, 1) * 0.3);
 
@@ -131,7 +148,7 @@ const Hero = () => {
           autoPlay={false}
           className={cn(
             "w-full h-full object-cover transition-opacity duration-1000",
-            isVideoLoaded ? "opacity-100" : "opacity-0"
+            isVideoReady ? "opacity-100" : "opacity-0"
           )}
           style={{
             filter: `brightness(${brightness})`,

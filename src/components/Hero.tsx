@@ -105,7 +105,7 @@ const Hero = () => {
   const brightness = 0.7 + (scrollProgress * 0.3);
 
   return (
-    <div ref={containerRef} className="relative h-[400vh] bg-black">
+    <div ref={containerRef} className="relative h-[260vh] bg-black">
       <div className="sticky top-0 h-screen w-full overflow-hidden">
         
         {/* --- LOADING OVERLAY (Auto-fades out) --- */}

@@ -17,34 +17,28 @@ const Index = () => {
   // Initialize opacity: 0 if we have a target section (to hide the jump), 1 otherwise
   const [pageOpacity, setPageOpacity] = useState(location.state?.section ? 0 : 1);
 
+  // Handle Hash/State Navigation (Preserved from your original code)
   useEffect(() => {
     if (location.state?.section) {
       const sectionId = location.state.section;
 
-      // Small timeout to ensure the DOM elements are fully mounted and height is calculated
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         if (element) {
-          // 1. Temporarily disable global CSS smooth scrolling to force an instant jump
           const originalScrollBehavior = document.documentElement.style.scrollBehavior;
           document.documentElement.style.scrollBehavior = 'auto';
 
-          // 2. Instant jump to section
           element.scrollIntoView({ behavior: 'auto', block: 'center' });
           
-          // 3. Trigger fade in animation
           requestAnimationFrame(() => {
             requestAnimationFrame(() => {
               setPageOpacity(1);
-              
-              // 4. Restore smooth scrolling ONLY (Do not clear state)
               setTimeout(() => {
                 document.documentElement.style.scrollBehavior = originalScrollBehavior;
               }, 500);
             });
           });
         } else {
-          // Fallback
           setPageOpacity(1);
         }
       }, 100);
@@ -58,7 +52,6 @@ const Index = () => {
       let currentSectionId = '';
       for (const section of sections) {
         const rect = section.getBoundingClientRect();
-        // If the section is roughly in the middle of the screen
         if (rect.top <= window.innerHeight / 2 && rect.bottom >= window.innerHeight / 2) {
           currentSectionId = section.id;
           break;
@@ -69,30 +62,47 @@ const Index = () => {
       }
     };
     window.addEventListener('scroll', handleScrollHighlight);
-    handleScrollHighlight(); // Run once on mount
+    handleScrollHighlight(); 
     return () => window.removeEventListener('scroll', handleScrollHighlight);
   }, [activeSection]);
 
   return (
     <div 
-      className="min-h-screen transition-opacity duration-700 ease-in-out" 
+      className="min-h-screen transition-opacity duration-700 ease-in-out bg-black" 
       style={{ opacity: pageOpacity }}
     >
       <Header activeSection={activeSection} />
+      
+      {/* 1. THE HERO SECTION
+        Contains the Fixed Canvas (z-0) and the Scroll Spacer.
+        It sits at the "bottom" of the stack visually.
+      */}
       <Hero />
-      <AnimatedSection>
-        <AboutMe />
-      </AnimatedSection>
-      <AnimatedSection>
-        <FeaturedProjects />
-      </AnimatedSection>
-      <AnimatedSection>
-        <CurrentWork />
-      </AnimatedSection>
-      <AnimatedSection>
-        <Clubs />
-      </AnimatedSection>
-      <Footer />
+
+      {/* 2. THE CONTENT CURTAIN (z-10)
+        This wrapper contains all the other sections.
+        Crucially, it has a background color (darkish grey) and a higher z-index.
+        As you scroll past the Hero's spacer, this div slides UP over the fixed Hero canvas.
+      */}
+      <div className="relative z-10 bg-[#0a0a0a]">
+        <AnimatedSection>
+          <AboutMe />
+        </AnimatedSection>
+        
+        <AnimatedSection>
+          <FeaturedProjects />
+        </AnimatedSection>
+        
+        <AnimatedSection>
+          <CurrentWork />
+        </AnimatedSection>
+        
+        <AnimatedSection>
+          <Clubs />
+        </AnimatedSection>
+        
+        <Footer />
+      </div>
     </div>
   );
 };

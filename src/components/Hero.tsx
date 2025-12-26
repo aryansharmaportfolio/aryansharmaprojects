@@ -22,6 +22,7 @@ const Hero = () => {
 
     for (let i = 1; i <= frameCount; i++) {
       const img = new Image();
+      // Adjust this if your naming convention is different
       const fileName = `ezgif-frame-${i.toString().padStart(3, "0")}.jpg`;
       img.src = `/hero-frames/${fileName}`;
       
@@ -58,6 +59,12 @@ const Hero = () => {
       
       setScrollProgress(progress);
 
+      // Stop rendering if we are way past the hero to save resources
+      if (rawProgress > 1.1) {
+        requestRef.current = requestAnimationFrame(render);
+        return;
+      }
+
       if (imagesRef.current.length > 0) {
         const frameIndex = Math.min(
           frameCount - 1,
@@ -70,6 +77,7 @@ const Hero = () => {
           canvas.width = window.innerWidth;
           canvas.height = window.innerHeight;
 
+          // Manual object-cover logic
           const scale = Math.max(
             canvas.width / img.width,
             canvas.height / img.height
@@ -91,23 +99,20 @@ const Hero = () => {
     };
   }, [isLoaded]);
 
-  // 3. DYNAMIC VISUAL EFFECTS
-  const textOpacity = Math.max(0, 1 - scrollProgress * 4); // Text fades out fast
-  const scale = 1.1 - (scrollProgress * 0.1); // Video scales down slightly
+  // 3. VISUAL EFFECTS
+  const textOpacity = Math.max(0, 1 - scrollProgress * 3); // Text fades out quickly
+  const scale = 1.1 - (scrollProgress * 0.1); // Subtle zoom out
   
-  // --- THE GTA 6 TRANSITION LOGIC ---
-  // We want the mask to start appearing at 80% scroll and be fully closed at 100%
-  // clip-path: circle(radius at center)
-  // At 0.8 progress -> radius = 0% (invisible)
-  // At 1.0 progress -> radius = 150% (fully covers screen)
-  const maskTriggerStart = 0.8;
-  const maskProgress = Math.max(0, (scrollProgress - maskTriggerStart) / (1 - maskTriggerStart));
-  const maskRadius = maskProgress * 150; // Expands to 150% of screen
+  // --- GRADIENT FADE LOGIC ---
+  // Start fading in the dark overlay at 70% scroll, fully solid at 95% scroll.
+  // This creates the "Transparent -> Opaque" transition.
+  const fadeStart = 0.7;
+  const fadeOpacity = Math.max(0, Math.min((scrollProgress - fadeStart) / (0.95 - fadeStart), 1));
 
   return (
     <div className="relative w-full">
       {/* SCROLL SPACER */}
-      <div ref={containerRef} className="h-[350vh] w-full pointer-events-none" />
+      <div ref={containerRef} className="h-[300vh] w-full pointer-events-none" />
 
       {/* FIXED CONTAINER */}
       <div className="fixed top-0 left-0 w-full h-full z-0 overflow-hidden">
@@ -154,20 +159,17 @@ const Hero = () => {
               </div>
             </div>
 
-            {/* --- THE MASK OVERLAY (The seamless transition) --- */}
-            {/* This div sits ON TOP of the canvas. 
-                Its clip-path starts at 0% (invisible) and expands to cover the screen. 
-                It MUST match the background color of the next section (#0a0a0a).
-            */}
+            {/* --- THE SEAMLESS FADE OVERLAY --- */}
+            {/* This div sits on top of the video. It is the same color as your website background.
+                We simply fade it in from 0 to 1 opacity at the end of the scroll. 
+                This is smoother than clip-path. */}
             <div 
               className="absolute inset-0 z-30 pointer-events-none bg-[#0a0a0a]"
-              style={{
-                // "circle(0% at 50% 50%)" means a tiny dot in the center.
-                // We want to REVEAL the darkness, so we simply draw the darkness on top.
-                clipPath: `circle(${maskRadius}% at 50% 50%)`,
-                transition: 'clip-path 0.1s linear' // Smooth out frame jitters
-              }}
+              style={{ opacity: fadeOpacity }}
             />
+            
+            {/* Optional: A gradient at the bottom to soften the edge even before the full fade */}
+            <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#0a0a0a] to-transparent z-20" />
         </div>
       </div>
     </div>

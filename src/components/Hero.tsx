@@ -1,163 +1,149 @@
-import { useRef, useEffect, useState, useCallback } from "react";
-import heroVideo from "@/assets/hero-video.mp4";
+import { useRef, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 
 const Hero = () => {
   const containerRef = useRef<HTMLDivElement>(null);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [isVideoReady, setIsVideoReady] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isLoaded, setIsLoaded] = useState(false);
   const [scrollProgress, setScrollProgress] = useState(0);
-  
-  // Refs for smooth lerping animation
-  const currentTimeRef = useRef(0);
-  const targetTimeRef = useRef(0);
-  const rafIdRef = useRef<number | null>(null);
-  const videoDurationRef = useRef(0);
 
-  // Calculate target time from scroll position
-  const updateTargetTime = useCallback(() => {
-    const container = containerRef.current;
-    if (!container || !videoDurationRef.current) return;
-    
-    const scrollY = window.scrollY;
-    const trackHeight = container.scrollHeight - window.innerHeight;
-    
-    // Calculate progress (0 to 1)
-    const progress = Math.max(0, Math.min(scrollY / trackHeight, 1));
-    
-    // Map progress to video duration
-    targetTimeRef.current = progress * videoDurationRef.current;
-    setScrollProgress(progress);
+  // --- CONFIGURATION ---
+  const frameCount = 136; // Exact number of frames you have
+  
+  // Store images in a ref to avoid re-renders during scrolling
+  const imagesRef = useRef<HTMLImageElement[]>([]);
+  const requestRef = useRef<number | null>(null);
+
+  // 1. PRELOAD IMAGES
+  useEffect(() => {
+    let loadedCount = 0;
+    const imageArray: HTMLImageElement[] = [];
+
+    for (let i = 1; i <= frameCount; i++) {
+      const img = new Image();
+      
+      // --- LAZY METHOD FILENAME ---
+      // Matches "ezgif-frame-001.jpg"
+      const fileName = `ezgif-frame-${i.toString().padStart(3, "0")}.jpg`;
+      img.src = `/hero-frames/${fileName}`;
+      
+      img.onload = () => {
+        loadedCount++;
+        // We consider it "ready" when all frames are loaded
+        if (loadedCount === frameCount) {
+          setIsLoaded(true);
+        }
+      };
+      
+      // Handle errors (skip missing frames so app doesn't crash)
+      img.onerror = () => {
+        console.error(`Failed to load: ${fileName}`);
+        loadedCount++; 
+        if (loadedCount === frameCount) setIsLoaded(true);
+      };
+
+      imageArray.push(img);
+    }
+    imagesRef.current = imageArray;
   }, []);
 
-  // Animation loop with lerp for smooth scrubbing
-  const animate = useCallback(() => {
-    const video = videoRef.current;
-    if (!video || !videoDurationRef.current) {
-      rafIdRef.current = requestAnimationFrame(animate);
-      return;
-    }
+  // 2. CANVAS RENDERING LOOP
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const context = canvas?.getContext("2d");
+    if (!canvas || !context) return;
 
-    // Lerp factor - 0.08 gives that "weight" feel
-    const lerpFactor = 0.08;
-    const diff = targetTimeRef.current - currentTimeRef.current;
-    
-    // Only update if difference is significant
-    if (Math.abs(diff) > 0.0001) {
-      currentTimeRef.current += diff * lerpFactor;
+    const render = () => {
+      const container = containerRef.current;
+      if (!container) return;
+
+      // Calculate how far down we have scrolled (0.0 to 1.0)
+      const scrollableDistance = container.scrollHeight - window.innerHeight;
+      const rawProgress = window.scrollY / scrollableDistance;
+      const progress = Math.min(Math.max(rawProgress, 0), 1);
       
-      // Clamp to valid range
-      currentTimeRef.current = Math.max(0, Math.min(currentTimeRef.current, videoDurationRef.current));
+      setScrollProgress(progress);
+
+      if (isLoaded && imagesRef.current.length > 0) {
+        // Calculate which exact frame index to show
+        const frameIndex = Math.min(
+          frameCount - 1,
+          Math.floor(progress * (frameCount - 1))
+        );
+
+        const img = imagesRef.current[frameIndex];
+
+        if (img && img.complete && img.naturalWidth > 0) {
+          // --- MANUAL "OBJECT-COVER" LOGIC ---
+          // This makes the canvas image stretch perfectly like a background video
+          canvas.width = window.innerWidth;
+          canvas.height = window.innerHeight;
+
+          const scale = Math.max(
+            canvas.width / img.width,
+            canvas.height / img.height
+          );
+          
+          const x = (canvas.width / 2) - (img.width / 2) * scale;
+          const y = (canvas.height / 2) - (img.height / 2) * scale;
+          
+          context.drawImage(
+            img,
+            x,
+            y,
+            img.width * scale,
+            img.height * scale
+          );
+        }
+      }
       
-      // Set the video time - this is where the magic happens
-      try {
-        video.currentTime = currentTimeRef.current;
-      } catch (e) {
-        // Video might not be ready yet
-      }
-    }
-
-    rafIdRef.current = requestAnimationFrame(animate);
-  }, []);
-
-  useEffect(() => {
-    const video = videoRef.current;
-    if (!video) return;
-
-    // Critical: Prevent the video from playing on its own
-    video.pause();
-    
-    // Handler when video metadata is loaded
-    const handleLoadedMetadata = () => {
-      videoDurationRef.current = video.duration;
-      video.pause();
-      video.currentTime = 0;
-      currentTimeRef.current = 0;
-      targetTimeRef.current = 0;
-      updateTargetTime();
+      requestRef.current = requestAnimationFrame(render);
     };
 
-    // Handler when video can play through
-    const handleCanPlayThrough = () => {
-      setIsVideoReady(true);
-      video.pause();
-    };
-
-    // Prevent any attempts to play
-    const handlePlay = () => {
-      video.pause();
-    };
-
-    // Add event listeners
-    video.addEventListener('loadedmetadata', handleLoadedMetadata);
-    video.addEventListener('canplaythrough', handleCanPlayThrough);
-    video.addEventListener('play', handlePlay);
-    
-    // Force load the video
-    video.load();
+    // Start the loop
+    requestRef.current = requestAnimationFrame(render);
 
     return () => {
-      video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-      video.removeEventListener('canplaythrough', handleCanPlayThrough);
-      video.removeEventListener('play', handlePlay);
+      if (requestRef.current) cancelAnimationFrame(requestRef.current);
     };
-  }, [updateTargetTime]);
+  }, [isLoaded]);
 
-  // Scroll event listener
-  useEffect(() => {
-    const handleScroll = () => {
-      updateTargetTime();
-    };
-
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    
-    // Initial calculation
-    updateTargetTime();
-    
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
-  }, [updateTargetTime]);
-
-  // Start animation loop
-  useEffect(() => {
-    rafIdRef.current = requestAnimationFrame(animate);
-    
-    return () => {
-      if (rafIdRef.current) {
-        cancelAnimationFrame(rafIdRef.current);
-      }
-    };
-  }, [animate]);
-
-  // Visual effects calculated from scroll progress
-  const textOpacity = Math.max(0, 1 - scrollProgress * 5);
-  const scale = 1.1 - (scrollProgress * 0.1);
-  
-  // Dynamic brightness - starts at 0.7, goes to 1.0 as text fades
-  const brightness = 0.7 + (Math.min(scrollProgress * 5, 1) * 0.3);
+  // 3. VISUAL EFFECTS (Text & Scale)
+  const textOpacity = Math.max(0, 1 - scrollProgress * 3); // Fades out early
+  const scale = 1.1 - (scrollProgress * 0.1); // 1.1x -> 1.0x
+  const brightness = 0.7 + (scrollProgress * 0.3); // 0.7 -> 1.0
 
   return (
-    <div ref={containerRef} className="relative h-[400vh]">
+    <div ref={containerRef} className="relative h-[400vh] bg-black">
       <div className="sticky top-0 h-screen w-full overflow-hidden">
-        <video
-          ref={videoRef}
-          muted
-          playsInline
-          preload="auto"
-          autoPlay={false}
+        
+        {/* LOADING SCREEN */}
+        {!isLoaded && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black z-50">
+            <div className="flex flex-col items-center gap-4">
+              {/* Simple spinner using Tailwind */}
+              <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+              <div className="text-white font-mono text-sm tracking-widest animate-pulse">
+                LOADING ASSETS...
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* THE CANVAS */}
+        <canvas
+          ref={canvasRef}
           className={cn(
-            "w-full h-full object-cover transition-opacity duration-1000",
-            isVideoReady ? "opacity-100" : "opacity-0"
+            "w-full h-full block transition-opacity duration-700",
+            isLoaded ? "opacity-100" : "opacity-0"
           )}
           style={{
             filter: `brightness(${brightness})`,
             transform: `scale(${scale})`,
           }}
-        >
-          <source src={heroVideo} type="video/mp4" />
-        </video>
+        />
 
+        {/* OVERLAY TEXT */}
         <div
           className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
           style={{ opacity: textOpacity }}

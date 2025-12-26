@@ -27,10 +27,7 @@ const Hero = () => {
       
       img.onload = () => {
         loadedCount++;
-        if (loadedCount === frameCount) {
-          // Add a small delay for smoother visual transition
-          setTimeout(() => setIsLoaded(true), 500);
-        }
+        if (loadedCount === frameCount) setTimeout(() => setIsLoaded(true), 500);
       };
       
       img.onerror = () => {
@@ -45,7 +42,6 @@ const Hero = () => {
 
   // 2. CANVAS RENDERING LOOP
   useEffect(() => {
-    // We only start rendering to canvas once loaded to save resources
     if (!isLoaded) return;
 
     const canvas = canvasRef.current;
@@ -54,13 +50,22 @@ const Hero = () => {
 
     const render = () => {
       const container = containerRef.current;
+      // If container is gone, stop rendering
       if (!container) return;
 
+      // Calculate Scroll based on the SPACER container
       const scrollableDistance = container.scrollHeight - window.innerHeight;
       const rawProgress = window.scrollY / scrollableDistance;
       const progress = Math.min(Math.max(rawProgress, 0), 1);
       
       setScrollProgress(progress);
+
+      // OPTIMIZATION: Stop drawing if we are fully scrolled past the hero
+      // This saves battery/GPU when the user is looking at the footer
+      if (rawProgress > 1.2) {
+        requestRef.current = requestAnimationFrame(render);
+        return; 
+      }
 
       if (imagesRef.current.length > 0) {
         const frameIndex = Math.min(
@@ -74,6 +79,7 @@ const Hero = () => {
           canvas.width = window.innerWidth;
           canvas.height = window.innerHeight;
 
+          // Manual object-cover
           const scale = Math.max(
             canvas.width / img.width,
             canvas.height / img.height
@@ -88,11 +94,7 @@ const Hero = () => {
       requestRef.current = requestAnimationFrame(render);
     };
 
-    // Initial render call
     render();
-    
-    // Start loop
-    requestRef.current = requestAnimationFrame(render);
 
     return () => {
       if (requestRef.current) cancelAnimationFrame(requestRef.current);
@@ -105,10 +107,20 @@ const Hero = () => {
   const brightness = 0.7 + (scrollProgress * 0.3);
 
   return (
-    <div ref={containerRef} className="relative h-[200vh] bg-black">
-      <div className="sticky top-0 h-screen w-full overflow-hidden">
+    <div className="relative w-full">
+      {/* A. THE SCROLL SPACER 
+        This is an invisible div that takes up space (300vh) to allow scrolling.
+        It sits in the normal document flow.
+      */}
+      <div ref={containerRef} className="h-[300vh] w-full pointer-events-none" />
+
+      {/* B. THE FIXED CANVAS CONTAINER 
+        This sits BEHIND everything (z-0) and stays fixed to the viewport.
+        The next section in your app will slide OVER this.
+      */}
+      <div className="fixed top-0 left-0 w-full h-full z-0 overflow-hidden">
         
-        {/* --- LOADING OVERLAY (Auto-fades out) --- */}
+        {/* Loading Overlay */}
         <div 
           className={cn(
             "absolute inset-0 z-50 flex flex-col items-center justify-center bg-black transition-opacity duration-1000",
@@ -116,27 +128,23 @@ const Hero = () => {
           )}
         >
             <div className="relative flex flex-col items-center">
-              {/* Pulsating Rocket */}
               <div className="relative flex items-center justify-center w-24 h-24 mb-8">
-                 {/* Glow Effect */}
                  <div className="absolute inset-0 bg-white/10 rounded-full blur-xl animate-pulse" />
                  <div className="relative flex items-center justify-center w-full h-full rounded-full border-2 border-white/10 bg-white/5 backdrop-blur-sm">
                     <Rocket className="w-10 h-10 text-white animate-pulse" strokeWidth={1.5} />
                  </div>
               </div>
-
-              {/* Loading Text */}
               <p className="text-white/40 font-mono text-xs tracking-[0.3em] uppercase animate-pulse">
                 Loading Assets...
               </p>
             </div>
         </div>
 
-        {/* --- MAIN CONTENT (Reveals automatically) --- */}
+        {/* Main Content */}
         <div className={cn("relative w-full h-full transition-opacity duration-1000", isLoaded ? "opacity-100" : "opacity-0")}>
             <canvas
               ref={canvasRef}
-              className="w-full h-full block"
+              className="w-full h-full block object-cover"
               style={{
                 filter: `brightness(${brightness})`,
                 transform: `scale(${scale})`,

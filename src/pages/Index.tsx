@@ -69,26 +69,25 @@ const Index = () => {
       {/* 1. FIXED HERO BACKGROUND */}
       <Hero />
 
-      {/* 2. SCROLLING CONTENT LAYER 
-          This layer slides UP over the fixed hero.
+      {/* 2. SLIDING CONTENT LAYER (z-10) 
+          This slides OVER the fixed hero.
       */}
-      <div className="relative z-10 w-full flex flex-col">
+      <div className="relative z-10 w-full flex flex-col pointer-events-none">
         
-        {/* A. THE GRADIENT CAP (The "Rising Fade")
-            This sits ABOVE the content but moves WITH it.
-            It creates the "mist" that covers the video before the solid grey arrives.
+        {/* A. THE DYNAMIC GRADIENT CAP 
+            This is the "Fade". It slides up with the content.
+            transparent -> dark grey (#0a0a0a)
         */}
-        <div className="w-full h-[60vh] -mb-1 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent pointer-events-none" />
+        <div className="w-full h-[80vh] -mb-1 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent" />
 
-        {/* B. SOLID CONTENT BACKGROUND
+        {/* B. SOLID CONTENT BACKGROUND (#0a0a0a) 
             The gradient flows seamlessly into this solid block.
+            pointer-events-auto is needed because the parent is none.
         */}
-        <div className="bg-[#0a0a0a] w-full pb-20">
+        <div className="bg-[#0a0a0a] w-full pb-20 pointer-events-auto">
             <AnimatedSection>
-              {/* Added minimal padding-top so content doesn't hit the gradient too hard */}
-              <div className="pt-10">
-                <AboutMe />
-              </div>
+              {/* No top padding needed because the gradient handles the breathing room */}
+              <AboutMe />
             </AnimatedSection>
             
             <AnimatedSection>

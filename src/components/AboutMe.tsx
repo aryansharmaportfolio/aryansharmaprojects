@@ -58,8 +58,9 @@ const AboutMe = () => {
   }, [showBubble, currentMessage]);
 
   return (
-    // PURE TRANSPARENT - Background color is handled by Index.tsx wrapper
-    <section ref={sectionRef} id="about" className="w-full py-16 px-4 sm:px-6">
+    // PURE TRANSPARENT - Background handled by Index.tsx gradient
+    // Removed all bg- and backdrop- classes
+    <section ref={sectionRef} id="about" className="w-full">
       <div className="container mx-auto max-w-6xl">
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">

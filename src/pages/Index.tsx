@@ -73,9 +73,7 @@ const Index = () => {
       <div className="relative z-10 w-full flex flex-col">
         
         {/* A. PARALLAX GRADIENT ZONE (100vh tall)
-            - Starts transparent at top, becomes solid dark grey at bottom.
-            - Overlaps the hero by 100vh (-mt-[100vh]).
-            - Contains 'AboutMe' so it fades in WITH the background.
+            - Uses 'from-background' to match your global dark grey.
         */}
         <div className="-mt-[100vh] w-full min-h-[100vh] bg-gradient-to-t from-background via-background/90 to-transparent flex flex-col justify-end">
             <div className="w-full pb-10 pt-40 px-4 md:px-8">
@@ -85,9 +83,7 @@ const Index = () => {
             </div>
         </div>
 
-        {/* B. SOLID CONTENT ZONE 
-            - Continues the solid dark grey background.
-        */}
+        {/* B. SOLID CONTENT ZONE */}
         <div className="bg-background w-full pb-20">
             <AnimatedSection>
               <FeaturedProjects />

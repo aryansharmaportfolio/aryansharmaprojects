@@ -14,7 +14,7 @@ const Index = () => {
   const [activeSection, setActiveSection] = useState('');
   const [pageOpacity, setPageOpacity] = useState(location.state?.section ? 0 : 1);
 
-  // --- Scroll & Navigation Logic ---
+  // --- Scroll Logic ---
   useEffect(() => {
     if (location.state?.section) {
       const sectionId = location.state.section;
@@ -60,41 +60,51 @@ const Index = () => {
   }, [activeSection]);
 
   return (
-    // GLOBAL CONTAINER: Forces dark grey background everywhere
     <div 
       className="min-h-screen transition-opacity duration-700 ease-in-out bg-[#0a0a0a] text-white overflow-x-hidden" 
       style={{ opacity: pageOpacity }}
     >
       <Header activeSection={activeSection} />
       
-      {/* 1. HERO SECTION (Fixed Video Background) */}
+      {/* 1. FIXED HERO BACKGROUND */}
       <Hero />
 
-      {/* 2. MAIN CONTENT STREAM
-          - relative z-10: Puts this ON TOP of the fixed hero video.
-          - bg-[#0a0a0a]: Matches the end-state of the hero fade perfectly.
-          - space-y-0: Removes gaps between sections.
+      {/* 2. SCROLLING CONTENT LAYER 
+          This layer slides UP over the fixed hero.
       */}
-      <div className="relative z-10 bg-[#0a0a0a] flex flex-col w-full">
+      <div className="relative z-10 w-full flex flex-col">
         
-        {/* We use AnimatedSection to trigger fade-ins, but the background remains solid */}
-        <AnimatedSection>
-          <AboutMe />
-        </AnimatedSection>
-        
-        <AnimatedSection>
-          <FeaturedProjects />
-        </AnimatedSection>
-        
-        <AnimatedSection>
-          <CurrentWork />
-        </AnimatedSection>
-        
-        <AnimatedSection>
-          <Clubs />
-        </AnimatedSection>
-        
-        <Footer />
+        {/* A. THE GRADIENT CAP (The "Rising Fade")
+            This sits ABOVE the content but moves WITH it.
+            It creates the "mist" that covers the video before the solid grey arrives.
+        */}
+        <div className="w-full h-[60vh] -mb-1 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/80 to-transparent pointer-events-none" />
+
+        {/* B. SOLID CONTENT BACKGROUND
+            The gradient flows seamlessly into this solid block.
+        */}
+        <div className="bg-[#0a0a0a] w-full pb-20">
+            <AnimatedSection>
+              {/* Added minimal padding-top so content doesn't hit the gradient too hard */}
+              <div className="pt-10">
+                <AboutMe />
+              </div>
+            </AnimatedSection>
+            
+            <AnimatedSection>
+              <FeaturedProjects />
+            </AnimatedSection>
+            
+            <AnimatedSection>
+              <CurrentWork />
+            </AnimatedSection>
+            
+            <AnimatedSection>
+              <Clubs />
+            </AnimatedSection>
+            
+            <Footer />
+        </div>
       </div>
     </div>
   );

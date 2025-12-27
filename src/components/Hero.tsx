@@ -124,9 +124,7 @@ const Hero = () => {
                     <Rocket className="w-10 h-10 text-white animate-pulse" strokeWidth={1.5} />
                  </div>
               </div>
-              <p className="text-white/40 font-mono text-xs tracking-[0.3em] uppercase animate-pulse">
-                Loading Assets...
-              </p>
+              {/* REMOVED: Loading Assets text was here */}
             </div>
         </div>
 
@@ -152,7 +150,7 @@ const Hero = () => {
                   PROJECT <br /> PORTFOLIO
                 </h1>
                 
-                {/* --- NEW SCROLL INDICATOR --- */}
+                {/* Scroll Indicator */}
                 <div className="mt-12 flex flex-col items-center gap-4">
                   <p className="text-white/70 font-light text-xs md:text-sm tracking-[0.3em] animate-pulse">
                     SCROLL TO EXPLORE

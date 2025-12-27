@@ -22,6 +22,20 @@ const Hero = () => {
   const textureRef = useRef<WebGLTexture | null>(null);
   const startTimeRef = useRef<number>(Date.now());
 
+  // --- NEW: LOCK SCROLL WHILE LOADING ---
+  // This ensures the scrollbar is hidden/disabled until the initial load is complete
+  useEffect(() => {
+    if (!isLoaded) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "unset";
+    }
+    // Cleanup ensures we don't leave the site locked if component unmounts
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isLoaded]);
+
   // 1. PRELOAD IMAGES
   useEffect(() => {
     let loadedCount = 0;

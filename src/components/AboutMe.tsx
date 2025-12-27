@@ -109,8 +109,8 @@ const AboutMe = () => {
                 </div>
               </div>
 
-              {/* Profile Image */}
-              <div className="w-64 h-64 rounded-full overflow-hidden border-4 border-white/10 shadow-2xl relative z-10 transition-transform duration-300 hover:scale-105">
+              {/* Profile Image - REMOVED border-4 border-white/10 */}
+              <div className="w-64 h-64 rounded-full overflow-hidden shadow-2xl relative z-10 transition-transform duration-300 hover:scale-105">
                 <img src={profilePicture} alt="Aryan Sharma" className="w-full h-full object-cover" />
               </div>
             </div>

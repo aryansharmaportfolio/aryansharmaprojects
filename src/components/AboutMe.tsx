@@ -58,7 +58,7 @@ const AboutMe = () => {
   }, [showBubble, currentMessage]);
 
   return (
-    // PURE TRANSPARENT BACKGROUND - Inherits #0a0a0a from parent
+    // PURE TRANSPARENT - Background color is handled by Index.tsx wrapper
     <section ref={sectionRef} id="about" className="w-full py-16 px-4 sm:px-6">
       <div className="container mx-auto max-w-6xl">
         

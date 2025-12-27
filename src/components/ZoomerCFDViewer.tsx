@@ -3,103 +3,104 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, CameraControls, Html, Center, ContactShadows, useProgress, Environment } from "@react-three/drei";
 import * as THREE from "three";
 import { easing } from "maath";
-import { Search, ArrowDown, ChevronRight, ChevronDown, X, CornerUpLeft, Hand, Rotate3d, Wind } from "lucide-react";
+import { Search, ArrowDown, X, CornerUpLeft, Hand, Rotate3d, Wind } from "lucide-react";
 
-// --- TYPE DEFINITIONS (Matched to Falcon Viewer) ---
+// --- TYPE DEFINITIONS ---
 type StaticZone = { pos: number[]; look: number[]; type: "static" };
 type DynamicZone = { offset: number[]; lookOffset: number[]; type: "dynamic"; refId: string };
 type ZoomZone = StaticZone | DynamicZone;
 
-// --- 1. CONFIGURATION ---
-
-// Defined parts for the Zoomer Rocket
+// --- 1. CONFIGURATION (MANUAL ASSEMBLY) ---
+// TWEAK THE 'position' Y-VALUES IF YOU SEE GAPS!
 const ROCKET_STACK = {
   nose: {
     file: "/zoomer-parts/zoomer_nose_cone.glb",
-    explodeOffset: 60, // Moves up
+    position: [0, 52, 0],   // <--- MOVE UP: Sits on top of the body
+    explodeOffset: 50,      // Explodes further UP
     explodeAxis: "y",
     name: "Nose Cone"
   },
   inner: {
     file: "/zoomer-parts/zoomer_inner_tube.glb",
-    explodeOffset: 40,
+    position: [0, 20, 0],   // <--- Inside the body
+    explodeOffset: 20,
     explodeAxis: "y",
     name: "Payload Tube"
   },
   body: {
     file: "/zoomer-parts/zoomer_body_tube.glb",
-    explodeOffset: 0, // Stays anchored
+    position: [0, 0, 0],    // <--- CENTER: This is the anchor
+    explodeOffset: 0,
     explodeAxis: "y",
     name: "Airframe"
   },
   fins: {
     file: "/zoomer-parts/zoomer_fin_can.glb",
-    explodeOffset: -40, // Moves down
+    position: [0, -38, 0],  // <--- MOVE DOWN: Sits below the body
+    explodeOffset: -40,     // Explodes DOWN
     explodeAxis: "y",
     name: "Fin Can"
   }
 };
 
-// Camera Zones for zooming
+// Camera Zones
 const ZOOM_ZONES: Record<string, ZoomZone> = {
-  overview: { pos: [150, 50, 150], look: [0, 20, 0], type: "static" },
+  overview: { pos: [150, 50, 150], look: [0, 10, 0], type: "static" },
   
   "nose cone": { 
-    offset: [50, 10, 50],      
+    offset: [40, 10, 40],      
     lookOffset: [0, 0, 0],      
     type: "dynamic",
     refId: "nose"    
   }, 
-  
   "avionics bay": { 
-    offset: [60, 0, 60],       
+    offset: [50, 0, 50],       
     lookOffset: [0, 0, 0],       
     type: "dynamic",
     refId: "body" 
   },
-  
   "fin can": { 
-    offset: [60, 20, 60],       
+    offset: [50, 20, 50],       
     lookOffset: [0, 0, 0],       
     type: "dynamic",
     refId: "fins" 
   },
 };
 
-// Part Details (Placeholder data - you can update this)
+// Part Details
 const PART_DETAILS: Record<string, any> = {
   "nose cone": {
     title: "Nose Cone",
     subtitle: "Aerodynamic Fairing",
-    description: "The nose cone reduces drag and houses the main parachute deployment system. Its ogive shape is optimized for subsonic to transonic flight regimes.",
+    description: "The nose cone reduces drag and houses the main parachute deployment system.",
     specs: [
       { label: "Material", value: "Fiberglass" },
       { label: "Shape", value: "Von Kármán" },
       { label: "Length", value: "24 inches" }
     ],
-    features: ["Metal tip for durability", "GPS Tracker Bay", "Shock cord attachment"]
+    features: ["Metal tip", "GPS Tracker Bay"]
   },
   "avionics bay": {
     title: "Avionics & Payload",
     subtitle: "Flight Computer Housing",
-    description: "The main body tube contains the flight computers, batteries, and the drogue parachute. It serves as the structural backbone of the rocket.",
+    description: "The main body tube contains the flight computers and serves as the structural backbone.",
     specs: [
       { label: "Diameter", value: "4 inches" },
-      { label: "Material", value: "Blue Tube / G12" },
+      { label: "Material", value: "Blue Tube" },
       { label: "Computers", value: "2x Stratologgers" }
     ],
-    features: ["Dual Deploy Capable", "Camera Shroud", "Switch Band"]
+    features: ["Dual Deploy", "Camera Shroud"]
   },
   "fin can": {
-    title: "Fin Can / Motor Mount",
+    title: "Fin Can",
     subtitle: "Propulsion Section",
-    description: "This section houses the 75mm motor mount and the high-strength fins. It handles the immense thrust loads during lift-off.",
+    description: "This section houses the motor mount and handles the immense thrust loads.",
     specs: [
-      { label: "Motor Mount", value: "75mm" },
+      { label: "Motor", value: "75mm Mount" },
       { label: "Fins", value: "3x Trapezoidal" },
       { label: "Material", value: "G10 Fiberglass" }
     ],
-    features: ["Through-the-wall fins", "Aeropack Retainer", "Fillet reinforced"]
+    features: ["Through-the-wall fins", "Aeropack Retainer"]
   }
 };
 
@@ -109,14 +110,13 @@ function Loader() {
   return (
     <Html center>
       <div className="text-black font-mono text-xs bg-white/90 p-3 rounded border border-black/10 shadow-lg backdrop-blur z-50 whitespace-nowrap">
-        Loading Geometry... {progress.toFixed(0)}%
+        Loading Rocket... {progress.toFixed(0)}%
       </div>
     </Html>
   );
 }
 
-// --- ROCKET SECTION COMPONENT ---
-// (Updated to NOT override materials by default so textures show)
+// --- ROCKET SECTION (FIXED: Uses Base Position + Original Colors) ---
 const RocketSection = forwardRef(({ config, exploded, setHovered }: any, ref: any) => {
   const { scene } = useGLTF(config.file);
   const clone = useMemo(() => scene.clone(), [scene]);
@@ -128,28 +128,32 @@ const RocketSection = forwardRef(({ config, exploded, setHovered }: any, ref: an
       if (node.isMesh) {
         node.castShadow = true;
         node.receiveShadow = true;
-        // NOTE: We do NOT override node.material here to preserve original GLB textures.
-        // Only enable shadows.
+        // IMPORTANT: We REMOVED the material override here.
+        // The original SolidWorks/GLB colors will now appear.
       }
     });
   }, [clone]);
 
   useFrame((_, delta) => {
     if (!groupRef.current) return;
-    const offsetValue = exploded * config.explodeOffset;
-    const targetPos: [number, number, number] = [0, 0, 0];
     
-    // Simple axis logic
-    if (config.explodeAxis === "x") targetPos[0] = offsetValue;
-    else if (config.explodeAxis === "z") targetPos[2] = offsetValue;
-    else targetPos[1] = offsetValue; // Default Y
+    // 1. Get Base Position (The Manual Stack)
+    const [baseX, baseY, baseZ] = config.position;
 
-    easing.damp3(groupRef.current.position, targetPos, 0.3, delta);
+    // 2. Calculate Explosion
+    const offsetValue = exploded * config.explodeOffset;
+    
+    const targetY = baseY + (config.explodeAxis === "y" ? offsetValue : 0);
+    const targetX = baseX + (config.explodeAxis === "x" ? offsetValue : 0);
+    const targetZ = baseZ + (config.explodeAxis === "z" ? offsetValue : 0);
+
+    easing.damp3(groupRef.current.position, [targetX, targetY, targetZ], 0.3, delta);
   });
 
   return (
     <group 
       ref={groupRef} 
+      position={config.position} // Set initial position
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
     >
@@ -160,7 +164,6 @@ const RocketSection = forwardRef(({ config, exploded, setHovered }: any, ref: an
 RocketSection.displayName = "RocketSection";
 
 // --- CFD WIND VISUALIZATION ---
-// (Optional visual layer for the "CFD" aspect)
 function CFDStreamlines({ visible }: { visible: boolean }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
   const count = 500;
@@ -182,7 +185,6 @@ function CFDStreamlines({ visible }: { visible: boolean }) {
       p.y -= p.speed * 100 * delta; // Move down
       if (p.y < -150) p.y = 150;
       
-      // Simple deflection around x=0, z=0
       const dist = Math.sqrt(p.x * p.x + p.z * p.z);
       let renderX = p.x;
       let renderZ = p.z;
@@ -209,7 +211,6 @@ function CFDStreamlines({ visible }: { visible: boolean }) {
     </instancedMesh>
   );
 }
-
 
 // --- ZOOM INDICATOR ---
 function ZoomIndicator({ controlsRef }: { controlsRef: any }) {
@@ -380,7 +381,7 @@ export default function ZoomerCFDViewer() {
           </button>
       </div>
 
-      {/* 4. OVERVIEW PART SELECTION (Floating Right) */}
+      {/* 4. OVERVIEW PART SELECTION */}
       <div className={`absolute right-6 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-2 transition-all duration-500 ${isOverview ? 'translate-x-0 opacity-100' : 'translate-x-20 opacity-0 pointer-events-none'}`}>
         <div className="hidden sm:flex absolute -top-12 right-0 w-32 text-right flex-col items-end gap-1 animate-pulse">
             <span className="text-[9px] font-bold text-neutral-400 uppercase tracking-widest bg-white/80 px-2 py-1 rounded">
@@ -403,11 +404,10 @@ export default function ZoomerCFDViewer() {
         })}
       </div>
 
-      {/* 5. SIDEBAR: DETAILED VIEW (Slide In) */}
+      {/* 5. SIDEBAR: DETAILED VIEW */}
       <div 
         className={`absolute top-0 left-0 h-full w-full md:w-[400px] bg-white/95 backdrop-blur-xl z-50 text-neutral-900 shadow-2xl transition-transform duration-700 ease-[cubic-bezier(0.4,0,0.2,1)] flex flex-col border-r border-neutral-200 ${!isOverview ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        {/* Sidebar Header */}
         <div className="p-6 pb-4 shrink-0 border-b border-neutral-100 relative z-20 bg-white/50 backdrop-blur-md">
             <button 
                 onClick={handleReturnToOverview}
@@ -427,7 +427,6 @@ export default function ZoomerCFDViewer() {
             </div>
         </div>
 
-        {/* Sidebar Content */}
         <div className="flex-1 overflow-y-auto p-6 pt-4 relative z-10">
             {currentDetails && (
                 <>
@@ -443,7 +442,6 @@ export default function ZoomerCFDViewer() {
                     </p>
 
                     <div className="space-y-4">
-                         {/* Specs Grid */}
                         <div>
                              <h4 className="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-3">Specifications</h4>
                              <div className="grid grid-cols-2 gap-3">
@@ -456,7 +454,6 @@ export default function ZoomerCFDViewer() {
                             </div>
                         </div>
 
-                        {/* Features List */}
                         <div>
                             <h4 className="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-3 mt-6">Key Features</h4>
                             <ul className="space-y-2">
@@ -474,7 +471,7 @@ export default function ZoomerCFDViewer() {
         </div>
       </div>
 
-      {/* 6. SLIDER (Exploded View) */}
+      {/* 6. SLIDER */}
       <div className={`absolute bottom-8 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-3 w-80 p-4 rounded-2xl bg-white/90 border border-neutral-200 shadow-xl backdrop-blur-md transition-all duration-500 
         ${!isOverview ? 'opacity-0 pointer-events-none translate-y-20' : 'opacity-100 translate-y-0'}
       `}>
@@ -497,22 +494,20 @@ export default function ZoomerCFDViewer() {
         <color attach="background" args={['#fafafa']} />
         
         <Suspense fallback={<Loader />}>
-            {/* Lighting: Bright Studio Setup */}
             <Environment preset="studio" />
             <ambientLight intensity={0.7} />
             <directionalLight position={[50, 100, 50]} intensity={1.5} castShadow shadow-bias={-0.0001} />
             <spotLight position={[-50, 50, 50]} intensity={1} angle={0.2} penumbra={1} color="#dbeafe" />
 
             <Center top>
-               {/* Rocket Parts Group */}
                <group rotation={[0, 0, 0]}>
+                  {/* Each section now reads its 'position' from the ROCKET_STACK config */}
                   <RocketSection ref={noseRef} config={ROCKET_STACK.nose} exploded={exploded} setHovered={setHovered} />
                   <RocketSection ref={innerRef} config={ROCKET_STACK.inner} exploded={exploded} setHovered={setHovered} />
                   <RocketSection ref={bodyRef} config={ROCKET_STACK.body} exploded={exploded} setHovered={setHovered} />
                   <RocketSection ref={finsRef} config={ROCKET_STACK.fins} exploded={exploded} setHovered={setHovered} />
                </group>
                
-               {/* CFD Lines (Visual only) */}
                <CFDStreamlines visible={showCFD} />
             </Center>
 

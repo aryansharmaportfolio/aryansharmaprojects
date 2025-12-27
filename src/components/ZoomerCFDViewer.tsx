@@ -1,4 +1,4 @@
-import { useState, useRef, useMemo, Suspense, useEffect, useCallback } from "react";
+import { useState, useRef, useMemo, Suspense, useEffect } from "react";
 import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import { useGLTF, CameraControls, Html, Center, Environment, PerspectiveCamera, Stars, Grid } from "@react-three/drei";
 import * as THREE from "three";
@@ -15,9 +15,10 @@ import {
   Gauge,
   Activity,
   ChevronRight,
-  Layers
+  Layers,
+  X
 } from "lucide-react";
-import { cn } from "@/lib/utils"; // Ensure you have this utility or remove 'cn' and use template literals
+import { cn } from "@/lib/utils"; 
 
 // --- 1. CONSTANTS & MOCK TELEMETRY DATA ---
 
@@ -36,7 +37,7 @@ const FLIGHT_PROFILE = [
   { t: 10, alt: 1500, vel: 50, pitch: 22 }, // Apogee nearing
 ];
 
-const ANNOTATIONS = {
+const ANNOTATIONS: Record<string, { pos: [number, number, number], title: string, desc: string }> = {
   nose: { pos: [0, 55, 0], title: "Nose Cone", desc: "Von Kármán Geometry" },
   payload: { pos: [0, 35, 0], title: "Payload Bay", desc: "Dual-Deploy Avionics" },
   fins: { pos: [0, -35, 0], title: "Fin Can", desc: "Carbon Fiber Reinforcement" }
@@ -54,6 +55,7 @@ type SimulationState = "IDLE" | "PLAYING" | "PAUSED" | "COMPLETED";
  * Handles loading, textures, and physical orientation based on mode.
  */
 function ZoomerRocket({ mode, flightTime, rotationSpeed }: { mode: ViewMode, flightTime: number, rotationSpeed: number }) {
+  // IMPORTANT: This path must match your file exactly!
   const { scene } = useGLTF("/zoomer_full_rocket.glb");
   const ref = useRef<THREE.Group>(null);
 
@@ -371,7 +373,10 @@ export default function ZoomerCFDViewer() {
       {mode === "INSPECT" && activeAnnotation && (
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-40 pointer-events-none">
           <div className="absolute top-0 left-32 bg-neutral-900/90 backdrop-blur border border-neutral-700 p-4 rounded-xl w-64 shadow-2xl animate-in fade-in slide-in-from-left-4">
-             <h3 className="text-lg font-bold text-white mb-1">{ANNOTATIONS['nose'].title}</h3>
+             <div className="flex justify-between items-start mb-2">
+                <h3 className="text-lg font-bold text-white">{ANNOTATIONS['nose'].title}</h3>
+                <button className="pointer-events-auto" onClick={() => setActiveAnnotation(null)}><X className="w-4 h-4 text-neutral-400 hover:text-white"/></button>
+             </div>
              <p className="text-xs text-neutral-400 leading-relaxed">{ANNOTATIONS['nose'].desc}</p>
           </div>
         </div>

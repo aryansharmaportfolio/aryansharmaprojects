@@ -130,8 +130,6 @@ const Hero = () => {
       setScrollProgress(progress);
 
       // --- OPTIMIZATION: Heavy Culling ---
-      // Even though we want it heavy, we don't want to crash. 
-      // If we are fully faded out (progress > 1.2), stop rendering.
       if (rawProgress > 1.2) {
         requestRef.current = requestAnimationFrame(render);
         return;
@@ -147,7 +145,6 @@ const Hero = () => {
 
         if (img && img.complete && img.naturalWidth > 0) {
            // 2. RESIZE CANVAS
-           // We resize the internal canvas resolution to match the screen exactly for 1:1 pixel ratio
            if (canvasRef.current) {
              const displayWidth = window.innerWidth;
              const displayHeight = window.innerHeight;
@@ -158,13 +155,12 @@ const Hero = () => {
              }
            }
 
-           // 3. UPLOAD TEXTURE TO GPU (Heavy Operation)
+           // 3. UPLOAD TEXTURE TO GPU
            gl.bindTexture(gl.TEXTURE_2D, textureRef.current);
            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
 
            // 4. UPDATE UNIFORMS
            gl.uniform1f(uScrollLoc, progress);
-           // Send time for the Grain effect
            gl.uniform1f(uTimeLoc, (Date.now() - startTimeRef.current) / 1000.0);
            gl.uniform2f(uResolutionLoc, gl.drawingBufferWidth, gl.drawingBufferHeight);
 
@@ -222,11 +218,13 @@ const Hero = () => {
                 <h1 className="text-5xl md:text-8xl font-black text-white tracking-tighter mb-4 drop-shadow-2xl">
                   PROJECT <br /> PORTFOLIO
                 </h1>
-                <div className="mt-12 flex flex-col items-center gap-4">
-                  <p className="text-white/70 font-light text-xs md:text-sm tracking-[0.3em] animate-pulse">
+                
+                {/* --- UPDATED SCROLL INDICATOR --- */}
+                <div className="mt-16 flex flex-col items-center gap-4">
+                  <p className="text-white font-bold text-sm md:text-base tracking-[0.2em] animate-pulse drop-shadow-xl">
                     SCROLL TO EXPLORE
                   </p>
-                  <ChevronDown className="w-6 h-6 text-white/50 animate-bounce" strokeWidth={1.5} />
+                  <ChevronDown className="w-8 h-8 text-white animate-bounce drop-shadow-xl" strokeWidth={2.5} />
                 </div>
               </div>
             </div>

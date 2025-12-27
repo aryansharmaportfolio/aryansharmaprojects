@@ -8,7 +8,6 @@ const Hero = () => {
   
   // STATE
   const [isLoaded, setIsLoaded] = useState(false);
-  // We track progress just for the internal video scale/text opacity
   const [scrollProgress, setScrollProgress] = useState(0);
 
   // CONFIGURATION
@@ -23,6 +22,7 @@ const Hero = () => {
 
     for (let i = 1; i <= frameCount; i++) {
       const img = new Image();
+      // Adjust path if needed (e.g., /hero-frames/frame-001.jpg)
       const fileName = `ezgif-frame-${i.toString().padStart(3, "0")}.jpg`;
       img.src = `/hero-frames/${fileName}`;
       
@@ -59,8 +59,9 @@ const Hero = () => {
       
       setScrollProgress(progress);
 
-      // Performance Optimization: Stop rendering if fully scrolled past
-      if (rawProgress > 1.2) {
+      // OPTIMIZATION: Stop drawing if we are scrolled past the hero area
+      // This prevents the canvas from using GPU when covered by the dark grey content
+      if (rawProgress > 1.5) {
         requestRef.current = requestAnimationFrame(render);
         return;
       }
@@ -77,7 +78,7 @@ const Hero = () => {
           canvas.width = window.innerWidth;
           canvas.height = window.innerHeight;
 
-          // Manual object-cover
+          // Manual object-cover logic
           const scale = Math.max(
             canvas.width / img.width,
             canvas.height / img.height
@@ -99,9 +100,9 @@ const Hero = () => {
     };
   }, [isLoaded]);
 
-  // 3. VISUAL EFFECTS (Internal to the video layer only)
+  // 3. VISUAL EFFECTS
   const textOpacity = Math.max(0, 1 - scrollProgress * 3);
-  const scale = 1.1 - (scrollProgress * 0.1); 
+  const scale = 1.1 - (scrollProgress * 0.1);
 
   return (
     <div className="relative w-full">

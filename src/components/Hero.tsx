@@ -8,6 +8,7 @@ const Hero = () => {
   
   // STATE
   const [isLoaded, setIsLoaded] = useState(false);
+  // We track progress just for the internal video scale/text opacity
   const [scrollProgress, setScrollProgress] = useState(0);
 
   // CONFIGURATION
@@ -22,7 +23,6 @@ const Hero = () => {
 
     for (let i = 1; i <= frameCount; i++) {
       const img = new Image();
-      // Adjust this if your naming convention is different
       const fileName = `ezgif-frame-${i.toString().padStart(3, "0")}.jpg`;
       img.src = `/hero-frames/${fileName}`;
       
@@ -59,8 +59,8 @@ const Hero = () => {
       
       setScrollProgress(progress);
 
-      // Stop rendering if we are way past the hero to save resources
-      if (rawProgress > 1.1) {
+      // Performance Optimization: Stop rendering if fully scrolled past
+      if (rawProgress > 1.2) {
         requestRef.current = requestAnimationFrame(render);
         return;
       }
@@ -77,7 +77,7 @@ const Hero = () => {
           canvas.width = window.innerWidth;
           canvas.height = window.innerHeight;
 
-          // Manual object-cover logic
+          // Manual object-cover
           const scale = Math.max(
             canvas.width / img.width,
             canvas.height / img.height
@@ -99,22 +99,16 @@ const Hero = () => {
     };
   }, [isLoaded]);
 
-  // 3. VISUAL EFFECTS
-  const textOpacity = Math.max(0, 1 - scrollProgress * 3); // Text fades out quickly
-  const scale = 1.1 - (scrollProgress * 0.1); // Subtle zoom out
-  
-  // --- GRADIENT FADE LOGIC ---
-  // Start fading in the dark overlay at 70% scroll, fully solid at 95% scroll.
-  // This creates the "Transparent -> Opaque" transition.
-  const fadeStart = 0.7;
-  const fadeOpacity = Math.max(0, Math.min((scrollProgress - fadeStart) / (0.95 - fadeStart), 1));
+  // 3. VISUAL EFFECTS (Internal to the video layer only)
+  const textOpacity = Math.max(0, 1 - scrollProgress * 3);
+  const scale = 1.1 - (scrollProgress * 0.1); 
 
   return (
     <div className="relative w-full">
       {/* SCROLL SPACER */}
       <div ref={containerRef} className="h-[300vh] w-full pointer-events-none" />
 
-      {/* FIXED CONTAINER */}
+      {/* FIXED BACKGROUND LAYER (z-0) */}
       <div className="fixed top-0 left-0 w-full h-full z-0 overflow-hidden">
         
         {/* Loading Overlay */}
@@ -147,7 +141,6 @@ const Hero = () => {
               }}
             />
 
-            {/* Title Text */}
             <div
               className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none"
               style={{ opacity: textOpacity }}
@@ -158,18 +151,6 @@ const Hero = () => {
                 </h1>
               </div>
             </div>
-
-            {/* --- THE SEAMLESS FADE OVERLAY --- */}
-            {/* This div sits on top of the video. It is the same color as your website background.
-                We simply fade it in from 0 to 1 opacity at the end of the scroll. 
-                This is smoother than clip-path. */}
-            <div 
-              className="absolute inset-0 z-30 pointer-events-none bg-[#0a0a0a]"
-              style={{ opacity: fadeOpacity }}
-            />
-            
-            {/* Optional: A gradient at the bottom to soften the edge even before the full fade */}
-            <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-[#0a0a0a] to-transparent z-20" />
         </div>
       </div>
     </div>

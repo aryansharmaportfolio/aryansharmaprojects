@@ -69,27 +69,35 @@ const Index = () => {
       {/* 1. FIXED HERO BACKGROUND */}
       <Hero />
 
-      {/* 2. SLIDING CONTENT LAYER (z-10) 
-          This slides OVER the fixed hero.
+      {/* 2. DYNAMIC CONTENT LAYER (z-10) 
+          This entire block slides OVER the fixed hero video.
       */}
-      <div className="relative z-10 w-full flex flex-col pointer-events-none">
+      <div className="relative z-10 w-full flex flex-col">
         
-        {/* A. THE DYNAMIC GRADIENT CAP 
-            This is the "Fade". It slides up with the content.
-            transparent -> dark grey (#0a0a0a)
+        {/* A. THE TRANSITION ZONE (100vh tall)
+            - This creates the "Dynamic Fade" effect.
+            - It starts transparent at the top and becomes solid #0a0a0a at the bottom.
+            - We place 'AboutMe' INSIDE this zone so it appears *during* the fade.
+            - -mt-[100vh] pulls this entire block up to overlap the end of the Hero spacer.
         */}
-        <div className="w-full h-[80vh] -mb-1 bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/60 to-transparent" />
+        <div className="-mt-[100vh] w-full min-h-[100vh] bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent flex flex-col justify-end">
+            
+            {/* This padding ensures the content doesn't sit at the very top (transparent part).
+              It pushes AboutMe to the 'darker' part of the gradient. 
+            */}
+            <div className="w-full pb-10 pt-40 px-4 md:px-8">
+              <AnimatedSection>
+                <AboutMe />
+              </AnimatedSection>
+            </div>
+
+        </div>
 
         {/* B. SOLID CONTENT BACKGROUND (#0a0a0a) 
-            The gradient flows seamlessly into this solid block.
-            pointer-events-auto is needed because the parent is none.
+            The gradient seamlessly flows into this solid block.
+            All subsequent sections live here.
         */}
-        <div className="bg-[#0a0a0a] w-full pb-20 pointer-events-auto">
-            <AnimatedSection>
-              {/* No top padding needed because the gradient handles the breathing room */}
-              <AboutMe />
-            </AnimatedSection>
-            
+        <div className="bg-[#0a0a0a] w-full pb-20">
             <AnimatedSection>
               <FeaturedProjects />
             </AnimatedSection>

@@ -163,7 +163,7 @@ const ResumeViewer = () => {
       <DialogTrigger asChild>
         <Button 
           variant="outline" 
-          className="gap-2 border-2 border-foreground text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300"
+          className="gap-2 border-white/20 text-white hover:bg-white hover:text-black transition-all"
         >
           <FileText className="w-5 h-5" />
           Resume

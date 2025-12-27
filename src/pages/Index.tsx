@@ -14,7 +14,6 @@ const Index = () => {
   const [activeSection, setActiveSection] = useState('');
   const [pageOpacity, setPageOpacity] = useState(location.state?.section ? 0 : 1);
 
-  // --- Scroll Logic ---
   useEffect(() => {
     if (location.state?.section) {
       const sectionId = location.state.section;
@@ -60,44 +59,36 @@ const Index = () => {
   }, [activeSection]);
 
   return (
+    // Global background set to dark grey via tailwind variable
     <div 
-      className="min-h-screen transition-opacity duration-700 ease-in-out bg-[#0a0a0a] text-white overflow-x-hidden" 
+      className="min-h-screen transition-opacity duration-700 ease-in-out bg-background text-foreground overflow-x-hidden" 
       style={{ opacity: pageOpacity }}
     >
       <Header activeSection={activeSection} />
       
-      {/* 1. FIXED HERO BACKGROUND */}
+      {/* 1. FIXED VIDEO LAYER */}
       <Hero />
 
-      {/* 2. DYNAMIC CONTENT LAYER (z-10) 
-          This entire block slides OVER the fixed hero video.
-      */}
+      {/* 2. SCROLLING CONTENT LAYER (z-10) */}
       <div className="relative z-10 w-full flex flex-col">
         
-        {/* A. THE TRANSITION ZONE (100vh tall)
-            - This creates the "Dynamic Fade" effect.
-            - It starts transparent at the top and becomes solid #0a0a0a at the bottom.
-            - We place 'AboutMe' INSIDE this zone so it appears *during* the fade.
-            - -mt-[100vh] pulls this entire block up to overlap the end of the Hero spacer.
+        {/* A. PARALLAX GRADIENT ZONE (100vh tall)
+            - Starts transparent at top, becomes solid dark grey at bottom.
+            - Overlaps the hero by 100vh (-mt-[100vh]).
+            - Contains 'AboutMe' so it fades in WITH the background.
         */}
-        <div className="-mt-[100vh] w-full min-h-[100vh] bg-gradient-to-t from-[#0a0a0a] via-[#0a0a0a]/90 to-transparent flex flex-col justify-end">
-            
-            {/* This padding ensures the content doesn't sit at the very top (transparent part).
-              It pushes AboutMe to the 'darker' part of the gradient. 
-            */}
+        <div className="-mt-[100vh] w-full min-h-[100vh] bg-gradient-to-t from-background via-background/90 to-transparent flex flex-col justify-end">
             <div className="w-full pb-10 pt-40 px-4 md:px-8">
               <AnimatedSection>
                 <AboutMe />
               </AnimatedSection>
             </div>
-
         </div>
 
-        {/* B. SOLID CONTENT BACKGROUND (#0a0a0a) 
-            The gradient seamlessly flows into this solid block.
-            All subsequent sections live here.
+        {/* B. SOLID CONTENT ZONE 
+            - Continues the solid dark grey background.
         */}
-        <div className="bg-[#0a0a0a] w-full pb-20">
+        <div className="bg-background w-full pb-20">
             <AnimatedSection>
               <FeaturedProjects />
             </AnimatedSection>

@@ -22,7 +22,7 @@ const Hero = () => {
 
     for (let i = 1; i <= frameCount; i++) {
       const img = new Image();
-      // Adjust path if needed (e.g., /hero-frames/frame-001.jpg)
+      // Adjust this filename pattern if needed (e.g. frame-001.jpg)
       const fileName = `ezgif-frame-${i.toString().padStart(3, "0")}.jpg`;
       img.src = `/hero-frames/${fileName}`;
       
@@ -59,8 +59,7 @@ const Hero = () => {
       
       setScrollProgress(progress);
 
-      // OPTIMIZATION: Stop drawing if we are scrolled past the hero area
-      // This prevents the canvas from using GPU when covered by the dark grey content
+      // Stop rendering if we are fully scrolled past the hero (saves RAM/GPU)
       if (rawProgress > 1.5) {
         requestRef.current = requestAnimationFrame(render);
         return;
@@ -106,7 +105,7 @@ const Hero = () => {
 
   return (
     <div className="relative w-full">
-      {/* SCROLL SPACER */}
+      {/* SCROLL SPACER - Controls how long the video stays pinned */}
       <div ref={containerRef} className="h-[300vh] w-full pointer-events-none" />
 
       {/* FIXED BACKGROUND LAYER (z-0) */}

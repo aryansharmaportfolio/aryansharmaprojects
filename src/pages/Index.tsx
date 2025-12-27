@@ -14,6 +14,7 @@ const Index = () => {
   const [activeSection, setActiveSection] = useState('');
   const [pageOpacity, setPageOpacity] = useState(location.state?.section ? 0 : 1);
 
+  // Scroll/Nav Logic
   useEffect(() => {
     if (location.state?.section) {
       const sectionId = location.state.section;
@@ -31,9 +32,7 @@ const Index = () => {
               }, 500);
             });
           });
-        } else {
-          setPageOpacity(1);
-        }
+        } else { setPageOpacity(1); }
       }, 100);
     }
   }, [location]);
@@ -49,9 +48,7 @@ const Index = () => {
           break;
         }
       }
-      if (activeSection !== currentSectionId) {
-        setActiveSection(currentSectionId);
-      }
+      if (activeSection !== currentSectionId) setActiveSection(currentSectionId);
     };
     window.addEventListener('scroll', handleScrollHighlight);
     handleScrollHighlight(); 
@@ -59,31 +56,31 @@ const Index = () => {
   }, [activeSection]);
 
   return (
-    // Global background set to dark grey via tailwind variable
     <div 
       className="min-h-screen transition-opacity duration-700 ease-in-out bg-background text-foreground overflow-x-hidden" 
       style={{ opacity: pageOpacity }}
     >
       <Header activeSection={activeSection} />
       
-      {/* 1. FIXED VIDEO LAYER */}
+      {/* 1. HERO (Contains the WebGL Engine) */}
       <Hero />
 
-      {/* 2. SCROLLING CONTENT LAYER (z-10) */}
+      {/* 2. SCROLLING CONTENT LAYER */}
       <div className="relative z-10 w-full flex flex-col">
         
-        {/* A. PARALLAX GRADIENT ZONE (100vh tall)
-            - Uses 'from-background' to match your global dark grey.
+        {/* A. TRANSITION ZONE
+            We removed the CSS gradient because the WebGL Shader now handles the fade.
+            We keep the spacing logic so AboutMe slides UP over the fading video.
         */}
-        <div className="-mt-[100vh] w-full min-h-[100vh] bg-gradient-to-t from-background via-background/90 to-transparent flex flex-col justify-end">
-            <div className="w-full pb-10 pt-40 px-4 md:px-8">
+        <div className="-mt-[100vh] w-full min-h-[100vh] flex flex-col justify-end pointer-events-none">
+            <div className="w-full pb-10 pt-40 px-4 md:px-8 pointer-events-auto">
               <AnimatedSection>
                 <AboutMe />
               </AnimatedSection>
             </div>
         </div>
 
-        {/* B. SOLID CONTENT ZONE */}
+        {/* B. REST OF CONTENT */}
         <div className="bg-background w-full pb-20">
             <AnimatedSection>
               <FeaturedProjects />

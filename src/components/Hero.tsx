@@ -1,6 +1,7 @@
 import { useRef, useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { Rocket, ChevronDown } from "lucide-react";
+import { VERTEX_SHADER, FRAGMENT_SHADER } from "@/lib/shaders";
 
 const Hero = () => {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -14,6 +15,12 @@ const Hero = () => {
   const frameCount = 136; 
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const requestRef = useRef<number | null>(null);
+
+  // WEBGL REFS
+  const glRef = useRef<WebGLRenderingContext | null>(null);
+  const programRef = useRef<WebGLProgram | null>(null);
+  const textureRef = useRef<WebGLTexture | null>(null);
+  const startTimeRef = useRef<number>(Date.now());
 
   // 1. PRELOAD IMAGES
   useEffect(() => {
@@ -29,86 +36,159 @@ const Hero = () => {
         loadedCount++;
         if (loadedCount === frameCount) setTimeout(() => setIsLoaded(true), 500);
       };
-      
       img.onerror = () => {
         loadedCount++; 
         if (loadedCount === frameCount) setIsLoaded(true);
       };
-
       imageArray.push(img);
     }
     imagesRef.current = imageArray;
   }, []);
 
-  // 2. CANVAS RENDERING LOOP
+  // 2. INITIALIZE WEBGL (The Engine)
   useEffect(() => {
-    if (!isLoaded) return;
+    if (!canvasRef.current) return;
 
-    const canvas = canvasRef.current;
-    const context = canvas?.getContext("2d");
-    if (!canvas || !context) return;
+    const gl = canvasRef.current.getContext("webgl");
+    if (!gl) {
+        console.error("WebGL not supported");
+        return;
+    }
+    glRef.current = gl;
+
+    // Compile Shaders
+    const createShader = (gl: WebGLRenderingContext, type: number, source: string) => {
+      const shader = gl.createShader(type);
+      if (!shader) return null;
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        console.error("Shader compile error:", gl.getShaderInfoLog(shader));
+        gl.deleteShader(shader);
+        return null;
+      }
+      return shader;
+    };
+
+    const vert = createShader(gl, gl.VERTEX_SHADER, VERTEX_SHADER);
+    const frag = createShader(gl, gl.FRAGMENT_SHADER, FRAGMENT_SHADER);
+    if (!vert || !frag) return;
+
+    const program = gl.createProgram();
+    if (!program) return;
+    gl.attachShader(program, vert);
+    gl.attachShader(program, frag);
+    gl.linkProgram(program);
+    gl.useProgram(program);
+    programRef.current = program;
+
+    // Create Full Screen Quad (2 Triangles)
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
+      gl.STATIC_DRAW
+    );
+
+    const positionLocation = gl.getAttribLocation(program, "position");
+    gl.enableVertexAttribArray(positionLocation);
+    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+    // Create Texture Container
+    const texture = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    // Set texture parameters for smooth scaling (Linear)
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    textureRef.current = texture;
+
+  }, []); // Run once on mount
+
+  // 3. THE RENDER LOOP
+  useEffect(() => {
+    if (!isLoaded || !glRef.current || !programRef.current || !textureRef.current) return;
+
+    const gl = glRef.current;
+    const program = programRef.current;
+    
+    // Cache uniform locations to save CPU cycles
+    const uScrollLoc = gl.getUniformLocation(program, "uScroll");
+    const uTimeLoc = gl.getUniformLocation(program, "uTime");
+    const uResolutionLoc = gl.getUniformLocation(program, "uResolution");
 
     const render = () => {
       const container = containerRef.current;
       if (!container) return;
 
+      // Scroll Math
       const scrollableDistance = container.scrollHeight - window.innerHeight;
       const rawProgress = window.scrollY / scrollableDistance;
       const progress = Math.min(Math.max(rawProgress, 0), 1);
-      
       setScrollProgress(progress);
 
-      // Stop rendering if scrolled past
-      if (rawProgress > 1.5) {
+      // --- OPTIMIZATION: Heavy Culling ---
+      // Even though we want it heavy, we don't want to crash. 
+      // If we are fully faded out (progress > 1.2), stop rendering.
+      if (rawProgress > 1.2) {
         requestRef.current = requestAnimationFrame(render);
         return;
       }
 
+      // 1. Get Current Image Frame
       if (imagesRef.current.length > 0) {
         const frameIndex = Math.min(
           frameCount - 1,
           Math.floor(progress * (frameCount - 1))
         );
-
         const img = imagesRef.current[frameIndex];
 
         if (img && img.complete && img.naturalWidth > 0) {
-          canvas.width = window.innerWidth;
-          canvas.height = window.innerHeight;
+           // 2. RESIZE CANVAS
+           // We resize the internal canvas resolution to match the screen exactly for 1:1 pixel ratio
+           if (canvasRef.current) {
+             const displayWidth = window.innerWidth;
+             const displayHeight = window.innerHeight;
+             if (canvasRef.current.width !== displayWidth || canvasRef.current.height !== displayHeight) {
+                canvasRef.current.width = displayWidth;
+                canvasRef.current.height = displayHeight;
+                gl.viewport(0, 0, gl.drawingBufferWidth, gl.drawingBufferHeight);
+             }
+           }
 
-          // Manual object-cover logic
-          const scale = Math.max(
-            canvas.width / img.width,
-            canvas.height / img.height
-          );
-          
-          const x = (canvas.width / 2) - (img.width / 2) * scale;
-          const y = (canvas.height / 2) - (img.height / 2) * scale;
-          
-          context.drawImage(img, x, y, img.width * scale, img.height * scale);
+           // 3. UPLOAD TEXTURE TO GPU (Heavy Operation)
+           gl.bindTexture(gl.TEXTURE_2D, textureRef.current);
+           gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+
+           // 4. UPDATE UNIFORMS
+           gl.uniform1f(uScrollLoc, progress);
+           // Send time for the Grain effect
+           gl.uniform1f(uTimeLoc, (Date.now() - startTimeRef.current) / 1000.0);
+           gl.uniform2f(uResolutionLoc, gl.drawingBufferWidth, gl.drawingBufferHeight);
+
+           // 5. DRAW
+           gl.drawArrays(gl.TRIANGLES, 0, 6);
         }
       }
       requestRef.current = requestAnimationFrame(render);
     };
 
     render();
-
-    return () => {
-      if (requestRef.current) cancelAnimationFrame(requestRef.current);
-    };
+    return () => { if (requestRef.current) cancelAnimationFrame(requestRef.current); };
   }, [isLoaded]);
 
-  // 3. VISUAL EFFECTS
+  // CSS Transforms for Title
   const textOpacity = Math.max(0, 1 - scrollProgress * 3);
-  const scale = 1.1 - (scrollProgress * 0.1);
 
   return (
     <div className="relative w-full">
       {/* SCROLL SPACER */}
       <div ref={containerRef} className="h-[300vh] w-full pointer-events-none" />
 
-      {/* FIXED BACKGROUND LAYER */}
-      <div className="fixed top-0 left-0 w-full h-full z-0 overflow-hidden">
+      {/* FIXED LAYER */}
+      <div className="fixed top-0 left-0 w-full h-full z-0 overflow-hidden bg-[#2b2b2b]">
         
         {/* Loading Overlay */}
         <div 
@@ -124,23 +204,16 @@ const Hero = () => {
                     <Rocket className="w-10 h-10 text-white animate-pulse" strokeWidth={1.5} />
                  </div>
               </div>
-              {/* REMOVED: Loading Assets text was here */}
             </div>
         </div>
 
-        {/* Main Content */}
+        {/* Content */}
         <div className={cn("relative w-full h-full transition-opacity duration-1000", isLoaded ? "opacity-100" : "opacity-0")}>
             
-            {/* The Canvas Video */}
-            <canvas
-              ref={canvasRef}
-              className="w-full h-full block object-cover"
-              style={{
-                transform: `scale(${scale})`,
-              }}
-            />
+            {/* THE WEBGL CANVAS */}
+            <canvas ref={canvasRef} className="w-full h-full block" />
 
-            {/* Title & Scroll Indicator */}
+            {/* Title Overlay */}
             <div
               className="absolute inset-0 flex flex-col items-center justify-center z-20 pointer-events-none"
               style={{ opacity: textOpacity }}
@@ -149,8 +222,6 @@ const Hero = () => {
                 <h1 className="text-5xl md:text-8xl font-black text-white tracking-tighter mb-4 drop-shadow-2xl">
                   PROJECT <br /> PORTFOLIO
                 </h1>
-                
-                {/* Scroll Indicator */}
                 <div className="mt-12 flex flex-col items-center gap-4">
                   <p className="text-white/70 font-light text-xs md:text-sm tracking-[0.3em] animate-pulse">
                     SCROLL TO EXPLORE

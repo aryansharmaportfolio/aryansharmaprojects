@@ -9,7 +9,8 @@ interface SmokePuff {
 
 const Header = ({ activeSection }: { activeSection: string }) => {
   const [isScrolled, setIsScrolled] = useState(false);
-  const [isPastHero, setIsPastHero] = useState(false);
+  // Replaced binary state with gradient opacity state
+  const [headerOpacity, setHeaderOpacity] = useState(0);
   const [scrollProgress, setScrollProgress] = useState(0);
   const [smoke, setSmoke] = useState<SmokePuff[]>([]);
   const [scrollDirection, setScrollDirection] = useState("down");
@@ -22,9 +23,10 @@ const Header = ({ activeSection }: { activeSection: string }) => {
       const scrollY = window.scrollY;
       const totalHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
       
-      // Hero section is 400vh, show background when past it
-      const heroHeight = window.innerHeight * 4;
-      setIsPastHero(scrollY >= heroHeight - 100);
+      // Calculate opacity: 0 at top, 1 at 500px scroll to match the gradient fade
+      const opacity = Math.min(scrollY / 500, 1);
+      setHeaderOpacity(opacity);
+
       setIsScrolled(scrollY > 10);
       
       if (scrollY > lastScrollY.current) {
@@ -95,14 +97,18 @@ const Header = ({ activeSection }: { activeSection: string }) => {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isPastHero ? "bg-background/95 backdrop-blur-sm shadow-lg" : "bg-transparent"
-      }`}
+      className="fixed top-0 left-0 right-0 z-50 transition-all duration-300"
+      style={{
+        // Dynamic background color matching the site's dark grey (0 0% 17% is approx #2b2b2b)
+        backgroundColor: `hsla(0, 0%, 17%, ${headerOpacity})`,
+        backdropFilter: headerOpacity > 0.8 ? 'blur(8px)' : 'none',
+        borderBottom: `1px solid rgba(255, 255, 255, ${headerOpacity * 0.05})`
+      }}
     >
       <div className="container mx-auto px-4 sm:px-6 py-3 sm:py-4 flex items-center justify-between">
         <button
           onClick={() => scrollToSection("home")}
-          className="text-lg sm:text-xl md:text-2xl font-bold text-foreground hover:text-primary transition-colors"
+          className="text-lg sm:text-xl md:text-2xl font-bold text-white hover:text-primary transition-colors"
         >
           Aryan Sharma
         </button>
@@ -114,7 +120,7 @@ const Header = ({ activeSection }: { activeSection: string }) => {
               key={item.id}
               onClick={() => scrollToSection(item.id)}
               className={cn(
-                "text-sm lg:text-base text-foreground font-medium transition-all duration-200 hover:text-white hover:font-bold hover:scale-105",
+                "text-sm lg:text-base text-white/80 font-medium transition-all duration-200 hover:text-white hover:font-bold hover:scale-105",
                 (activeSection === item.id || (item.id === 'home' && !activeSection)) && "font-bold text-white"
               )}
             >
@@ -126,7 +132,7 @@ const Header = ({ activeSection }: { activeSection: string }) => {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden p-2 text-foreground hover:text-primary transition-colors"
+          className="md:hidden p-2 text-white hover:text-primary transition-colors"
           aria-label="Toggle menu"
         >
           {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
@@ -136,7 +142,7 @@ const Header = ({ activeSection }: { activeSection: string }) => {
       {/* Mobile Menu */}
       <div
         className={cn(
-          "md:hidden absolute top-full left-0 right-0 bg-background/98 backdrop-blur-lg border-t border-border transition-all duration-300 overflow-hidden",
+          "md:hidden absolute top-full left-0 right-0 bg-[#2b2b2b]/98 backdrop-blur-lg border-t border-white/10 transition-all duration-300 overflow-hidden",
           mobileMenuOpen ? "max-h-screen opacity-100" : "max-h-0 opacity-0"
         )}
       >
@@ -146,10 +152,10 @@ const Header = ({ activeSection }: { activeSection: string }) => {
               key={item.id}
               onClick={() => scrollToSection(item.id)}
               className={cn(
-                "text-left py-3 px-4 rounded-lg text-foreground font-medium transition-all duration-200",
+                "text-left py-3 px-4 rounded-lg text-white font-medium transition-all duration-200",
                 (activeSection === item.id || (item.id === 'home' && !activeSection)) 
-                  ? "bg-primary/20 font-bold text-white" 
-                  : "hover:bg-muted/50"
+                  ? "bg-white/10 font-bold" 
+                  : "hover:bg-white/5"
               )}
             >
               {item.label}
@@ -157,6 +163,8 @@ const Header = ({ activeSection }: { activeSection: string }) => {
           ))}
         </nav>
       </div>
+      
+      {/* Smoke Progress Bar */}
       <div
         className={`absolute bottom-0 left-0 h-px w-full transition-opacity duration-300 ${
           isScrolled ? "opacity-100" : "opacity-0 pointer-events-none"

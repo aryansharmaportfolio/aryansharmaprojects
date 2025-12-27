@@ -13,16 +13,13 @@ const Hero = () => {
   const imagesRef = useRef<HTMLImageElement[]>([]);
   const requestRef = useRef<number | null>(null);
 
-  // 1. PRELOAD IMAGES
   useEffect(() => {
     let loadedCount = 0;
     const imageArray: HTMLImageElement[] = [];
-
     for (let i = 1; i <= frameCount; i++) {
       const img = new Image();
       const fileName = `ezgif-frame-${i.toString().padStart(3, "0")}.jpg`;
       img.src = `/hero-frames/${fileName}`;
-      
       img.onload = () => {
         loadedCount++;
         if (loadedCount === frameCount) setTimeout(() => setIsLoaded(true), 500);
@@ -36,41 +33,29 @@ const Hero = () => {
     imagesRef.current = imageArray;
   }, []);
 
-  // 2. RENDER LOOP
   useEffect(() => {
     if (!isLoaded) return;
     const canvas = canvasRef.current;
     const context = canvas?.getContext("2d");
     if (!canvas || !context) return;
-
     const render = () => {
       const container = containerRef.current;
       if (!container) return;
-
       const scrollableDistance = container.scrollHeight - window.innerHeight;
       const rawProgress = window.scrollY / scrollableDistance;
       const progress = Math.min(Math.max(rawProgress, 0), 1);
       setScrollProgress(progress);
-
-      // Stop rendering if scrolled past
       if (rawProgress > 1.5) {
         requestRef.current = requestAnimationFrame(render);
         return;
       }
-
       if (imagesRef.current.length > 0) {
-        const frameIndex = Math.min(
-          frameCount - 1,
-          Math.floor(progress * (frameCount - 1))
-        );
+        const frameIndex = Math.min(frameCount - 1, Math.floor(progress * (frameCount - 1)));
         const img = imagesRef.current[frameIndex];
         if (img && img.complete && img.naturalWidth > 0) {
           canvas.width = window.innerWidth;
           canvas.height = window.innerHeight;
-          const scale = Math.max(
-            canvas.width / img.width,
-            canvas.height / img.height
-          );
+          const scale = Math.max(canvas.width / img.width, canvas.height / img.height);
           const x = (canvas.width / 2) - (img.width / 2) * scale;
           const y = (canvas.height / 2) - (img.height / 2) * scale;
           context.drawImage(img, x, y, img.width * scale, img.height * scale);

@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
-import { Menu, X, Crosshair, Activity, Zap } from "lucide-react";
+// ADDED "Rocket" to the imports below
+import { Menu, X, Crosshair, Activity, Zap, Rocket } from "lucide-react";
 import { motion, AnimatePresence, useScroll, useVelocity, useTransform, useSpring } from "framer-motion";
 
 // --- TYPES & INTERFACES ---
@@ -81,7 +82,6 @@ const TelemetryHeader = ({ activeSection }: { activeSection: string }) => {
   // --- LOGIC: HEADER TRANSITION ---
   // We calculate opacity based on Viewport Height.
   // The fade happens ONLY after 2.2 viewport heights (approx 2200px)
-  // This ensures it stays transparent during the video.
   const [opacity, setOpacity] = useState(0);
 
   useEffect(() => {

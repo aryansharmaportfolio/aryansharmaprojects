@@ -17,14 +17,17 @@ const ResumeViewer = () => {
   const containerRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLImageElement>(null);
 
+  // Refs to access state inside event listeners without triggering re-renders
   const scaleRef = useRef(scale);
   const positionRef = useRef(position);
 
+  // Keep refs synced with state
   useEffect(() => {
     scaleRef.current = scale;
     positionRef.current = position;
   }, [scale, position]);
 
+  // Reset view when closed
   const handleOpenChange = (open: boolean) => {
     setIsOpen(open);
     if (!open) {
@@ -35,10 +38,12 @@ const ResumeViewer = () => {
     }
   };
 
+  // Helper: Calculate boundaries based on a specific scale
   const getBoundaries = (currentScale: number) => {
     if (!containerRef.current || !imgRef.current) return { x: 0, y: 0 };
     
     const container = containerRef.current.getBoundingClientRect();
+    // We use offsetWidth to get the base size, then multiply by scale
     const imgWidth = imgRef.current.offsetWidth * currentScale;
     const imgHeight = imgRef.current.offsetHeight * currentScale;
 
@@ -51,8 +56,11 @@ const ResumeViewer = () => {
     };
   };
 
+  // Unified Zoom Logic (Used by both Wheel and Buttons)
   const applyZoom = (newScale: number) => {
     const clampedScale = Math.min(Math.max(newScale, 1), 4);
+    
+    // Calculate new position to ensure we don't end up in the void
     const bounds = getBoundaries(clampedScale);
     const currentPos = positionRef.current;
     
@@ -60,8 +68,9 @@ const ResumeViewer = () => {
     const clampedY = Math.max(-bounds.y, Math.min(bounds.y, currentPos.y));
 
     setScale(clampedScale);
-    setPosition({ x: clampedX, y: clampedY });
+    setPosition({ x: clampedX, y: clampedY }); // Snap position to new boundaries
     
+    // Auto-center if hitting 100%
     if (clampedScale === 1) setPosition({ x: 0, y: 0 });
   };
 
@@ -72,7 +81,9 @@ const ResumeViewer = () => {
     setPosition({ x: 0, y: 0 });
   };
 
+  // Drag Logic
   const onMouseDown = (e: React.MouseEvent) => {
+    // Only allow dragging if zoomed in
     if (scale <= 1) return; 
     
     e.preventDefault();
@@ -91,6 +102,7 @@ const ResumeViewer = () => {
     const rawX = e.clientX - startPos.x;
     const rawY = e.clientY - startPos.y;
 
+    // Hard stop at boundaries (No void dragging)
     setPosition({
       x: Math.max(-bounds.x, Math.min(bounds.x, rawX)),
       y: Math.max(-bounds.y, Math.min(bounds.y, rawY)),
@@ -99,14 +111,18 @@ const ResumeViewer = () => {
 
   const onMouseUp = () => setIsDragging(false);
 
+  // Click handler to close modal when clicking the background
   const handleBackgroundClick = (e: React.MouseEvent) => {
+    // Only close if we are strictly clicking the container background, not the image or toolbar
     if (e.target === containerRef.current) {
       setIsOpen(false);
     }
   };
 
+  // Wheel Zoom - Attach to dialog content for reliable scroll detection
   useEffect(() => {
     const handleWheel = (e: WheelEvent) => {
+      // Only handle wheel events when hovering over the viewport
       const target = e.target as HTMLElement;
       if (!containerRef.current?.contains(target)) return;
 
@@ -118,6 +134,7 @@ const ResumeViewer = () => {
       const delta = e.deltaY * -0.002; 
       const nextScale = Math.min(Math.max(currentScale + delta, 1), 4);
 
+      // Calculate boundaries for new scale
       if (!containerRef.current || !imgRef.current) return;
       const containerRect = containerRef.current.getBoundingClientRect();
       const imgWidth = imgRef.current.offsetWidth * nextScale;
@@ -125,6 +142,7 @@ const ResumeViewer = () => {
       const overflowX = Math.max(0, (imgWidth - containerRect.width) / 2);
       const overflowY = Math.max(0, (imgHeight - containerRect.height) / 2);
 
+      // Clamp position to new boundaries
       const clampedX = Math.max(-overflowX, Math.min(overflowX, currentPos.x));
       const clampedY = Math.max(-overflowY, Math.min(overflowY, currentPos.y));
 
@@ -132,6 +150,7 @@ const ResumeViewer = () => {
       setPosition(nextScale === 1 ? { x: 0, y: 0 } : { x: clampedX, y: clampedY });
     };
 
+    // Attach to document to catch all wheel events
     document.addEventListener('wheel', handleWheel, { passive: false });
     
     return () => {
@@ -142,10 +161,9 @@ const ResumeViewer = () => {
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogTrigger asChild>
-        {/* FIXED BUTTON STYLING */}
         <Button 
           variant="outline" 
-          className="gap-2 border-white/20 text-white hover:bg-white hover:text-black transition-all duration-300"
+          className="gap-2 border-2 border-foreground text-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all duration-300"
         >
           <FileText className="w-5 h-5" />
           Resume
@@ -156,15 +174,24 @@ const ResumeViewer = () => {
         className={cn(
           "max-w-[95vw] w-full h-[95vh] p-0 border-none bg-transparent shadow-none outline-none",
           "data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0",
+          
+          // --- CUSTOM CLOSE BUTTON STYLES ---
+          // 1. Position & Basic Reset
           "[&>button]:!top-8 [&>button]:!right-8", 
-          "[&>button]:!opacity-100", 
-          "[&>button]:!bg-transparent hover:[&>button]:!bg-transparent", 
-          "[&>button]:!border-none [&>button]:!ring-0 [&>button]:!outline-none", 
+          "[&>button]:!opacity-100", // Force full visibility (no dimming)
+          "[&>button]:!bg-transparent hover:[&>button]:!bg-transparent", // Remove circular background
+          "[&>button]:!border-none [&>button]:!ring-0 [&>button]:!outline-none", // Remove borders/rings
+          
+          // 2. Icon Styling (The "Glow" & Thickness)
           "[&>button]:text-white",
-          "[&>button>svg]:!w-8 [&>button>svg]:!h-8", 
-          "[&>button>svg]:!stroke-[3px]", 
-          "[&>button]:drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]", 
-          "hover:[&>button]:drop-shadow-[0_0_15px_rgba(255,255,255,1)]", 
+          "[&>button>svg]:!w-8 [&>button>svg]:!h-8", // Bigger X icon (32px)
+          "[&>button>svg]:!stroke-[3px]", // Thicker lines (Bold)
+          
+          // 3. The Glow Effect (Drop Shadow Filter)
+          "[&>button]:drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]", // Static glow
+          "hover:[&>button]:drop-shadow-[0_0_15px_rgba(255,255,255,1)]", // Stronger glow on hover
+          
+          // 4. Interaction
           "[&>button]:transition-transform [&>button]:duration-300 hover:[&>button]:scale-110"
         )}
       >
@@ -173,7 +200,7 @@ const ResumeViewer = () => {
 
         <div className="relative w-full h-full flex flex-col items-center justify-start gap-4 pt-4 pointer-events-none">
           
-          {/* Toolbar */}
+          {/* Toolbar - Above resume */}
           <div className="z-50 flex items-center gap-1 p-1.5 rounded-full bg-black/60 backdrop-blur-xl border border-white/10 shadow-2xl animate-fade-in-up ring-1 ring-white/5 pointer-events-auto">
             
             <Button 
@@ -213,7 +240,7 @@ const ResumeViewer = () => {
             </a>
           </div>
 
-          {/* Viewport */}
+          {/* Viewport with transparent background */}
           <div 
             ref={containerRef}
             className={cn(
@@ -241,6 +268,7 @@ const ResumeViewer = () => {
               />
             </div>
             
+            {/* Pulse Hint */}
             <div className={cn(
               "absolute bottom-8 left-1/2 -translate-x-1/2 px-4 py-2 rounded-full bg-black/60 backdrop-blur-md border border-white/10 text-white text-[10px] font-semibold tracking-widest uppercase pointer-events-none shadow-xl z-40",
               "animate-pulse" 

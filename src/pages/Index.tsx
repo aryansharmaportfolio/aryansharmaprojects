@@ -1,9 +1,6 @@
-// src/pages/Index.tsx
-
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
-// CHANGE THIS IMPORT:
-import TelemetryHeader from "@/components/TelemetryHeader"; 
+import Header from "@/components/Header";
 import Hero from "@/components/Hero";
 import AboutMe from "@/components/AboutMe";
 import FeaturedProjects from "@/components/FeaturedProjects";
@@ -17,7 +14,7 @@ const Index = () => {
   const [activeSection, setActiveSection] = useState('');
   const [pageOpacity, setPageOpacity] = useState(location.state?.section ? 0 : 1);
 
-  // ... (Keep your Scroll Logic useEffects exactly the same) ...
+  // Scroll/Nav Logic
   useEffect(() => {
     if (location.state?.section) {
       const sectionId = location.state.section;
@@ -63,12 +60,18 @@ const Index = () => {
       className="min-h-screen transition-opacity duration-700 ease-in-out bg-background text-foreground overflow-x-hidden" 
       style={{ opacity: pageOpacity }}
     >
-      {/* NEW HEADER */}
-      <TelemetryHeader activeSection={activeSection} />
+      <Header activeSection={activeSection} />
       
+      {/* 1. HERO (Contains the WebGL Engine) */}
       <Hero />
 
+      {/* 2. SCROLLING CONTENT LAYER */}
       <div className="relative z-10 w-full flex flex-col">
+        
+        {/* A. TRANSITION ZONE
+            We removed the CSS gradient because the WebGL Shader now handles the fade.
+            We keep the spacing logic so AboutMe slides UP over the fading video.
+        */}
         <div className="-mt-[100vh] w-full min-h-[100vh] flex flex-col justify-end pointer-events-none">
             <div className="w-full pb-10 pt-40 px-4 md:px-8 pointer-events-auto">
               <AnimatedSection>
@@ -77,6 +80,7 @@ const Index = () => {
             </div>
         </div>
 
+        {/* B. REST OF CONTENT */}
         <div className="bg-background w-full pb-20">
             <AnimatedSection>
               <FeaturedProjects />

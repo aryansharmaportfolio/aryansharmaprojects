@@ -298,6 +298,35 @@ MASTERPIECE ANIMATION SUITE
 }
 
 /* ==============================================
+   SLEEK MODERN SCROLLBAR
+   ============================================== */
+
+/* Webkit (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; 
+}
+
+::-webkit-scrollbar-thumb {
+  background: hsla(0, 0%, 100%, 0.2); /* Subtle white transparency */
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: hsla(0, 0%, 100%, 0.4); /* Brighter on hover */
+}
+
+/* Firefox */
+html {
+  scrollbar-width: thin;
+  scrollbar-color: hsla(0, 0%, 100%, 0.2) transparent;
+}
+
+/* ==============================================
    LOVABLE OVERRIDES
    ============================================== */
 

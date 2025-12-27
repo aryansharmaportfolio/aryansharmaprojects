@@ -2,6 +2,8 @@ import { useParams, useLocation } from "react-router-dom";
 import DynamicSidebar from "@/components/DynamicSidebar";
 import { useState, useEffect } from "react";
 import FalconViewer from "@/components/FalconViewer";
+// 1. Import the Zoomer Viewer
+import ZoomerCFDViewer from "@/components/ZoomerCFDViewer"; 
 import { FileText, Wrench, Sparkles, Code } from "lucide-react";
 
 const ProjectDetail = () => {
@@ -57,6 +59,37 @@ const ProjectDetail = () => {
     );
   }
 
+  // 2. Create a helper to determine which view to show
+  const renderHeroContent = () => {
+    if (id === "falcon-9-model") {
+      return (
+        <div className="absolute inset-0 z-10">
+          <FalconViewer />
+        </div>
+      );
+    }
+    
+    if (id === "zoomer-rocket") {
+      return (
+        <div className="absolute inset-0 z-10">
+          <ZoomerCFDViewer />
+        </div>
+      );
+    }
+
+    // Default static image view for other projects
+    return (
+      <>
+        <img src={project.logo} alt={project.name} className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+        <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8 md:p-12">
+          <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-foreground mb-1 sm:mb-2">{project.name}</h1>
+          <p className="text-base sm:text-xl md:text-2xl text-white font-semibold my-1 sm:my-[4px] py-1 sm:py-[4px]">{project.description}</p>
+        </div>
+      </>
+    );
+  };
+
   return (
     <>
       <DynamicSidebar returnSection={returnSection} />
@@ -67,21 +100,8 @@ const ProjectDetail = () => {
         {/* Hero image - respects sidebar on left, responsive margin */}
         <div className="relative h-[350px] sm:h-[450px] md:h-[600px] overflow-hidden ml-12 sm:ml-14 md:ml-16">
           
-          {/* --- CONDITIONAL RENDERING LOGIC --- */}
-          {id === "falcon-9-model" ? (
-            <div className="absolute inset-0 z-10">
-              <FalconViewer />
-            </div>
-          ) : (
-            <>
-              <img src={project.logo} alt={project.name} className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
-              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8 md:p-12">
-                <h1 className="text-2xl sm:text-4xl md:text-5xl font-bold text-foreground mb-1 sm:mb-2">{project.name}</h1>
-                <p className="text-base sm:text-xl md:text-2xl text-white font-semibold my-1 sm:my-[4px] py-1 sm:py-[4px]">{project.description}</p>
-              </div>
-            </>
-          )}
+          {/* --- UPDATED RENDERING LOGIC --- */}
+          {renderHeroContent()}
           {/* ----------------------------------- */}
 
         </div>

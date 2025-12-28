@@ -229,7 +229,7 @@ export default function ZoomerCFDViewer() {
             minPolarAngle={0} 
             maxPolarAngle={Math.PI / 1.8} 
             minDistance={1000} 
-            maxDistance={2000} 
+            maxDistance={1200} 
           />
           <ContactShadows resolution={1024} scale={300} blur={3} opacity={0.2} far={100} color="#000000" />
         </Suspense>

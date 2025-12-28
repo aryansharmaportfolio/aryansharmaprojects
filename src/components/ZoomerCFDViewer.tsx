@@ -205,7 +205,7 @@ export default function ZoomerCFDViewer() {
 
       {/* 3D SCENE */}
       <Canvas shadows dpr={[1, 2]}>
-        {/* Adjusted Camera: Further away (400) for better framing */}
+        {/* Adjusted Camera: Positioned further away (700, 700, 250) */}
         <PerspectiveCamera makeDefault position={[700, 700, 250]} fov={35} />
         <color attach="background" args={['#ffffff']} />
         
@@ -221,12 +221,15 @@ export default function ZoomerCFDViewer() {
             <WindTunnelField active={cfdEnabled} profileIdx={selectedVariationIdx} />
           </Center>
 
-          {/* Camera Controls - Manual Only (No Auto Rotate) */}
+          {/* Camera Controls 
+             - NO Auto Rotate
+             - Max Distance Increased to 1500 to allow the 700+ camera position 
+          */}
           <CameraControls 
             minPolarAngle={0} 
             maxPolarAngle={Math.PI / 1.8} 
             minDistance={100} 
-            maxDistance={600} 
+            maxDistance={1500} 
           />
           <ContactShadows resolution={1024} scale={300} blur={3} opacity={0.2} far={100} color="#000000" />
         </Suspense>

@@ -1,277 +1,284 @@
 import { useState, useRef, useMemo, Suspense } from "react";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { useGLTF, CameraControls, Html, Center, Environment, PerspectiveCamera, ContactShadows, Grid, Line } from "@react-three/drei";
+import {
+  useGLTF,
+  CameraControls,
+  Html,
+  Environment,
+  PerspectiveCamera,
+  ContactShadows,
+  Grid,
+  Line,
+} from "@react-three/drei";
 import * as THREE from "three";
-import { Wind, Hand, Rotate3d } from "lucide-react";
-import { cn } from "@/lib/utils"; 
+import { Wind } from "lucide-react";
+import { cn } from "@/lib/utils";
 
-// --- 1. CONFIGURATION ---
+// -----------------------------------------------------------------------------
+// 1. CONFIG
+// -----------------------------------------------------------------------------
 
 const AERODYNAMICS_CONFIG = [
-  { id: 'short', label: 'Short Chord', cd: 0.52, turbulence: 0.8, color: '#ef4444' },   
-  { id: 'std',   label: 'Standard',    cd: 0.45, turbulence: 0.5, color: '#f59e0b' },   
-  { id: 'long',  label: 'Long Chord',  cd: 0.38, turbulence: 0.3, color: '#3b82f6' },   
-  { id: 'ext',   label: 'Extended',    cd: 0.32, turbulence: 0.1, color: '#10b981' },   
+  { id: "short", label: "Short Chord", cd: 0.52, turbulence: 0.8, color: "#ef4444" },
+  { id: "std", label: "Standard", cd: 0.45, turbulence: 0.5, color: "#f59e0b" },
+  { id: "long", label: "Long Chord", cd: 0.38, turbulence: 0.3, color: "#3b82f6" },
+  { id: "ext", label: "Extended", cd: 0.32, turbulence: 0.1, color: "#10b981" },
 ];
 
-// --- 2. MATH HELPERS (PURE HORIZONTAL X-AXIS) ---
+// -----------------------------------------------------------------------------
+// 2. FLOW MATH (PURE +X FLOW)
+// -----------------------------------------------------------------------------
 
-/** * Generates a line that flows from LEFT (-X) to RIGHT (+X) 
- * Centered around (0,0,0) so it matches the centered Rocket.
- */
-function generateHorizontalStreamline(radius: number, angle: number, turbulence: number) {
+function generateHorizontalStreamline(
+  radius: number,
+  angle: number,
+  turbulence: number
+) {
   const points: THREE.Vector3[] = [];
-  const steps = 60;
-  
-  // Start well to the left (-100)
-  let x = -100; 
+  const steps = 45;
+
+  let x = -140;
   let y = Math.cos(angle) * radius;
   let z = Math.sin(angle) * radius;
 
   for (let i = 0; i < steps; i++) {
     points.push(new THREE.Vector3(x, y, z));
 
-    // Move Right (+X)
-    let flowX = 5; 
+    let flowX = 6;
     let flowY = 0;
     let flowZ = 0;
 
-    // --- COLLISION LOGIC ---
-    // Check distance from the center tube (radius ~8)
-    const currentRadius = Math.sqrt(y*y + z*z);
-    
-    // Simple Nose Cone Deflection (Linear expand from x=-100 to x=-60)
-    let obstacleRadius = 8; 
-    if (x < -60) {
-      obstacleRadius = 0 + (8 * ((x + 100) / 40)); 
-    }
-    
-    // If we are hitting the obstacle, push OUT
-    if (currentRadius < obstacleRadius + 2) {
-      const pushStrength = (obstacleRadius + 2 - currentRadius) * 0.5;
-      const pushAngle = Math.atan2(z, y);
-      flowY += Math.cos(pushAngle) * pushStrength;
-      flowZ += Math.sin(pushAngle) * pushStrength;
+    const currentRadius = Math.sqrt(y * y + z * z);
+
+    let obstacleRadius = 8;
+    if (x < -80) {
+      obstacleRadius = THREE.MathUtils.mapLinear(x, -140, -80, 0, 8);
     }
 
-    // Turbulence
-    flowY += (Math.random() - 0.5) * turbulence * 0.5;
-    flowZ += (Math.random() - 0.5) * turbulence * 0.5;
+    if (currentRadius < obstacleRadius + 2) {
+      const push = (obstacleRadius + 2 - currentRadius) * 0.6;
+      const a = Math.atan2(z, y);
+      flowY += Math.cos(a) * push;
+      flowZ += Math.sin(a) * push;
+    }
+
+    flowY += (Math.random() - 0.5) * turbulence * 0.4;
+    flowZ += (Math.random() - 0.5) * turbulence * 0.4;
 
     x += flowX;
     y += flowY;
     z += flowZ;
   }
+
   return points;
 }
 
-// --- 3. 3D COMPONENTS ---
+// -----------------------------------------------------------------------------
+// 3. 3D OBJECTS
+// -----------------------------------------------------------------------------
 
 function ZoomerRocket() {
   const { scene } = useGLTF("/zoomer_full_rocket.glb");
   const clone = useMemo(() => scene.clone(), [scene]);
 
-  // We rotate the model itself 90 degrees if it comes in vertical.
-  // Assuming standard rockets are Y-up, we rotate Z to make it point Right.
   return (
-    <primitive object={clone} rotation={[0, 0, -Math.PI / 2]} />
+    <primitive
+      object={clone}
+      rotation={[0, Math.PI / 2, 0]} // nose → +X
+      scale={1}
+    />
   );
 }
 
 function Streamline({ points, color, active, delay }: any) {
-  const lineRef = useRef<any>(null);
-  const progressRef = useRef(delay);
-  
+  const ref = useRef<any>(null);
+  const offset = useRef(delay);
+
   useFrame((_, delta) => {
-    if (!lineRef.current) return;
-    progressRef.current += delta * 40;
-    if (progressRef.current > 100) progressRef.current = 0;
-    lineRef.current.material.dashOffset = -progressRef.current;
-    lineRef.current.material.opacity = active ? 0.6 : 0;
+    if (!ref.current) return;
+    offset.current += delta * 40;
+    ref.current.material.dashOffset = -offset.current;
+    ref.current.material.opacity = active ? 0.6 : 0;
   });
-  
+
   return (
     <Line
-      ref={lineRef}
+      ref={ref}
       points={points}
       color={color}
       lineWidth={1.5}
       dashed
       dashScale={3}
       dashSize={4}
-      dashOffset={0}
       transparent
       opacity={0}
     />
   );
 }
 
-function CFDStreamlines({ active, profileIdx }: { active: boolean, profileIdx: number }) {
-  const config = AERODYNAMICS_CONFIG[profileIdx];
-  
-  const streamlines = useMemo(() => {
-    const lines: any[] = [];
-    const rings = [12, 18, 26]; // Radii around the center
-    rings.forEach((r) => {
+function CFDStreamlines({
+  active,
+  profileIdx,
+}: {
+  active: boolean;
+  profileIdx: number;
+}) {
+  const cfg = AERODYNAMICS_CONFIG[profileIdx];
+
+  const lines = useMemo(() => {
+    const result: any[] = [];
+    [12, 18, 26].forEach((r) => {
       const count = Math.floor(r * 0.8);
-      for(let i=0; i<count; i++) {
-        const angle = (i/count) * Math.PI * 2;
-        lines.push({ 
-           points: generateHorizontalStreamline(r, angle, config.turbulence),
-           delay: Math.random() * 100
+      for (let i = 0; i < count; i++) {
+        const angle = (i / count) * Math.PI * 2;
+        result.push({
+          points: generateHorizontalStreamline(r, angle, cfg.turbulence),
+          delay: Math.random() * 100,
         });
       }
     });
-    return lines;
-  }, [config.turbulence]);
-  
+    return result;
+  }, [cfg.turbulence]);
+
   return (
     <group>
-      {streamlines.map((l, i) => (
-        <Streamline key={i} {...l} color={config.color} active={active} />
+      {lines.map((l, i) => (
+        <Streamline key={i} {...l} color={cfg.color} active={active} />
       ))}
     </group>
   );
 }
 
-function FlowParticles({ active, profileIdx }: { active: boolean, profileIdx: number }) {
-  const meshRef = useRef<THREE.InstancedMesh>(null);
-  const count = 250;
+function FlowParticles({
+  active,
+  profileIdx,
+}: {
+  active: boolean;
+  profileIdx: number;
+}) {
+  const ref = useRef<THREE.InstancedMesh>(null);
+  const cfg = AERODYNAMICS_CONFIG[profileIdx];
+  const count = 200;
   const dummy = useMemo(() => new THREE.Object3D(), []);
-  const config = AERODYNAMICS_CONFIG[profileIdx];
 
-  const particles = useMemo(() => {
-    return new Array(count).fill(0).map(() => {
-       const angle = Math.random() * Math.PI * 2;
-       const r = 12 + Math.random() * 20;
-       return {
-         pos: new THREE.Vector3(
-           (Math.random() - 0.5) * 200, // Spread along Length (X)
-           Math.cos(angle) * r,         // Circle Y
-           Math.sin(angle) * r          // Circle Z
-         ),
-         speed: 1.0 + Math.random(),
-         angle: angle,
-         radius: r
-       };
-    });
-  }, []);
+  const particles = useMemo(
+    () =>
+      Array.from({ length: count }, () => {
+        const a = Math.random() * Math.PI * 2;
+        const r = 14 + Math.random() * 20;
+        return {
+          pos: new THREE.Vector3(-120 + Math.random() * 240, Math.cos(a) * r, Math.sin(a) * r),
+          speed: 40 + Math.random() * 20,
+        };
+      }),
+    []
+  );
 
   useFrame((_, delta) => {
-    if (!meshRef.current) return;
-    const mat = meshRef.current.material as THREE.MeshBasicMaterial;
-    mat.opacity = THREE.MathUtils.lerp(mat.opacity, active ? 0.8 : 0, 0.1);
-    mat.color.lerp(new THREE.Color(config.color), 0.05);
+    if (!ref.current) return;
+    const mat = ref.current.material as THREE.MeshBasicMaterial;
+    mat.opacity = THREE.MathUtils.lerp(mat.opacity, active ? 0.7 : 0, 0.1);
+    mat.color.lerp(new THREE.Color(cfg.color), 0.05);
 
     particles.forEach((p, i) => {
-      // Move RIGHT (+X)
-      p.pos.x += p.speed * 60 * delta;
-      
-      // Reset when passed the tail
-      if (p.pos.x > 100) {
-        p.pos.x = -100;
-        p.angle = Math.random() * Math.PI * 2;
-        p.radius = 12 + Math.random() * 20;
-        p.pos.y = Math.cos(p.angle) * p.radius;
-        p.pos.z = Math.sin(p.angle) * p.radius;
-      }
-      
+      p.pos.x += p.speed * delta;
+      if (p.pos.x > 140) p.pos.x = -140;
+
       dummy.position.copy(p.pos);
       dummy.scale.setScalar(0.4);
       dummy.updateMatrix();
-      meshRef.current!.setMatrixAt(i, dummy.matrix);
+      ref.current!.setMatrixAt(i, dummy.matrix);
     });
-    meshRef.current.instanceMatrix.needsUpdate = true;
+
+    ref.current.instanceMatrix.needsUpdate = true;
   });
 
   return (
-    <instancedMesh ref={meshRef} args={[undefined, undefined, count]}>
+    <instancedMesh ref={ref} args={[undefined, undefined, count]}>
       <sphereGeometry args={[1, 4, 4]} />
-      <meshBasicMaterial transparent opacity={0} color={config.color} />
+      <meshBasicMaterial transparent opacity={0} />
     </instancedMesh>
   );
 }
 
-// --- UI COMPONENTS ---
-// (Kept exactly the same as your previous code)
-function InstructionOverlay({ onDismiss }: { onDismiss: () => void }) {
-  return (
-    <div onClick={onDismiss} className="absolute inset-0 z-[200] bg-white/60 backdrop-blur-[2px] flex flex-col items-center justify-center cursor-pointer transition-all duration-500 hover:bg-white/40 group px-4">
-       <div className="flex flex-col items-center animate-in fade-in zoom-in duration-500">
-           <h2 className="text-3xl font-black text-neutral-900 tracking-tighter uppercase mb-2 text-center drop-shadow-sm">Start Analysis</h2>
-           <div className="flex items-center gap-4 text-neutral-500 text-[10px] font-bold tracking-widest uppercase bg-white px-4 py-2 rounded-full border border-neutral-200 shadow-sm">
-               <span>Click to Start</span>
-           </div>
-       </div>
-    </div>
-  );
-}
-
-// --- MAIN COMPONENT ---
+// -----------------------------------------------------------------------------
+// 4. MAIN VIEWER
+// -----------------------------------------------------------------------------
 
 export default function ZoomerCFDViewer() {
-  const [hasInteracted, setHasInteracted] = useState(false);
-  const [cfdEnabled, setCfdEnabled] = useState(true);
-  const [selectedVariationIdx, setSelectedVariationIdx] = useState(1); 
-  const currentConfig = AERODYNAMICS_CONFIG[selectedVariationIdx];
+  const [flowOn, setFlowOn] = useState(true);
+  const [variant, setVariant] = useState(1);
+  const cfg = AERODYNAMICS_CONFIG[variant];
 
   return (
-    <div className="w-full h-[700px] relative bg-white rounded-xl overflow-hidden shadow-sm border border-neutral-200 font-sans select-none group">
-      
-      {/* HUD (Same as before) */}
+    <div className="relative w-full h-[700px] bg-white rounded-xl overflow-hidden border">
+      {/* HUD */}
       <div className="absolute top-8 left-8 z-50">
-        <h1 className="text-3xl font-black text-neutral-900 tracking-tighter">ZOOMER L2</h1>
-        <p className="text-neutral-500 text-[10px] font-bold uppercase tracking-widest mt-1">Wind Tunnel Simulation</p>
-        <div className="mt-6 bg-white/80 backdrop-blur-md border border-neutral-200 p-4 rounded-xl shadow-sm w-48">
-            <span className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider block mb-1">Drag Coefficient ($C_d$)</span>
-            <div className="flex items-center gap-2">
-                <span className="text-4xl font-mono font-black text-neutral-900 tracking-tighter">{currentConfig.cd.toFixed(2)}</span>
-            </div>
+        <h1 className="text-3xl font-black">ZOOMER L2</h1>
+        <p className="text-[10px] uppercase tracking-widest text-neutral-500">
+          Wind Tunnel Simulation
+        </p>
+
+        <div className="mt-6 bg-white/80 backdrop-blur-md border p-4 rounded-xl w-48">
+          <span className="text-[10px] uppercase text-neutral-400">
+            Drag Coefficient (Cd)
+          </span>
+          <div className="text-4xl font-mono font-black">
+            {cfg.cd.toFixed(2)}
+          </div>
         </div>
       </div>
 
-      {!hasInteracted && <InstructionOverlay onDismiss={() => setHasInteracted(true)} />}
-
       <div className="absolute top-8 right-8 z-50">
-         <button onClick={() => setCfdEnabled(!cfdEnabled)} className={cn("flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] font-bold uppercase transition-all border shadow-sm", cfdEnabled ? "bg-blue-50 text-blue-600 border-blue-200" : "bg-white text-neutral-400 border-neutral-200")}>
-            <Wind className="w-3 h-3" /> Flow {cfdEnabled ? "ON" : "OFF"}
-         </button>
+        <button
+          onClick={() => setFlowOn(!flowOn)}
+          className={cn(
+            "flex items-center gap-2 px-3 py-1.5 rounded-full text-[10px] uppercase border",
+            flowOn
+              ? "bg-blue-50 text-blue-600 border-blue-200"
+              : "bg-white text-neutral-400"
+          )}
+        >
+          <Wind className="w-3 h-3" />
+          Flow {flowOn ? "ON" : "OFF"}
+        </button>
       </div>
 
-      <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50 bg-white/90 backdrop-blur-xl p-2 rounded-2xl border border-neutral-200 shadow-2xl flex gap-2">
-         {AERODYNAMICS_CONFIG.map((config, idx) => (
-             <button key={config.id} onClick={() => setSelectedVariationIdx(idx)} className={cn("px-4 py-3 rounded-xl text-xs font-bold transition-all border flex flex-col items-center gap-1 min-w-[90px]", selectedVariationIdx === idx ? "bg-neutral-900 text-white border-neutral-900 shadow-lg scale-105" : "bg-transparent text-neutral-500 border-transparent hover:bg-neutral-100")}>
-                <span>{config.label}</span>
-             </button>
-         ))}
-      </div>
+      <Canvas dpr={[1, 2]}>
+        <PerspectiveCamera makeDefault position={[-220, 20, 0]} fov={30} />
+        <color attach="background" args={["#ffffff"]} />
 
-      <Canvas shadows dpr={[1, 2]}>
-        <PerspectiveCamera makeDefault position={[0, 80, 250]} fov={35} />
-        <color attach="background" args={['#ffffff']} />
-        
-        <Suspense fallback={<Html center>Loading...</Html>}>
+        <Suspense fallback={<Html center>Loading…</Html>}>
           <Environment preset="studio" />
           <ambientLight intensity={0.6} />
-          <directionalLight position={[50, 100, 50]} intensity={2} castShadow />
-          <Grid position={[0, -50, 0]} args={[1000, 1000]} cellSize={40} fadeDistance={500} />
+          <directionalLight position={[60, 80, 40]} intensity={2} />
 
-          {/* === THE FIX: UNIFIED GROUP WITH CENTERED GEOMETRY === */}
-          {/* We wrap everything in Center so the geometric center of the rocket is (0,0,0) */}
-          <Center top>
-             <group>
-                {/* 1. The Rocket */}
-                <ZoomerRocket />
+          <Grid
+            position={[0, -40, 0]}
+            args={[600, 600]}
+            cellSize={30}
+            fadeDistance={300}
+          />
 
-                {/* 2. The Flow Lines (Attached to the rocket group) */}
-                {/* Generated around (0,0,0) so they naturally surround the centered rocket */}
-                <CFDStreamlines active={cfdEnabled} profileIdx={selectedVariationIdx} />
-                <FlowParticles active={cfdEnabled} profileIdx={selectedVariationIdx} />
-             </group>
-          </Center>
+          <group>
+            <ZoomerRocket />
+            <CFDStreamlines active={flowOn} profileIdx={variant} />
+            <FlowParticles active={flowOn} profileIdx={variant} />
+          </group>
 
-          <CameraControls minPolarAngle={0} maxPolarAngle={Math.PI / 1.8} minDistance={150} maxDistance={600} />
-          <ContactShadows resolution={1024} scale={300} blur={3} opacity={0.2} far={100} color="#000000" />
+          <CameraControls
+            minPolarAngle={Math.PI / 2 - 0.2}
+            maxPolarAngle={Math.PI / 2 + 0.2}
+            minDistance={180}
+            maxDistance={500}
+          />
+
+          <ContactShadows
+            scale={300}
+            blur={3}
+            opacity={0.25}
+            far={120}
+          />
         </Suspense>
       </Canvas>
     </div>

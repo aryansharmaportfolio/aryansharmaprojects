@@ -38,7 +38,7 @@ function generateHorizontalStreamline(
   const points: THREE.Vector3[] = [];
   const steps = 45;
 
-  // Start further left to ensure full coverage
+  // Start further left
   let x = -140;
   let y = Math.cos(angle) * radius;
   let z = Math.sin(angle) * radius;
@@ -50,20 +50,15 @@ function generateHorizontalStreamline(
     let flowY = 0;
     let flowZ = 0;
 
-    // Check collision against the central tube (Rocket Body)
     const currentRadius = Math.sqrt(y * y + z * z);
 
-    // Approximate the rocket body radius (8 units)
     let obstacleRadius = 8;
-    
-    // Linear Nose Cone Expansion (visual approximation)
-    // If x is between -140 and -80, expand radius from 0 to 8
+    // Linear Nose Cone Expansion
     if (x < -80) {
       obstacleRadius = THREE.MathUtils.mapLinear(x, -140, -80, 0, 8);
     }
 
     // "Clip" / Deflect Logic
-    // If a point is inside the rocket, push it out
     if (currentRadius < obstacleRadius + 2) {
       const push = (obstacleRadius + 2 - currentRadius) * 0.6;
       const a = Math.atan2(z, y);
@@ -92,13 +87,12 @@ function ZoomerRocket() {
   const clone = useMemo(() => scene.clone(), [scene]);
 
   return (
-    // THE FIX: Wrap in <Center> to force the geometry to (0,0,0)
-    // This aligns it perfectly with the flow lines.
+    // THE FIX:
+    // 1. <Center>: Aligns the rocket geometry to (0,0,0) so flow lines go THROUGH it.
+    // 2. NO ROTATION: We removed the rotation so it stays horizontal like the original glb.
     <Center>
         <primitive
           object={clone}
-          // Rotate -90 degrees on Z to point Right (+X) if model is Up (+Y)
-          rotation={[0, 0, -Math.PI / 2]} 
           scale={1}
         />
     </Center>
@@ -143,7 +137,6 @@ function CFDStreamlines({
 
   const lines = useMemo(() => {
     const result: any[] = [];
-    // Radii of flow rings
     [10, 16, 24].forEach((r) => {
       const count = Math.floor(r * 0.8);
       for (let i = 0; i < count; i++) {
@@ -203,7 +196,7 @@ function FlowParticles({
       // Reset if passed tail
       if (p.pos.x > 140) p.pos.x = -140;
 
-      // Simple radial collision check
+      // Radial collision check
       const r = Math.sqrt(p.pos.y*p.pos.y + p.pos.z*p.pos.z);
       if (r < 10) {
          // Push out

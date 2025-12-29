@@ -18,17 +18,6 @@ const AERODYNAMICS_CONFIG = [
   { id: 'ext',   label: 'Extended',    cd: 0.32, turbulence: 0.1, color: '#10b981' },   
 ];
 
-// --- POSITIONAL FIXES ---
-// Adjust these if it's still slightly off!
-const OFFSET_X = -130;  // Shift Left (Negative X) to reach the nose
-const OFFSET_Y = 0;     // Shift Up/Down to match rocket height (0 is usually center)
-const OFFSET_Z = 0;     // Shift Depth
-
-// Rocket Dimensions (Approximated)
-const ROCKET_RADIUS = 8;
-const NOSE_LENGTH = 40; 
-const BODY_LENGTH = 120; 
-
 // --- 2. 3D COMPONENTS ---
 
 function ZoomerRocket() {
@@ -36,84 +25,60 @@ function ZoomerRocket() {
   const ref = useRef<THREE.Group>(null);
   const clone = useMemo(() => scene.clone(), [scene]);
 
+  // Ensure rocket is pointing along Positive X axis
   return (
     <group ref={ref}>
-      {/* We center the ROCKET model itself, but keep particles absolute */}
-      <Center top> 
-          <primitive object={clone} />
-      </Center>
+      <primitive object={clone} />
     </group>
   );
 }
 
 /**
- * Generate a single streamline path strictly along X-Axis
+ * GENERATOR: We calculate "Vertical" flow (falling down Y) 
+ * because the math is easier, then we simply ROTATE the group 90 degrees later.
  */
 function generateStreamline(
-  startRadius: number, 
-  angle: number, 
+  startX: number, 
+  startZ: number, 
   turbulence: number
 ): THREE.Vector3[] {
   const points: THREE.Vector3[] = [];
-  const steps = 50; 
-  const stepSize = 8; // Faster flow
+  const steps = 60;
+  const stepSize = 5;
   
-  // Start Position: Circle around the X-axis, offset by our Manual Offsets
-  let x = OFFSET_X; 
-  let y = OFFSET_Y + Math.cos(angle) * startRadius;
-  let z = OFFSET_Z + Math.sin(angle) * startRadius;
+  // Start "above" (will become "left of" after rotation)
+  let x = startX;
+  let y = 100; 
+  let z = startZ;
   
   for (let i = 0; i < steps; i++) {
     points.push(new THREE.Vector3(x, y, z));
     
-    // --- PHYSICS: HORIZONTAL FLOW ---
-    // Velocity is strictly X-positive (Left to Right)
-    let flowX = stepSize;
-    let flowY = 0;
+    // Flow moves "Down" Y (which we will rotate to be X)
+    let flowX = 0;
+    let flowY = -stepSize;
     let flowZ = 0;
     
-    // Calculate Radial Distance relative to the Rocket Body Axis (y=0, z=0 roughly)
-    // We adjust for OFFSET_Y/Z to check collision against the rocket's "true" center
-    const localY = y - OFFSET_Y;
-    const localZ = z - OFFSET_Z;
-    const radialDist = Math.sqrt(localY * localY + localZ * localZ);
-    const radialAngle = Math.atan2(localZ, localY);
+    // Radial distance from center (simulated cylinder)
+    const radialDist = Math.sqrt(x * x + z * z);
+    const angle = Math.atan2(z, x);
     
-    // --- COLLISION LOGIC ---
-    let effectiveRadius = ROCKET_RADIUS;
-
-    // Nose Cone Expansion (Linear approximation)
-    const distFromNose = x - OFFSET_X;
-    if (distFromNose < NOSE_LENGTH && distFromNose > 0) {
-        effectiveRadius = ROCKET_RADIUS * (distFromNose / NOSE_LENGTH);
+    // Basic Collision: If close to center (radius < 10), push out
+    if (radialDist < 12 && y < 80 && y > -80) {
+      const pushFactor = (12 - radialDist) * 0.5;
+      flowX += Math.cos(angle) * pushFactor;
+      flowZ += Math.sin(angle) * pushFactor;
     }
     
-    // Fin Expansion (at the back)
-    if (distFromNose > BODY_LENGTH - 20) {
-         effectiveRadius = ROCKET_RADIUS + 15; // Fins stick out
-    }
-    
-    const deflectionZone = effectiveRadius * 1.5;
-    
-    if (radialDist < deflectionZone && x > OFFSET_X) {
-      const deflectionStrength = Math.pow(1 - (radialDist / deflectionZone), 2);
-      const pushForce = deflectionStrength * 4.0; // Strong push
-      
-      // Push OUTWARDS (Y/Z only)
-      flowY += Math.cos(radialAngle) * pushForce;
-      flowZ += Math.sin(radialAngle) * pushForce;
-    }
-    
-    // --- TURBULENCE ---
+    // Turbulence
     const tScale = turbulence * 0.5;
-    flowY += (Math.random() - 0.5) * tScale;
+    flowX += (Math.random() - 0.5) * tScale;
     flowZ += (Math.random() - 0.5) * tScale;
     
     x += flowX;
     y += flowY;
     z += flowZ;
   }
-  
   return points;
 }
 
@@ -123,11 +88,10 @@ function Streamline({ points, color, active, delay }: any) {
   
   useFrame((_, delta) => {
     if (!lineRef.current) return;
-    progressRef.current += delta * 50; 
+    progressRef.current += delta * 40;
     if (progressRef.current > 100) progressRef.current = 0;
-    
     lineRef.current.material.dashOffset = -progressRef.current;
-    lineRef.current.material.opacity = active ? 0.5 : 0;
+    lineRef.current.material.opacity = active ? 0.6 : 0;
   });
   
   return (
@@ -135,10 +99,10 @@ function Streamline({ points, color, active, delay }: any) {
       ref={lineRef}
       points={points}
       color={color}
-      lineWidth={2}
+      lineWidth={1.5}
       dashed
       dashScale={3}
-      dashSize={6}
+      dashSize={4}
       dashOffset={0}
       transparent
       opacity={0}
@@ -148,20 +112,19 @@ function Streamline({ points, color, active, delay }: any) {
 
 function CFDStreamlines({ active, profileIdx }: { active: boolean, profileIdx: number }) {
   const config = AERODYNAMICS_CONFIG[profileIdx];
-  
   const streamlines = useMemo(() => {
-    const lines: { points: THREE.Vector3[], delay: number }[] = [];
-    
-    // Generate rings of flow
-    const rings = [10, 16, 24]; 
-    const pointsPerRing = [8, 12, 16];
-    
-    rings.forEach((radius, ringIdx) => {
-      const numPoints = pointsPerRing[ringIdx];
-      for (let i = 0; i < numPoints; i++) {
-        const angle = (i / numPoints) * Math.PI * 2;
-        const points = generateStreamline(radius, angle, config.turbulence);
-        lines.push({ points, delay: Math.random() * 100 });
+    const lines: any[] = [];
+    const rings = [15, 25, 35]; // Radii
+    rings.forEach((r) => {
+      const count = Math.floor(r * 0.8);
+      for(let i=0; i<count; i++) {
+        const angle = (i/count) * Math.PI * 2;
+        const x = Math.cos(angle) * r;
+        const z = Math.sin(angle) * r;
+        lines.push({ 
+           points: generateStreamline(x, z, config.turbulence),
+           delay: Math.random() * 100
+        });
       }
     });
     return lines;
@@ -169,14 +132,8 @@ function CFDStreamlines({ active, profileIdx }: { active: boolean, profileIdx: n
   
   return (
     <group>
-      {streamlines.map((line, idx) => (
-        <Streamline
-          key={`${profileIdx}-${idx}`}
-          points={line.points}
-          color={config.color}
-          active={active}
-          delay={line.delay}
-        />
+      {streamlines.map((l, i) => (
+        <Streamline key={i} {...l} color={config.color} active={active} />
       ))}
     </group>
   );
@@ -189,23 +146,16 @@ function FlowParticles({ active, profileIdx }: { active: boolean, profileIdx: nu
   const config = AERODYNAMICS_CONFIG[profileIdx];
 
   const particles = useMemo(() => {
-    return new Array(count).fill(0).map(() => {
-      // Initialize randomly along the tunnel length
-      const startX = OFFSET_X + Math.random() * 200; 
-      const angle = Math.random() * Math.PI * 2;
-      const radius = 12 + Math.random() * 20;
-      
-      return {
-        pos: new THREE.Vector3(
-          startX,
-          OFFSET_Y + Math.cos(angle) * radius,
-          OFFSET_Z + Math.sin(angle) * radius
-        ),
-        speed: Math.random() * 0.5 + 1.0, // fast speed
-        angle: angle,
-        radius: radius
-      };
-    });
+    return new Array(count).fill(0).map(() => ({
+       pos: new THREE.Vector3(
+         (Math.random()-0.5) * 50, // spread X
+         100 + Math.random() * 100, // start high Y
+         (Math.random()-0.5) * 50  // spread Z
+       ),
+       speed: 1 + Math.random(),
+       angle: Math.random() * Math.PI * 2,
+       radius: 15 + Math.random() * 20
+    }));
   }, []);
 
   useFrame((_, delta) => {
@@ -215,34 +165,19 @@ function FlowParticles({ active, profileIdx }: { active: boolean, profileIdx: nu
     mat.color.lerp(new THREE.Color(config.color), 0.05);
 
     particles.forEach((p, i) => {
-      // 1. MOVE HORIZONTALLY (X)
-      p.pos.x += p.speed * 80 * delta;
-
-      // 2. RESET if too far right
-      if (p.pos.x > OFFSET_X + 250) {
-        p.pos.x = OFFSET_X; // Back to start
+      // Move "Down" Y
+      p.pos.y -= p.speed * 60 * delta;
+      
+      // Reset
+      if (p.pos.y < -100) {
+        p.pos.y = 100;
+        // Randomize cylinder position
         p.angle = Math.random() * Math.PI * 2;
-        p.radius = 12 + Math.random() * 20;
-        p.pos.y = OFFSET_Y + Math.cos(p.angle) * p.radius;
-        p.pos.z = OFFSET_Z + Math.sin(p.angle) * p.radius;
-      }
-
-      // 3. COLLISION (Simplified)
-      const localY = p.pos.y - OFFSET_Y;
-      const localZ = p.pos.z - OFFSET_Z;
-      const dist = Math.sqrt(localY*localY + localZ*localZ);
-      
-      // If hitting the body (radius ~8), push out
-      if (dist < 10 && p.pos.x > OFFSET_X + 20) {
-         const pushAngle = Math.atan2(localZ, localY);
-         p.pos.y = OFFSET_Y + Math.cos(pushAngle) * 12;
-         p.pos.z = OFFSET_Z + Math.sin(pushAngle) * 12;
+        p.pos.x = Math.cos(p.angle) * p.radius;
+        p.pos.z = Math.sin(p.angle) * p.radius;
       }
       
-      // Turbulence jitter
-      p.pos.y += (Math.random() - 0.5) * 0.2;
-      p.pos.z += (Math.random() - 0.5) * 0.2;
-
+      // Update Instance
       dummy.position.copy(p.pos);
       dummy.scale.setScalar(0.4);
       dummy.updateMatrix();
@@ -259,7 +194,7 @@ function FlowParticles({ active, profileIdx }: { active: boolean, profileIdx: nu
   );
 }
 
-// --- UI COMPONENTS STAY THE SAME ---
+// --- UI COMPONENTS ---
 
 function InstructionOverlay({ onDismiss }: { onDismiss: () => void }) {
   return (
@@ -274,7 +209,7 @@ function InstructionOverlay({ onDismiss }: { onDismiss: () => void }) {
   );
 }
 
-// --- MAIN EXPORT ---
+// --- MAIN COMPONENT ---
 
 export default function ZoomerCFDViewer() {
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -314,24 +249,30 @@ export default function ZoomerCFDViewer() {
       </div>
 
       <Canvas shadows dpr={[1, 2]}>
-        <PerspectiveCamera makeDefault position={[0, 50, 250]} fov={35} />
+        <PerspectiveCamera makeDefault position={[0, 80, 250]} fov={40} />
         <color attach="background" args={['#ffffff']} />
         
         <Suspense fallback={<Html center>Loading...</Html>}>
           <Environment preset="studio" />
           <ambientLight intensity={0.6} />
           <directionalLight position={[50, 100, 50]} intensity={2} castShadow />
-          
           <Grid position={[0, -50, 0]} args={[1000, 1000]} cellSize={40} fadeDistance={500} />
 
-          {/* ROCKET IN GROUP */}
-          <group>
-             <ZoomerRocket />
-          </group>
+          {/* === THE FIX: SINGLE GROUP FOR ALIGNMENT === */}
+          <Center top>
+            <group>
+                {/* 1. THE ROCKET */}
+                <ZoomerRocket />
 
-          {/* PARTICLES OUTSIDE OF CENTER COMPONENT to preserve Absolute Coordinates */}
-          <CFDStreamlines active={cfdEnabled} profileIdx={selectedVariationIdx} />
-          <FlowParticles active={cfdEnabled} profileIdx={selectedVariationIdx} />
+                {/* 2. THE FLOW - ROTATED 90 DEGREES */}
+                {/* We rotate -90 deg on Z to turn "Falling Down" into "Flowing Right" */}
+                {/* We offset X by -85 to start at the Nose Tip */}
+                <group rotation={[0, 0, -Math.PI / 2]} position={[-85, 0, 0]}>
+                    <CFDStreamlines active={cfdEnabled} profileIdx={selectedVariationIdx} />
+                    <FlowParticles active={cfdEnabled} profileIdx={selectedVariationIdx} />
+                </group>
+            </group>
+          </Center>
 
           <CameraControls minPolarAngle={0} maxPolarAngle={Math.PI / 1.8} minDistance={100} maxDistance={500} />
           <ContactShadows resolution={1024} scale={300} blur={3} opacity={0.2} far={100} color="#000000" />

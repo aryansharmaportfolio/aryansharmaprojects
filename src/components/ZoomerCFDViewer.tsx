@@ -27,11 +27,10 @@ const AERODYNAMICS_CONFIG = [
 ];
 
 // -----------------------------------------------------------------------------
-// 2. FLOW MATH (GENERATOR)
-// We generate along X, but we will ROTATE the group 90deg to match Z
+// 2. FLOW MATH (PURE HORIZONTAL X-AXIS)
 // -----------------------------------------------------------------------------
 
-function generateStreamlinePoints(
+function generateHorizontalStreamline(
   radius: number,
   angle: number,
   turbulence: number
@@ -39,7 +38,7 @@ function generateStreamlinePoints(
   const points: THREE.Vector3[] = [];
   const steps = 45;
 
-  // Start "left" (relative to the flow group)
+  // Start Left (-X)
   let x = -140;
   let y = Math.cos(angle) * radius;
   let z = Math.sin(angle) * radius;
@@ -52,14 +51,15 @@ function generateStreamlinePoints(
     let flowZ = 0;
 
     const currentRadius = Math.sqrt(y * y + z * z);
-    
-    // Collision Obstacle (The Rocket Body)
-    // We map the collision logic relative to the flow line's local space
+
+    // Rocket Body Collision (Cylinder radius ~8)
     let obstacleRadius = 8;
+    // Nose Cone Taper (Linear approximation)
     if (x < -80) {
       obstacleRadius = THREE.MathUtils.mapLinear(x, -140, -80, 0, 8);
     }
 
+    // Deflect if hitting the body
     if (currentRadius < obstacleRadius + 2) {
       const push = (obstacleRadius + 2 - currentRadius) * 0.6;
       const a = Math.atan2(z, y);
@@ -67,6 +67,7 @@ function generateStreamlinePoints(
       flowZ += Math.sin(a) * push;
     }
 
+    // Turbulence
     flowY += (Math.random() - 0.5) * turbulence * 0.4;
     flowZ += (Math.random() - 0.5) * turbulence * 0.4;
 
@@ -87,8 +88,12 @@ function ZoomerRocket() {
   const clone = useMemo(() => scene.clone(), [scene]);
 
   return (
-    // ROCKET: Kept strictly original orientation
-    <primitive object={clone} />
+    // THE FIX: Rotate the rocket -90deg on Z to lay it FLAT on the X-Axis
+    <primitive
+      object={clone}
+      rotation={[0, 0, -Math.PI / 2]} 
+      scale={1}
+    />
   );
 }
 
@@ -119,7 +124,13 @@ function Streamline({ points, color, active, delay }: any) {
   );
 }
 
-function CFDStreamlines({ active, profileIdx }: { active: boolean; profileIdx: number }) {
+function CFDStreamlines({
+  active,
+  profileIdx,
+}: {
+  active: boolean;
+  profileIdx: number;
+}) {
   const cfg = AERODYNAMICS_CONFIG[profileIdx];
 
   const lines = useMemo(() => {
@@ -129,7 +140,7 @@ function CFDStreamlines({ active, profileIdx }: { active: boolean; profileIdx: n
       for (let i = 0; i < count; i++) {
         const angle = (i / count) * Math.PI * 2;
         result.push({
-          points: generateStreamlinePoints(r, angle, cfg.turbulence),
+          points: generateHorizontalStreamline(r, angle, cfg.turbulence),
           delay: Math.random() * 100,
         });
       }
@@ -146,7 +157,13 @@ function CFDStreamlines({ active, profileIdx }: { active: boolean; profileIdx: n
   );
 }
 
-function FlowParticles({ active, profileIdx }: { active: boolean; profileIdx: number }) {
+function FlowParticles({
+  active,
+  profileIdx,
+}: {
+  active: boolean;
+  profileIdx: number;
+}) {
   const ref = useRef<THREE.InstancedMesh>(null);
   const cfg = AERODYNAMICS_CONFIG[profileIdx];
   const count = 200;
@@ -158,6 +175,7 @@ function FlowParticles({ active, profileIdx }: { active: boolean; profileIdx: nu
         const a = Math.random() * Math.PI * 2;
         const r = 12 + Math.random() * 20;
         return {
+          // Spread along X axis (-120 to +120)
           pos: new THREE.Vector3(-120 + Math.random() * 240, Math.cos(a) * r, Math.sin(a) * r),
           speed: 40 + Math.random() * 20,
         };
@@ -176,7 +194,7 @@ function FlowParticles({ active, profileIdx }: { active: boolean; profileIdx: nu
       
       if (p.pos.x > 140) p.pos.x = -140;
 
-      // Radial collision check
+      // Radial collision check (Cylinder along X)
       const r = Math.sqrt(p.pos.y*p.pos.y + p.pos.z*p.pos.z);
       if (r < 10) {
          const ang = Math.atan2(p.pos.z, p.pos.y);
@@ -291,16 +309,14 @@ export default function ZoomerCFDViewer() {
             cellColor="#e5e5e5"
           />
 
-          <Center>
+          <Center top>
               <group>
-                  {/* 1. ROCKET: Original Orientation */}
+                  {/* ROCKET LAYING FLAT */}
                   <ZoomerRocket />
 
-                  {/* 2. FLOW: Rotated 90 degrees on Y-axis to match depth/length */}
-                  <group rotation={[0, Math.PI / 2, 0]}>
-                      <CFDStreamlines active={flowOn} profileIdx={variant} />
-                      <FlowParticles active={flowOn} profileIdx={variant} />
-                  </group>
+                  {/* FLOW LINES ALONG X (HORIZONTAL) */}
+                  <CFDStreamlines active={flowOn} profileIdx={variant} />
+                  <FlowParticles active={flowOn} profileIdx={variant} />
               </group>
           </Center>
 

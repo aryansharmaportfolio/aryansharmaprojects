@@ -27,7 +27,7 @@ const AERODYNAMICS_CONFIG = [
 ];
 
 // -----------------------------------------------------------------------------
-// 2. FLOW MATH (PURE HORIZONTAL X-AXIS)
+// 2. FLOW MATH (PURE +X FLOW)
 // -----------------------------------------------------------------------------
 
 function generateHorizontalStreamline(
@@ -38,7 +38,7 @@ function generateHorizontalStreamline(
   const points: THREE.Vector3[] = [];
   const steps = 45;
 
-  // Start Left (-X)
+  // Start further left
   let x = -140;
   let y = Math.cos(angle) * radius;
   let z = Math.sin(angle) * radius;
@@ -52,14 +52,13 @@ function generateHorizontalStreamline(
 
     const currentRadius = Math.sqrt(y * y + z * z);
 
-    // Rocket Body Collision (Cylinder radius ~8)
     let obstacleRadius = 8;
-    // Nose Cone Taper (Linear approximation)
+    // Linear Nose Cone Expansion
     if (x < -80) {
       obstacleRadius = THREE.MathUtils.mapLinear(x, -140, -80, 0, 8);
     }
 
-    // Deflect if hitting the body
+    // "Clip" / Deflect Logic
     if (currentRadius < obstacleRadius + 2) {
       const push = (obstacleRadius + 2 - currentRadius) * 0.6;
       const a = Math.atan2(z, y);
@@ -88,12 +87,15 @@ function ZoomerRocket() {
   const clone = useMemo(() => scene.clone(), [scene]);
 
   return (
-    // THE FIX: Rotate the rocket -90deg on Z to lay it FLAT on the X-Axis
-    <primitive
-      object={clone}
-      rotation={[0, 0, -Math.PI / 2]} 
-      scale={1}
-    />
+    // THE FIX:
+    // 1. <Center>: Aligns the rocket geometry to (0,0,0) so flow lines go THROUGH it.
+    // 2. NO ROTATION: We removed the rotation so it stays horizontal like the original glb.
+    <Center>
+        <primitive
+          object={clone}
+          scale={1}
+        />
+    </Center>
   );
 }
 
@@ -175,7 +177,6 @@ function FlowParticles({
         const a = Math.random() * Math.PI * 2;
         const r = 12 + Math.random() * 20;
         return {
-          // Spread along X axis (-120 to +120)
           pos: new THREE.Vector3(-120 + Math.random() * 240, Math.cos(a) * r, Math.sin(a) * r),
           speed: 40 + Math.random() * 20,
         };
@@ -192,11 +193,13 @@ function FlowParticles({
     particles.forEach((p, i) => {
       p.pos.x += p.speed * delta;
       
+      // Reset if passed tail
       if (p.pos.x > 140) p.pos.x = -140;
 
-      // Radial collision check (Cylinder along X)
+      // Radial collision check
       const r = Math.sqrt(p.pos.y*p.pos.y + p.pos.z*p.pos.z);
       if (r < 10) {
+         // Push out
          const ang = Math.atan2(p.pos.z, p.pos.y);
          p.pos.y = Math.cos(ang) * 12;
          p.pos.z = Math.sin(ang) * 12;
@@ -292,7 +295,7 @@ export default function ZoomerCFDViewer() {
 
       {/* --- 3D SCENE --- */}
       <Canvas dpr={[1, 2]}>
-        <PerspectiveCamera makeDefault position={[-200, 100, 200]} fov={35} />
+        <PerspectiveCamera makeDefault position={[-220, 20, 0]} fov={30} />
         <color attach="background" args={["#ffffff"]} />
 
         <Suspense fallback={<Html center className="text-neutral-400 font-mono text-xs">Loading Model...</Html>}>
@@ -309,20 +312,15 @@ export default function ZoomerCFDViewer() {
             cellColor="#e5e5e5"
           />
 
-          <Center top>
-              <group>
-                  {/* ROCKET LAYING FLAT */}
-                  <ZoomerRocket />
-
-                  {/* FLOW LINES ALONG X (HORIZONTAL) */}
-                  <CFDStreamlines active={flowOn} profileIdx={variant} />
-                  <FlowParticles active={flowOn} profileIdx={variant} />
-              </group>
-          </Center>
+          <group>
+            <ZoomerRocket />
+            <CFDStreamlines active={flowOn} profileIdx={variant} />
+            <FlowParticles active={flowOn} profileIdx={variant} />
+          </group>
 
           <CameraControls
-            minPolarAngle={Math.PI / 4}
-            maxPolarAngle={Math.PI / 2 + 0.2}
+            minPolarAngle={Math.PI / 2 - 0.5}
+            maxPolarAngle={Math.PI / 2 + 0.5}
             minDistance={180}
             maxDistance={500}
           />

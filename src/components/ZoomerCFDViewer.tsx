@@ -11,21 +11,22 @@ import { cn } from "@/lib/utils";
 
 // --- 1. CONFIGURATION ---
 
-// The 4 Aerodynamic Variations
 const AERODYNAMICS_CONFIG = [
-  { id: 'short', label: 'Short Chord', cd: 0.52, turbulence: 0.8, color: '#ef4444' },   // Red
-  { id: 'std',   label: 'Standard',    cd: 0.45, turbulence: 0.5, color: '#f59e0b' },   // Orange
-  { id: 'long',  label: 'Long Chord',  cd: 0.38, turbulence: 0.3, color: '#3b82f6' },   // Blue
-  { id: 'ext',   label: 'Extended',    cd: 0.32, turbulence: 0.1, color: '#10b981' },   // Green
+  { id: 'short', label: 'Short Chord', cd: 0.52, turbulence: 0.8, color: '#ef4444' },   
+  { id: 'std',   label: 'Standard',    cd: 0.45, turbulence: 0.5, color: '#f59e0b' },   
+  { id: 'long',  label: 'Long Chord',  cd: 0.38, turbulence: 0.3, color: '#3b82f6' },   
+  { id: 'ext',   label: 'Extended',    cd: 0.32, turbulence: 0.1, color: '#10b981' },   
 ];
 
-// Rocket body parameters for flow calculation
+// --- UPDATED GEOMETRY PARAMETERS (HORIZONTAL X-AXIS) ---
+// We assume the rocket length is roughly 150 units, centered.
+// Nose is at -X, Tail is at +X.
 const ROCKET_RADIUS = 8;
-const ROCKET_NOSE_TIP_Y = 90;
-const ROCKET_BODY_END_Y = -60;
+const ROCKET_NOSE_TIP_X = -85; // Start well to the left
+const ROCKET_BODY_END_X = 60;  // End to the right
 const FIN_RADIUS = 25;
-const FIN_Y_START = -40;
-const FIN_Y_END = -60;
+const FIN_X_START = 40;
+const FIN_X_END = 60;
 
 // --- 2. 3D COMPONENTS ---
 
@@ -34,6 +35,9 @@ function ZoomerRocket() {
   const ref = useRef<THREE.Group>(null);
   const clone = useMemo(() => scene.clone(), [scene]);
 
+  // Rotate model if necessary to align with X-axis. 
+  // If your GLB is already horizontal, you might not need rotation.
+  // Assuming standard orientation, we leave it or adjust rotation here:
   return (
     <group ref={ref}>
       <primitive object={clone} />
@@ -42,73 +46,78 @@ function ZoomerRocket() {
 }
 
 /**
- * Generate a single streamline path that flows around the rocket
+ * Generate a single streamline path that flows HORIZONTALLY (X-Axis)
  */
 function generateStreamline(
-  startX: number, 
-  startZ: number, 
+  startRadius: number, 
+  angle: number, 
   turbulence: number
 ): THREE.Vector3[] {
   const points: THREE.Vector3[] = [];
-  const steps = 80;
-  const stepSize = 4;
+  const steps = 60; // Fewer steps for smoother lines
+  const stepSize = 5; // Larger steps to cover more distance
   
-  let x = startX;
-  let y = ROCKET_NOSE_TIP_Y + 60; // Start above the nose
-  let z = startZ;
+  // Convert polar start coordinates (Radius/Angle) to Cartesian Y/Z
+  // We start X well in front of the nose
+  let x = ROCKET_NOSE_TIP_X - 40; 
+  let y = Math.cos(angle) * startRadius;
+  let z = Math.sin(angle) * startRadius;
   
   for (let i = 0; i < steps; i++) {
     points.push(new THREE.Vector3(x, y, z));
     
-    // Calculate distance from rocket centerline
-    const radialDist = Math.sqrt(x * x + z * z);
-    const angle = Math.atan2(z, x);
-    
-    // Flow velocity (moves down along Y)
-    let flowY = -stepSize;
-    let flowX = 0;
+    // --- AXIS SWAP LOGIC ---
+    // Primary movement is along X (Left to Right)
+    let flowX = stepSize;
+    let flowY = 0;
     let flowZ = 0;
     
-    // Determine effective radius at this Y position
+    // Current Radial Distance from center line (X-axis)
+    const radialDist = Math.sqrt(y * y + z * z);
+    const radialAngle = Math.atan2(z, y);
+    
+    // Determine effective radius of the rocket at this X position
     let effectiveRadius = ROCKET_RADIUS;
     
-    // Nose cone region - gradually increase radius
-    if (y > ROCKET_BODY_END_Y && y < ROCKET_NOSE_TIP_Y) {
-      const noseProgress = (ROCKET_NOSE_TIP_Y - y) / (ROCKET_NOSE_TIP_Y - ROCKET_BODY_END_Y);
-      effectiveRadius = ROCKET_RADIUS * Math.sqrt(noseProgress);
+    // 1. Nose Cone Logic (Parabolic shape increasing from tip)
+    // If we are past the nose tip but before the main body
+    if (x > ROCKET_NOSE_TIP_X && x < (ROCKET_NOSE_TIP_X + 40)) {
+      const noseProgress = (x - ROCKET_NOSE_TIP_X) / 40; // 0 to 1
+      effectiveRadius = ROCKET_RADIUS * Math.sqrt(Math.max(0, noseProgress));
     }
     
-    // Fin region - expand deflection radius
-    if (y < FIN_Y_START && y > FIN_Y_END) {
-      const finProgress = (FIN_Y_START - y) / (FIN_Y_START - FIN_Y_END);
+    // 2. Fin Logic (Bulge at the back)
+    if (x > FIN_X_START && x < FIN_X_END) {
+      const finProgress = (x - FIN_X_START) / (FIN_X_END - FIN_X_START);
       effectiveRadius = ROCKET_RADIUS + (FIN_RADIUS - ROCKET_RADIUS) * finProgress;
     }
     
-    // Deflection around body - potential flow around cylinder
-    const deflectionZone = effectiveRadius * 2.5;
-    if (radialDist < deflectionZone && y < ROCKET_NOSE_TIP_Y && y > ROCKET_BODY_END_Y) {
-      // Strength of deflection (stronger when closer)
-      const deflectionStrength = 1 - (radialDist / deflectionZone);
-      const pushForce = deflectionStrength * 0.8;
+    // 3. Collision/Deflection Logic
+    // If streamline is too close to the body, push it out
+    const deflectionZone = effectiveRadius * 1.8; // Influence zone
+    
+    if (radialDist < deflectionZone && x > ROCKET_NOSE_TIP_X) {
+      // Strength: 1.0 if touching surface, 0.0 if at edge of zone
+      const deflectionStrength = Math.pow(1 - (radialDist / deflectionZone), 2);
+      const pushForce = deflectionStrength * 3.0;
       
-      // Push outward radially
-      flowX += Math.cos(angle) * pushForce * stepSize;
-      flowZ += Math.sin(angle) * pushForce * stepSize;
+      // Push Y and Z outwards based on angle
+      flowY += Math.cos(radialAngle) * pushForce;
+      flowZ += Math.sin(radialAngle) * pushForce;
       
-      // Accelerate flow around the body (venturi effect)
-      flowY *= (1 + deflectionStrength * 0.5);
+      // Venturi effect: Speed up X slightly when squeezed
+      flowX *= (1 + deflectionStrength * 0.2);
     }
     
-    // Add turbulence
-    const turbulenceAmount = turbulence * 0.3;
-    flowX += (Math.random() - 0.5) * turbulenceAmount;
-    flowZ += (Math.random() - 0.5) * turbulenceAmount;
-    
-    // Behind fins - wake turbulence
-    if (y < FIN_Y_END && radialDist < FIN_RADIUS * 1.5) {
-      const wakeTurbulence = turbulence * 1.5;
-      flowX += (Math.random() - 0.5) * wakeTurbulence;
-      flowZ += (Math.random() - 0.5) * wakeTurbulence;
+    // 4. Turbulence
+    const turbulenceAmount = turbulence * 0.5;
+    if (x > FIN_X_END) {
+        // Wake turbulence is stronger behind the rocket
+        flowY += (Math.random() - 0.5) * turbulenceAmount * 2;
+        flowZ += (Math.random() - 0.5) * turbulenceAmount * 2;
+    } else {
+        flowY += (Math.random() - 0.5) * turbulenceAmount * 0.2;
+        flowZ += (Math.random() - 0.5) * turbulenceAmount * 0.2;
     }
     
     x += flowX;
@@ -140,11 +149,11 @@ function Streamline({
     if (!lineRef.current) return;
     
     // Animate dash offset for flowing effect
-    progressRef.current += delta * 30;
+    progressRef.current += delta * 40; // Speed of flow
     if (progressRef.current > 100) progressRef.current = 0;
     
     lineRef.current.material.dashOffset = -progressRef.current;
-    lineRef.current.material.opacity = active ? 0.7 : 0;
+    lineRef.current.material.opacity = active ? 0.6 : 0;
   });
   
   return (
@@ -154,8 +163,8 @@ function Streamline({
       color={color}
       lineWidth={1.5}
       dashed
-      dashScale={2}
-      dashSize={3}
+      dashScale={3}
+      dashSize={4}
       dashOffset={0}
       transparent
       opacity={0}
@@ -165,7 +174,6 @@ function Streamline({
 
 /**
  * CFD Streamlines Field
- * Creates multiple streamlines that flow around the rocket
  */
 function CFDStreamlines({ active, profileIdx }: { active: boolean, profileIdx: number }) {
   const config = AERODYNAMICS_CONFIG[profileIdx];
@@ -174,21 +182,20 @@ function CFDStreamlines({ active, profileIdx }: { active: boolean, profileIdx: n
   const streamlines = useMemo(() => {
     const lines: { points: THREE.Vector3[], delay: number }[] = [];
     
-    // Create streamlines in concentric rings
-    const rings = [12, 18, 25, 35]; // Different radii
-    const pointsPerRing = [8, 12, 16, 20];
+    // Create concentric rings of flow
+    const rings = [10, 15, 22, 30]; 
+    const pointsPerRing = [6, 10, 14, 18];
     
     rings.forEach((radius, ringIdx) => {
       const numPoints = pointsPerRing[ringIdx];
       for (let i = 0; i < numPoints; i++) {
+        // Angle around the X-axis
         const angle = (i / numPoints) * Math.PI * 2;
-        const x = Math.cos(angle) * radius;
-        const z = Math.sin(angle) * radius;
         
-        const points = generateStreamline(x, z, config.turbulence);
+        const points = generateStreamline(radius, angle, config.turbulence);
         lines.push({
           points,
-          delay: Math.random() * 100 // Random phase for animation
+          delay: Math.random() * 100 
         });
       }
     });
@@ -196,16 +203,13 @@ function CFDStreamlines({ active, profileIdx }: { active: boolean, profileIdx: n
     return lines;
   }, [config.turbulence]);
   
-  // Interpolate color based on profile
-  const lineColor = useMemo(() => config.color, [config.color]);
-  
   return (
     <group>
       {streamlines.map((line, idx) => (
         <Streamline
           key={`${profileIdx}-${idx}`}
           points={line.points}
-          color={lineColor}
+          color={config.color}
           active={active}
           delay={line.delay}
         />
@@ -215,11 +219,11 @@ function CFDStreamlines({ active, profileIdx }: { active: boolean, profileIdx: n
 }
 
 /**
- * Animated flow particles along streamlines for extra visual effect
+ * Animated flow particles (Dots that fly by)
  */
 function FlowParticles({ active, profileIdx }: { active: boolean, profileIdx: number }) {
   const meshRef = useRef<THREE.InstancedMesh>(null);
-  const count = 400;
+  const count = 300;
   const dummy = useMemo(() => new THREE.Object3D(), []);
   
   const config = AERODYNAMICS_CONFIG[profileIdx];
@@ -227,14 +231,18 @@ function FlowParticles({ active, profileIdx }: { active: boolean, profileIdx: nu
   const particles = useMemo(() => {
     return new Array(count).fill(0).map(() => {
       const angle = Math.random() * Math.PI * 2;
-      const radius = 10 + Math.random() * 30;
+      const radius = 12 + Math.random() * 25;
+      
+      // Start randomly along the X axis so they don't all spawn at once
+      const startX = (Math.random() * 200) - 100;
+      
       return {
         pos: new THREE.Vector3(
+          startX,
           Math.cos(angle) * radius,
-          ROCKET_NOSE_TIP_Y + 60 - Math.random() * 200,
           Math.sin(angle) * radius
         ),
-        speed: Math.random() * 0.5 + 0.5,
+        speed: Math.random() * 0.8 + 0.8,
         baseRadius: radius,
         angle: angle
       };
@@ -245,43 +253,46 @@ function FlowParticles({ active, profileIdx }: { active: boolean, profileIdx: nu
     if (!meshRef.current) return;
     
     const mat = meshRef.current.material as THREE.MeshBasicMaterial;
-    
     const targetOpacity = active ? 0.8 : 0;
     mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOpacity, 0.1);
     mat.color.lerp(new THREE.Color(config.color), 0.05);
 
     particles.forEach((p, i) => {
-      const speedMultiplier = 1 + (1 - config.turbulence) * 2;
-      p.pos.y -= p.speed * 50 * delta * speedMultiplier;
+      // Move along X axis (positive direction)
+      p.pos.x += p.speed * 60 * delta;
 
-      if (p.pos.y < ROCKET_BODY_END_Y - 40) {
-        p.pos.y = ROCKET_NOSE_TIP_Y + 60;
+      // Reset if passed the tail
+      if (p.pos.x > ROCKET_BODY_END_X + 50) {
+        p.pos.x = ROCKET_NOSE_TIP_X - 50; // Spawn back at front
+        
+        // Randomize new position slightly
         p.angle = Math.random() * Math.PI * 2;
-        p.baseRadius = 10 + Math.random() * 30;
-        p.pos.x = Math.cos(p.angle) * p.baseRadius;
+        p.baseRadius = 12 + Math.random() * 25;
+        p.pos.y = Math.cos(p.angle) * p.baseRadius;
         p.pos.z = Math.sin(p.angle) * p.baseRadius;
       }
 
-      // Deflect around rocket body
-      const radialDist = Math.sqrt(p.pos.x * p.pos.x + p.pos.z * p.pos.z);
-      let effectiveRadius = ROCKET_RADIUS * 1.5;
+      // Deflect around rocket body (Radial Check)
+      const radialDist = Math.sqrt(p.pos.y * p.pos.y + p.pos.z * p.pos.z);
+      let effectiveRadius = ROCKET_RADIUS * 1.2; // slight buffer
       
-      if (p.pos.y < FIN_Y_START && p.pos.y > FIN_Y_END) {
-        effectiveRadius = FIN_RADIUS * 1.2;
+      if (p.pos.x > FIN_X_START && p.pos.x < FIN_X_END) {
+        effectiveRadius = FIN_RADIUS * 1.1;
       }
       
-      if (radialDist < effectiveRadius) {
-        const pushAngle = Math.atan2(p.pos.z, p.pos.x);
-        p.pos.x = Math.cos(pushAngle) * effectiveRadius;
+      // If inside the body, push out
+      if (radialDist < effectiveRadius && p.pos.x > ROCKET_NOSE_TIP_X) {
+        const pushAngle = Math.atan2(p.pos.z, p.pos.y);
+        p.pos.y = Math.cos(pushAngle) * effectiveRadius;
         p.pos.z = Math.sin(pushAngle) * effectiveRadius;
       }
 
-      // Turbulence
-      p.pos.x += (Math.random() - 0.5) * config.turbulence * 0.5;
-      p.pos.z += (Math.random() - 0.5) * config.turbulence * 0.5;
+      // Add Turbulence jitter
+      p.pos.y += (Math.random() - 0.5) * config.turbulence * 0.3;
+      p.pos.z += (Math.random() - 0.5) * config.turbulence * 0.3;
 
       dummy.position.copy(p.pos);
-      dummy.scale.setScalar(0.5);
+      dummy.scale.setScalar(0.4); // Smaller particles
       dummy.updateMatrix();
       meshRef.current!.setMatrixAt(i, dummy.matrix);
     });
@@ -332,7 +343,7 @@ function InstructionOverlay({ onDismiss }: { onDismiss: () => void }) {
 export default function ZoomerCFDViewer() {
   const [hasInteracted, setHasInteracted] = useState(false);
   const [cfdEnabled, setCfdEnabled] = useState(true);
-  const [selectedVariationIdx, setSelectedVariationIdx] = useState(1); // Default to 'Standard'
+  const [selectedVariationIdx, setSelectedVariationIdx] = useState(1); 
 
   const currentConfig = AERODYNAMICS_CONFIG[selectedVariationIdx];
 
@@ -375,7 +386,7 @@ export default function ZoomerCFDViewer() {
          </button>
       </div>
 
-      {/* 4. VARIATION SELECTOR (Prominent at Bottom) */}
+      {/* 4. VARIATION SELECTOR */}
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-50 bg-white/90 backdrop-blur-xl p-2 rounded-2xl border border-neutral-200 shadow-2xl flex gap-2">
          {AERODYNAMICS_CONFIG.map((config, idx) => (
              <button
@@ -395,8 +406,7 @@ export default function ZoomerCFDViewer() {
 
       {/* 3D SCENE */}
       <Canvas shadows dpr={[1, 2]}>
-        {/* Adjusted Camera: Positioned further away (700, 700, 250) */}
-        <PerspectiveCamera makeDefault position={[700, 700, 250]} fov={35} />
+        <PerspectiveCamera makeDefault position={[0, 100, 300]} fov={40} />
         <color attach="background" args={['#ffffff']} />
         
         <Suspense fallback={<Html center className="text-neutral-400 font-mono text-xs">Loading Model...</Html>}>
@@ -404,7 +414,7 @@ export default function ZoomerCFDViewer() {
           <ambientLight intensity={0.6} />
           <directionalLight position={[50, 100, 50]} intensity={2} castShadow />
           
-          <Grid position={[0, -80, 0]} args={[1000, 1000]} cellSize={40} cellThickness={1} cellColor="#e5e5e5" sectionSize={200} sectionThickness={1.5} sectionColor="#d4d4d4" fadeDistance={500} />
+          <Grid position={[0, -50, 0]} args={[1000, 1000]} cellSize={40} cellThickness={1} cellColor="#e5e5e5" sectionSize={200} sectionThickness={1.5} sectionColor="#d4d4d4" fadeDistance={500} />
 
           <Center top>
             <ZoomerRocket />
@@ -412,15 +422,11 @@ export default function ZoomerCFDViewer() {
             <FlowParticles active={cfdEnabled} profileIdx={selectedVariationIdx} />
           </Center>
 
-          {/* Camera Controls 
-             - NO Auto Rotate
-             - Max Distance Increased to 1500 to allow the 700+ camera position 
-          */}
           <CameraControls 
             minPolarAngle={0} 
             maxPolarAngle={Math.PI / 1.8} 
-            minDistance={1000} 
-            maxDistance={1200} 
+            minDistance={200} 
+            maxDistance={500} 
           />
           <ContactShadows resolution={1024} scale={300} blur={3} opacity={0.2} far={100} color="#000000" />
         </Suspense>

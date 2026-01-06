@@ -1,6 +1,6 @@
 import { useState, useRef, useMemo, Suspense } from "react";
 import { Canvas } from "@react-three/fiber";
-import { useGLTF, CameraControls, Html, Center, Environment, PerspectiveCamera, ContactShadows, Grid } from "@react-three/drei";
+import { useGLTF, CameraControls, Html, Center, Environment, PerspectiveCamera, ContactShadows } from "@react-three/drei";
 import * as THREE from "three";
 import { Hand, Rotate3d } from "lucide-react";
 
@@ -78,7 +78,7 @@ export default function ZoomerCFDViewer() {
           <ambientLight intensity={0.6} />
           <directionalLight position={[50, 100, 50]} intensity={2} castShadow />
           
-          <Grid position={[0, -80, 0]} args={[1000, 1000]} cellSize={40} cellThickness={1} cellColor="#e5e5e5" sectionSize={200} sectionThickness={1.5} sectionColor="#d4d4d4" fadeDistance={500} />
+          {/* Grid component removed here */}
 
           <Center top>
             <ZoomerRocket />

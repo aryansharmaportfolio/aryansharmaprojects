@@ -125,7 +125,7 @@ export default function ZoomerCFDViewer() {
 
       {/* 3D SCENE */}
       <Canvas shadows dpr={[1, 2]}>
-        <PerspectiveCamera makeDefault position={[700, 700, 250]} fov={35} />
+        <PerspectiveCamera makeDefault position={[1246, 415, 724]} fov={35} />
         <color attach="background" args={['#ffffff']} />
         
         <Suspense fallback={<Html center className="text-neutral-400 font-mono text-xs">Loading Model...</Html>}>

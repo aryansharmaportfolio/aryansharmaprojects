@@ -487,9 +487,7 @@ const ProjectDetail = () => {
                         />
                       }
                     />
-                    <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur px-3 py-1 rounded-full text-xs font-mono text-green-400 border border-green-500/30">
-                      STATUS: SUCCESS
-                    </div>
+                    {/* STATUS SUCCESS BOX REMOVED HERE */}
                   </div>
                 </MagneticTilt>
 

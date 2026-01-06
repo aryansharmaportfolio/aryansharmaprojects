@@ -5,7 +5,7 @@ import FalconViewer from "@/components/FalconViewer";
 import ZoomerCFDViewer from "@/components/ZoomerCFDViewer";
 import MagneticTilt from "@/components/motion/MagneticTilt";
 import ImageViewer from "@/components/ImageViewer";
-import { ChevronDown, ZoomIn, Play, Pause, Volume2, VolumeX, Rocket, Wrench, Code } from "lucide-react";
+import { ChevronDown, ZoomIn, Play, Pause, Volume2, VolumeX, Rocket, Wrench, Code, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
@@ -546,7 +546,7 @@ const ProjectDetail = () => {
     );
   }
 
-  // --- FALCON 9 PROJECT (with Summary/Tech/Skills restored) ---
+  // --- FALCON 9 PROJECT (with Summary/Tech/Skills restored and STYLED like ClubDetail) ---
   const falconProject = {
     name: "Falcon 9-Inspired 3D Model",
     description: "A detailed SolidWorks model inspired by SpaceX's Falcon 9 rocket.",
@@ -578,29 +578,40 @@ const ProjectDetail = () => {
 
           <div className="grid md:grid-cols-2 gap-8 md:gap-12">
             {/* Left Column: Summary */}
-            <div className="space-y-4">
-              <div className="flex items-center gap-2">
-                <div className="w-1 h-6 bg-primary rounded-full" />
-                <h2 className="text-xl sm:text-2xl font-bold">Summary</h2>
+            <div className="space-y-6">
+              {/* Styled Header matching ClubDetail */}
+              <div className="flex items-center gap-3 mb-2">
+                <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
+                  <FileText className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-bold text-foreground border-l-4 border-primary pl-3">
+                  Summary
+                </h2>
               </div>
-              <ul className="space-y-3">
+              
+              {/* Styled List matching ClubDetail */}
+              <ul className="space-y-4">
                 {falconProject.summary.map((item, i) => (
-                  <li key={i} className="text-muted-foreground text-sm sm:text-base leading-relaxed">
-                    {item}
+                  <li key={i} className="flex gap-4 text-foreground/90 leading-relaxed">
+                    <span className="text-primary mt-1">▸</span>
+                    <p className="text-base sm:text-lg">{item}</p>
                   </li>
                 ))}
               </ul>
             </div>
 
             {/* Right Column: Technologies & Skills */}
-            <div className="space-y-8">
+            <div className="space-y-10">
+              
               {/* Technologies Used */}
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center">
-                    <Wrench className="w-5 h-5 text-muted-foreground" />
+                  <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
+                    <Wrench className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-bold">Technologies Used</h2>
+                  <h2 className="text-2xl sm:text-3xl font-bold text-foreground border-l-4 border-primary pl-3">
+                    Technologies Used
+                  </h2>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {falconProject.technologies.map((tech) => (
@@ -615,12 +626,14 @@ const ProjectDetail = () => {
               </div>
 
               {/* Skills Used */}
-              <div className="space-y-4">
+              <div className="space-y-6">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center">
-                    <Code className="w-5 h-5 text-muted-foreground" />
+                  <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
+                     <Code className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
                   </div>
-                  <h2 className="text-xl sm:text-2xl font-bold">Skills Used</h2>
+                  <h2 className="text-2xl sm:text-3xl font-bold text-foreground border-l-4 border-primary pl-3">
+                    Skills Used
+                  </h2>
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {falconProject.skills.map((skill) => (

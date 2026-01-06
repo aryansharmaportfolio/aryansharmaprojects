@@ -415,7 +415,7 @@ const ProjectDetail = () => {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.8, delay: 0.2 }}
                 >
-                  ZOOMER PROJECT
+                  ZOOMER
                 </motion.h1>
                 <motion.p
                   className="text-base sm:text-lg md:text-2xl text-white/80 font-light max-w-2xl mx-auto"

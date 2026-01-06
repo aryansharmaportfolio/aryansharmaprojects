@@ -95,7 +95,7 @@ const Phase = ({ id, title, subtitle, color, children }: PhaseProps) => (
   </motion.section>
 );
 
-// --- VIDEO PLAYER COMPONENT (Updated with Auto-Pause) ---
+// --- VIDEO PLAYER COMPONENT (Updated with Auto-Pause & Auto-Resume) ---
 interface VideoPlayerProps {
   src: string;
   poster?: string;
@@ -109,21 +109,37 @@ const VideoPlayer = ({ src, poster, className }: VideoPlayerProps) => {
   const [isMuted, setIsMuted] = useState(true);
   const [showControls, setShowControls] = useState(true);
 
-  // Auto-Pause Logic using IntersectionObserver
+  // Auto-Play/Pause Logic using IntersectionObserver
   useEffect(() => {
     const video = videoRef.current;
     if (!video) return;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
-        // If video goes out of view (isIntersecting is false) and is currently playing
-        if (!entry.isIntersecting && !video.paused) {
-          video.pause();
-          setIsPlaying(false);
+        if (entry.isIntersecting) {
+          // Video is IN view (at least 50%)
+          const playPromise = video.play();
+          if (playPromise !== undefined) {
+            playPromise
+              .then(() => {
+                setIsPlaying(true);
+              })
+              .catch((error) => {
+                // Auto-play was prevented (often due to browser policies if unmuted)
+                console.log("Autoplay prevented:", error);
+                setIsPlaying(false);
+              });
+          }
+        } else {
+          // Video is OUT of view
+          if (!video.paused) {
+            video.pause();
+            setIsPlaying(false);
+          }
         }
       },
       {
-        threshold: 0.1, // Trigger when less than 10% of the video is visible
+        threshold: 0.5, // Trigger when 50% of the video is visible
       }
     );
 

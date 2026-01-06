@@ -427,16 +427,18 @@ const ProjectDetail = () => {
                 </motion.p>
               </div>
 
-              {/* Bouncing Arrow */}
+              {/* Bouncing Arrow - UPDATED TO MATCH HERO.TSX */}
               <motion.div
-                className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/60 z-20 cursor-pointer"
+                className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-20 cursor-pointer"
                 onClick={() => document.getElementById("phase-1")?.scrollIntoView({ behavior: "smooth" })}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.8 }}
               >
-                <span className="text-xs font-mono uppercase tracking-widest">Scroll to Explore</span>
-                <ChevronDown className="w-6 h-6 animate-bounce" />
+                <p className="text-white font-bold text-sm md:text-base tracking-[0.2em] animate-pulse drop-shadow-xl uppercase">
+                  Scroll to Explore
+                </p>
+                <ChevronDown className="w-8 h-8 text-white animate-bounce drop-shadow-xl" strokeWidth={2.5} />
               </motion.div>
             </motion.div>
           </section>

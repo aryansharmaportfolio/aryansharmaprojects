@@ -19,7 +19,7 @@ const Clubs = () => {
     {
       id: "aeromavs",
       name: "Aero Mavs",
-      role: "Manufacturing",
+      role: "Solid Rocketry Project Manager",
       logo: "/aeromavs-logo-thumbnail.png",
       date: "Sep 2025 - Present",
     },

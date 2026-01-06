@@ -95,18 +95,44 @@ const Phase = ({ id, title, subtitle, color, children }: PhaseProps) => (
   </motion.section>
 );
 
-// --- VIDEO PLAYER COMPONENT ---
+// --- VIDEO PLAYER COMPONENT (Updated with Auto-Pause) ---
 interface VideoPlayerProps {
   src: string;
   poster?: string;
-  className?: string; // Added className prop for sizing
+  className?: string; 
 }
 
 const VideoPlayer = ({ src, poster, className }: VideoPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
   const [showControls, setShowControls] = useState(true);
+
+  // Auto-Pause Logic using IntersectionObserver
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        // If video goes out of view (isIntersecting is false) and is currently playing
+        if (!entry.isIntersecting && !video.paused) {
+          video.pause();
+          setIsPlaying(false);
+        }
+      },
+      {
+        threshold: 0.1, // Trigger when less than 10% of the video is visible
+      }
+    );
+
+    observer.observe(video);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, []);
 
   const togglePlay = () => {
     if (!videoRef.current) return;
@@ -126,6 +152,7 @@ const VideoPlayer = ({ src, poster, className }: VideoPlayerProps) => {
 
   return (
     <div
+      ref={containerRef}
       className={cn(
         "relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/5 bg-black group",
         className 

@@ -112,25 +112,27 @@ function InstructionOverlay({ onDismiss }: { onDismiss: () => void }) {
   return (
     <div 
       onClick={onDismiss}
-      className="absolute inset-0 z-[200] bg-white/60 backdrop-blur-[2px] flex flex-col items-center justify-center cursor-pointer transition-all duration-500 hover:bg-white/40 group px-4"
+      className="absolute inset-0 z-[200] bg-neutral-950/60 backdrop-blur-[2px] flex flex-col items-center justify-center cursor-pointer transition-all duration-500 hover:bg-neutral-950/50 group px-4"
     >
        <div className="flex flex-col items-center animate-in fade-in zoom-in duration-500">
-           <div className="relative w-20 h-20 mb-6">
+           <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 mb-4 sm:mb-6">
                 <div className="absolute inset-0 bg-blue-500/20 rounded-full animate-ping opacity-75"></div>
-                <div className="relative w-full h-full bg-white shadow-xl rounded-full flex items-center justify-center border border-neutral-100 group-hover:scale-110 transition-transform duration-300">
-                    <Rotate3d className="w-8 h-8 text-neutral-900 animate-[spin_10s_linear_infinite]" />
+                <div className="relative w-full h-full bg-white/10 backdrop-blur-md border border-white/20 rounded-full flex items-center justify-center shadow-2xl group-hover:scale-110 transition-transform duration-300">
+                    <Rotate3d className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 text-white animate-[spin_8s_linear_infinite]" />
                 </div>
-                <div className="absolute -bottom-2 -right-2 bg-neutral-900 text-white p-2 rounded-full shadow-lg animate-bounce">
-                    <Hand className="w-4 h-4" />
+                <div className="absolute -bottom-2 -right-2 bg-white text-black p-1.5 sm:p-2 rounded-full shadow-lg animate-bounce">
+                    <Hand className="w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5" />
                 </div>
            </div>
-           <h2 className="text-3xl font-black text-neutral-900 tracking-tighter uppercase mb-2 text-center drop-shadow-sm">
-               Start Analysis
+
+           <h2 className="text-xl sm:text-2xl md:text-4xl font-black text-white tracking-tighter uppercase drop-shadow-lg mb-2 text-center">
+               Tap to Explore
            </h2>
-           <div className="flex items-center gap-4 text-neutral-500 text-[10px] font-bold tracking-widest uppercase bg-white px-4 py-2 rounded-full border border-neutral-200 shadow-sm">
+           
+           <div className="flex items-center gap-2 sm:gap-4 text-blue-200 text-[10px] sm:text-xs font-bold tracking-[0.1em] sm:tracking-[0.2em] uppercase bg-black/40 px-3 sm:px-6 py-1.5 sm:py-2 rounded-full border border-white/10">
                <span>Drag to Rotate</span>
-               <div className="w-1 h-1 bg-neutral-300 rounded-full" />
-               <span>Test Variations</span>
+               <div className="w-1 h-1 bg-white rounded-full opacity-50" />
+               <span>Pinch to Zoom</span>
            </div>
        </div>
     </div>

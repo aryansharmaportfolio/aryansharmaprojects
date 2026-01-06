@@ -398,8 +398,7 @@ const ProjectDetail = () => {
                 alt="Zoomer Hero"
                 className="w-full h-full object-cover"
               />
-              {/* Gradient overlays for smooth fade */}
-              <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-background" />
+              {/* Gradient overlays for smooth fade - REMOVED DARK OVERLAY FOR FULL BRIGHTNESS */}
               <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent h-full" />
             </motion.div>
 

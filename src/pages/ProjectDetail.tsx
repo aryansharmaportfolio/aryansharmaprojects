@@ -166,18 +166,14 @@ const ProjectDetail = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [opacity, setOpacity] = useState(0);
 
-  // Hero parallax scroll
-  const heroRef = useRef<HTMLDivElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-
-  const heroOpacity = useTransform(scrollYProgress, [0, 0.5], [1, 0]);
-  const heroScale = useTransform(scrollYProgress, [0, 0.5], [1, 1.1]);
-  const heroY = useTransform(scrollYProgress, [0, 1], [0, 150]);
+  // Hero parallax scroll - use window scroll instead of target ref to avoid hydration issues
+  const { scrollY } = useScroll();
+  
+  // Transform based on first viewport height (hero section)
+  const heroOpacity = useTransform(scrollY, [0, 400], [1, 0]);
+  const heroScale = useTransform(scrollY, [0, 400], [1, 1.1]);
+  const heroY = useTransform(scrollY, [0, 800], [0, 150]);
   const smoothHeroY = useSpring(heroY, { stiffness: 100, damping: 30 });
-
   useEffect(() => {
     // Show loader for 1.5s then fade in content
     const loadTimer = setTimeout(() => setIsLoading(false), 1500);
@@ -305,7 +301,7 @@ const ProjectDetail = () => {
 
         <div className="min-h-screen bg-background text-foreground transition-opacity duration-700" style={{ opacity }}>
           {/* 1. HERO SECTION with Parallax */}
-          <section ref={heroRef} className="relative h-screen w-full overflow-hidden">
+          <section className="relative h-screen w-full overflow-hidden">
             {/* Background Image with Parallax */}
             <motion.div
               className="absolute inset-0 z-0"

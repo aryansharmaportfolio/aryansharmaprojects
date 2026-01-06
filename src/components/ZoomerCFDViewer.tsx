@@ -1,14 +1,10 @@
 import { useState, useRef, useMemo, Suspense } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { Canvas } from "@react-three/fiber";
 import { useGLTF, CameraControls, Html, Center, Environment, PerspectiveCamera, ContactShadows, Grid } from "@react-three/drei";
 import * as THREE from "three";
-import { 
-  Hand, 
-  Rotate3d,
-  Crosshair
-} from "lucide-react";
+import { Hand, Rotate3d } from "lucide-react";
 
-// --- 1. 3D COMPONENTS ---
+// --- 3D COMPONENTS ---
 
 function ZoomerRocket() {
   const { scene } = useGLTF("/zoomer_full_rocket.glb");
@@ -22,57 +18,7 @@ function ZoomerRocket() {
   );
 }
 
-// --- 2. DEBUG COMPONENT (Coordinate Displayer) ---
-
-function CameraLogger({ controlsRef }: { controlsRef: React.RefObject<CameraControls> }) {
-  const posRef = useRef<HTMLSpanElement>(null);
-  const targetRef = useRef<HTMLSpanElement>(null);
-
-  useFrame((state) => {
-    if (!controlsRef.current) return;
-    
-    // Get Camera Position
-    const { x, y, z } = state.camera.position;
-    
-    // Get Look-At Target
-    const target = new THREE.Vector3();
-    controlsRef.current.getTarget(target);
-
-    // Update DOM directly for performance
-    if (posRef.current) {
-      posRef.current.innerText = `[${x.toFixed(0)}, ${y.toFixed(0)}, ${z.toFixed(0)}]`;
-    }
-    if (targetRef.current) {
-      targetRef.current.innerText = `[${target.x.toFixed(0)}, ${target.y.toFixed(0)}, ${target.z.toFixed(0)}]`;
-    }
-  });
-
-  return (
-    <Html fullscreen style={{ pointerEvents: 'none', zIndex: 100 }}>
-      <div className="absolute top-4 left-4 bg-black/90 text-green-400 p-4 rounded-lg font-mono text-xs border border-green-900 shadow-xl backdrop-blur-sm">
-        <div className="flex items-center gap-2 mb-2 border-b border-green-900/50 pb-2">
-           <Crosshair className="w-4 h-4" />
-           <span className="font-bold uppercase tracking-wider">Debug Coordinates</span>
-        </div>
-        <div className="space-y-1">
-            <div className="flex justify-between gap-4">
-                <span className="text-green-600">POS (Camera):</span>
-                <span ref={posRef} className="font-bold"></span>
-            </div>
-            <div className="flex justify-between gap-4">
-                <span className="text-green-600">LOOK (Target):</span>
-                <span ref={targetRef} className="font-bold"></span>
-            </div>
-        </div>
-        <div className="mt-2 text-[10px] text-green-700 pt-2 border-t border-green-900/50 italic">
-            Use these values for Zoom Zones
-        </div>
-      </div>
-    </Html>
-  );
-}
-
-// --- 3. UI COMPONENTS ---
+// --- UI COMPONENTS ---
 
 function InstructionOverlay({ onDismiss }: { onDismiss: () => void }) {
   return (
@@ -105,19 +51,18 @@ function InstructionOverlay({ onDismiss }: { onDismiss: () => void }) {
   );
 }
 
-// --- 4. MAIN COMPONENT ---
+// --- MAIN COMPONENT ---
 
 export default function ZoomerCFDViewer() {
   const [hasInteracted, setHasInteracted] = useState(false);
-  const cameraControlsRef = useRef<CameraControls>(null);
 
   return (
     <div className="w-full h-[700px] relative bg-white rounded-xl overflow-hidden shadow-sm border border-neutral-200 font-sans select-none group">
       
-      {/* HEADER - Simplified */}
-      <div className="absolute top-8 right-8 z-50 transition-all duration-500 text-right pointer-events-none">
+      {/* HEADER */}
+      <div className="absolute top-8 left-8 z-50 transition-all duration-500 pointer-events-none">
         <h1 className="text-3xl font-black text-neutral-900 tracking-tighter">ZOOMER L2</h1>
-        <p className="text-neutral-500 text-[10px] font-bold uppercase tracking-widest mt-1">Dev Mode: Coordinate Finder</p>
+        <p className="text-neutral-500 text-[10px] font-bold uppercase tracking-widest mt-1">Interactive 3D Model</p>
       </div>
 
       {/* INSTRUCTION OVERLAY */}
@@ -137,16 +82,13 @@ export default function ZoomerCFDViewer() {
 
           <Center top>
             <ZoomerRocket />
-            {/* Camera Logger Overlay inside Canvas */}
-            <CameraLogger controlsRef={cameraControlsRef} />
           </Center>
 
           <CameraControls 
-            ref={cameraControlsRef}
             minPolarAngle={0} 
             maxPolarAngle={Math.PI / 1.8} 
             minDistance={100} 
-            maxDistance={1500} 
+            maxDistance={2000} 
           />
           <ContactShadows resolution={1024} scale={300} blur={3} opacity={0.2} far={100} color="#000000" />
         </Suspense>

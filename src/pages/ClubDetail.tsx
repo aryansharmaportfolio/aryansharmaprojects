@@ -26,7 +26,7 @@ const ClubDetail = () => {
   const clubData: Record<string, any> = {
     aeromavs: {
       name: "Aero Mavs",
-      role: "Manufacturing",
+      role: "Solid Rocketry Project Manager",
       logo: "/aeromavs-logo-thumbnail.png",
       achievements: [
         "Performing composite material layups, such as mid-body sections, using wet layup techniques with epoxy resin and Mylar sheets for a smooth surface finish."

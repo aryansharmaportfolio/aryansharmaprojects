@@ -446,23 +446,23 @@ const ProjectDetail = () => {
             </Phase>
 
             {/* PHASE 2: MODELING */}
-            <Phase title="Phase 2: Modeling" subtitle="Interactive CFD & Design Analysis." color="#3b82f6">
+            <Phase title="Phase 2: Modeling" subtitle="Modeled in SolidWorks, click below to explore the 3D model." color="#3b82f6">
               <div className="w-full h-[500px] sm:h-[600px] rounded-xl overflow-hidden border border-white/10 shadow-2xl">
                 <ZoomerCFDViewer />
               </div>
             </Phase>
 
             {/* PHASE 3: FABRICATION */}
-            <Phase title="Phase 3: Fabrication" subtitle="Construction of the airframe, fin can, and avionics assembly." color="#f59e0b">
+            <Phase title="Phase 3: Fabrication" subtitle="Construction of the nose cone, fin can, and airframe." color="#f59e0b">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <GalleryImage src="/zoomer-images/phase-3/fin_can.jpg" alt="Fin Can" caption="Internal Fin Can Structure" />
-                <GalleryImage src="/zoomer-images/phase-3/gps_module.jpg" alt="Avionics" caption="GPS & Flight Computer" />
-                <GalleryImage src="/zoomer-images/phase-3/zoomer-thumbnail.jpg" alt="Painting" caption="Final Assembly & Painting" />
+                <GalleryImage src="/zoomer-images/phase-3/fin_can.jpg" alt="Fin Can" caption="Fin Can Assembly" />
+                <GalleryImage src="/zoomer-images/phase-3/gps_module.jpg" alt="Avionics" caption="GPS Module" />
+                <GalleryImage src="/zoomer-images/phase-3/zoomer-thumbnail.jpg" alt="Painting" caption="Painted and Fully Assembled" />
               </div>
             </Phase>
 
             {/* PHASE 4: L1 LAUNCH (FIXED: Side-by-Side & Shortened) */}
-            <Phase title="Phase 4: L1 Launch" subtitle="Level 1 Certification Flight - Launch Day Media." color="#22c55e">
+            <Phase title="Phase 4: L1 Launch" subtitle="Level 1 Certification Flight (Austin, TX)." color="#22c55e">
               <div className="grid md:grid-cols-2 gap-6 items-start">
                 {/* Launch Photo with Tilt */}
                 <MagneticTilt intensity={12} className="w-full">
@@ -494,7 +494,7 @@ const ProjectDetail = () => {
             </Phase>
 
             {/* PHASE 5: L1 RECOVERY */}
-            <Phase title="Phase 5: Recovery & Certification" subtitle="Successful recovery and Level 1 certification award." color="#22c55e">
+            <Phase title="Phase 5: L1 Success" subtitle="Successful recovery and Level 1 certification award." color="#22c55e">
               <div className="grid md:grid-cols-2 gap-8">
                 <GalleryImage src="/zoomer-images/phase-5/l1_successful_recovery.jpg" alt="Recovery" caption="Rocket Recovered Intact" />
                 <GalleryImage src="/zoomer-images/phase-5/l1_tripoli_certificate.jpeg" alt="Certificate" caption="Tripoli L1 Certification" />
@@ -502,7 +502,7 @@ const ProjectDetail = () => {
             </Phase>
 
             {/* PHASE 6: L2 TRADE STUDY */}
-            <Phase title="Phase 6: L2 Upgrade Analysis" subtitle="Optimizing aerodynamics for higher Mach numbers (Mach ~0.8)." color="#a855f7">
+            <Phase title="Phase 6: L2 Upgrade Analysis" subtitle="Trade study comparing drag coefficients based on root chord lengths for higher Mach number (Mach ~0.803)." color="#a855f7">
               <div className="grid md:grid-cols-3 gap-6">
                 {zoomerPhase6Data.map((d, i) => (
                   <TradeStudyCard key={i} data={d} />
@@ -511,7 +511,7 @@ const ProjectDetail = () => {
             </Phase>
 
             {/* PHASE 7: L2 LAUNCH (with Tilt + Video) */}
-            <Phase title="Phase 7: L2 Launch" subtitle="Level 2 Certification Flight - Launch Day Media." color="#a855f7">
+            <Phase title="Phase 7: L2 Launch" subtitle="Level 2 Certification Flight (Hearne, TX)." color="#a855f7">
               <div className="flex justify-center py-4">
                 <MagneticTilt intensity={8} className="w-full max-w-2xl">
                   <VideoPlayer
@@ -523,7 +523,7 @@ const ProjectDetail = () => {
             </Phase>
 
             {/* PHASE 8: L2 RECOVERY */}
-            <Phase title="Phase 8: L2 Success" subtitle="Dual deployment recovery and Level 2 certification award." color="#a855f7">
+            <Phase title="Phase 8: L2 Success" subtitle="Successful recovery and Level 2 certification award." color="#a855f7">
               <div className="grid md:grid-cols-2 gap-8 pb-20">
                 <GalleryImage src="/zoomer-images/phase-8/l2_successful_recovery.jpg" alt="L2 Recovery" caption="Dual Deployment Success" />
                 <GalleryImage src="/zoomer-images/phase-8/l2_tripoli_certificate.jpeg" alt="L2 Certificate" caption="Tripoli L2 Certification" />

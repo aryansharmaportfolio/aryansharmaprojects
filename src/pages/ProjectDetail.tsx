@@ -386,158 +386,168 @@ const ProjectDetail = () => {
         <DynamicSidebar returnSection={returnSection} />
 
         <div className="min-h-screen bg-background text-foreground transition-opacity duration-700" style={{ opacity }}>
-          {/* 1. HERO SECTION with Parallax */}
-          <section className="relative h-screen w-full overflow-hidden">
-            {/* Background Image with Parallax */}
-            <motion.div
-              className="absolute inset-0 z-0"
-              style={{ opacity: heroOpacity, scale: heroScale, y: smoothHeroY }}
-            >
-              <img
-                src="/zoomer-images/phase-3/zoomer-thumbnail.jpg"
-                alt="Zoomer Hero"
-                className="w-full h-full object-cover"
-              />
-              {/* Gradient overlays for smooth fade */}
-              <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/40 to-background" />
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent h-full" />
-            </motion.div>
+          
+          {/* 1. FIXED HERO SECTION (Behind Everything) */}
+          <div className="fixed inset-0 w-full h-screen z-0">
+             {/* Background Image with Parallax */}
+             <motion.div
+               className="w-full h-full"
+               style={{ opacity: heroOpacity, scale: heroScale, y: smoothHeroY }}
+             >
+               <img
+                 src="/zoomer-images/phase-3/zoomer-thumbnail.jpg"
+                 alt="Zoomer Hero"
+                 className="w-full h-full object-cover"
+               />
+               {/* Note: VIGNETTE GRADIENTS REMOVED for clear picture */}
+             </motion.div>
 
-            {/* Content */}
-            <motion.div
-              className="relative z-10 h-full flex flex-col items-center justify-center px-4"
-              style={{ opacity: heroOpacity }}
-            >
-              <div className="text-center space-y-4 max-w-4xl mx-auto">
-                <motion.h1
-                  className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tighter text-white drop-shadow-2xl"
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                >
-                  ZOOMER PROJECT
-                </motion.h1>
-                <motion.p
-                  className="text-base sm:text-lg md:text-2xl text-white/80 font-light max-w-2xl mx-auto"
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
-                >
-                  Tripoli Level 1 & Level 2 Certified High-Power Rocket
-                </motion.p>
-              </div>
+             {/* Content Overlay (Title) */}
+             <motion.div
+               className="absolute inset-0 flex flex-col items-center justify-center px-4 pointer-events-none"
+               style={{ opacity: heroOpacity }}
+             >
+               <div className="text-center space-y-4 max-w-4xl mx-auto">
+                 <motion.h1
+                   className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tighter text-white drop-shadow-2xl"
+                   initial={{ opacity: 0, y: 30 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   transition={{ duration: 0.8, delay: 0.2 }}
+                 >
+                   ZOOMER PROJECT
+                 </motion.h1>
+                 <motion.p
+                   className="text-base sm:text-lg md:text-2xl text-white/80 font-light max-w-2xl mx-auto"
+                   initial={{ opacity: 0, y: 30 }}
+                   animate={{ opacity: 1, y: 0 }}
+                   transition={{ duration: 0.8, delay: 0.4 }}
+                 >
+                   Tripoli Level 1 & Level 2 Certified High-Power Rocket
+                 </motion.p>
+               </div>
 
-              {/* Bouncing Arrow */}
-              <motion.div
-                className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/60 z-20 cursor-pointer"
-                onClick={() => document.getElementById("phase-1")?.scrollIntoView({ behavior: "smooth" })}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8 }}
-              >
-                <span className="text-xs font-mono uppercase tracking-widest">Scroll to Explore</span>
-                <ChevronDown className="w-6 h-6 animate-bounce" />
-              </motion.div>
-            </motion.div>
-          </section>
+               {/* Bouncing Arrow - Pointer events re-enabled for click */}
+               <motion.div
+                 className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-white/60 z-20 cursor-pointer pointer-events-auto"
+                 onClick={() => document.getElementById("phase-1")?.scrollIntoView({ behavior: "smooth" })}
+                 initial={{ opacity: 0 }}
+                 animate={{ opacity: 1 }}
+                 transition={{ delay: 0.8 }}
+               >
+                 <span className="text-xs font-mono uppercase tracking-widest">Scroll to Explore</span>
+                 <ChevronDown className="w-6 h-6 animate-bounce" />
+               </motion.div>
+             </motion.div>
+          </div>
 
-          {/* 2. MAIN CONTENT (The 8 Phases) */}
-          <div className="container mx-auto max-w-5xl px-4 py-20 space-y-32">
-            {/* PHASE 1: L1 TRADE STUDY */}
-            <Phase id="phase-1" title="Phase 1: L1 Analysis" subtitle="Trade study comparing drag coefficients based on root chord lengths." color="hsl(var(--primary))">
-              <div className="grid md:grid-cols-3 gap-6">
-                {zoomerPhase1Data.map((d, i) => (
-                  <TradeStudyCard key={i} data={d} />
-                ))}
-              </div>
-            </Phase>
+          {/* 2. SCROLLABLE CONTENT LAYER (Moves Over Fixed Hero) */}
+          <div className="relative w-full z-10">
+             {/* Spacer to allow seeing the Hero initially */}
+             <div className="h-screen w-full pointer-events-none" />
 
-            {/* PHASE 2: MODELING */}
-            <Phase title="Phase 2: Modeling" subtitle="Interactive CFD & Design Analysis." color="#3b82f6">
-              <div className="w-full h-[500px] sm:h-[600px] rounded-xl overflow-hidden border border-white/10 shadow-2xl">
-                <ZoomerCFDViewer />
-              </div>
-            </Phase>
+             {/* Main Content Wrapper */}
+             <div className="bg-background w-full relative shadow-2xl">
+                 {/* Top Gradient for Smooth Transition Edge */}
+                 <div className="absolute top-0 left-0 w-full h-32 -translate-y-full bg-gradient-to-t from-background to-transparent pointer-events-none" />
+                 
+                 <div className="container mx-auto max-w-5xl px-4 py-20 space-y-32">
+                    {/* PHASE 1: L1 TRADE STUDY */}
+                    <Phase id="phase-1" title="Phase 1: L1 Analysis" subtitle="Trade study comparing drag coefficients based on root chord lengths." color="hsl(var(--primary))">
+                      <div className="grid md:grid-cols-3 gap-6">
+                        {zoomerPhase1Data.map((d, i) => (
+                          <TradeStudyCard key={i} data={d} />
+                        ))}
+                      </div>
+                    </Phase>
 
-            {/* PHASE 3: FABRICATION */}
-            <Phase title="Phase 3: Fabrication" subtitle="Construction of the airframe, fin can, and avionics assembly." color="#f59e0b">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <GalleryImage src="/zoomer-images/phase-3/fin_can.jpg" alt="Fin Can" caption="Internal Fin Can Structure" />
-                <GalleryImage src="/zoomer-images/phase-3/gps_module.jpg" alt="Avionics" caption="GPS & Flight Computer" />
-                <GalleryImage src="/zoomer-images/phase-3/zoomer-thumbnail.jpg" alt="Painting" caption="Final Assembly & Painting" />
-              </div>
-            </Phase>
+                    {/* PHASE 2: MODELING */}
+                    <Phase title="Phase 2: Modeling" subtitle="Interactive CFD & Design Analysis." color="#3b82f6">
+                      <div className="w-full h-[500px] sm:h-[600px] rounded-xl overflow-hidden border border-white/10 shadow-2xl">
+                        <ZoomerCFDViewer />
+                      </div>
+                    </Phase>
 
-            {/* PHASE 4: L1 LAUNCH (FIXED: Side-by-Side & Shortened) */}
-            <Phase title="Phase 4: L1 Launch" subtitle="Level 1 Certification Flight - Launch Day Media." color="#22c55e">
-              <div className="grid md:grid-cols-2 gap-6 items-start">
-                {/* Launch Photo with Tilt */}
-                <MagneticTilt intensity={12} className="w-full">
-                  <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/5 h-64 md:h-80">
-                    <ImageViewer
-                      src="/zoomer-images/phase-4/launch_day.jpg"
-                      alt="L1 Launch Day"
-                      trigger={
-                        <img
-                          src="/zoomer-images/phase-4/launch_day.jpg"
-                          alt="L1 Launch"
-                          className="w-full h-full object-cover cursor-zoom-in hover:scale-105 transition-transform duration-500"
-                        />
-                      }
-                    />
-                    <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur px-3 py-1 rounded-full text-xs font-mono text-green-400 border border-green-500/30">
-                      STATUS: SUCCESS
-                    </div>
-                  </div>
-                </MagneticTilt>
+                    {/* PHASE 3: FABRICATION */}
+                    <Phase title="Phase 3: Fabrication" subtitle="Construction of the airframe, fin can, and avionics assembly." color="#f59e0b">
+                      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                        <GalleryImage src="/zoomer-images/phase-3/fin_can.jpg" alt="Fin Can" caption="Internal Fin Can Structure" />
+                        <GalleryImage src="/zoomer-images/phase-3/gps_module.jpg" alt="Avionics" caption="GPS & Flight Computer" />
+                        <GalleryImage src="/zoomer-images/phase-3/zoomer-thumbnail.jpg" alt="Painting" caption="Final Assembly & Painting" />
+                      </div>
+                    </Phase>
 
-                {/* Launch Video */}
-                <MagneticTilt intensity={12} className="w-full">
-                  <VideoPlayer
-                    src="/zoomer-images/phase-4/launch_video_l1.mp4"
-                    poster="/zoomer-images/phase-4/launch_day.jpg"
-                    className="h-64 md:h-80 w-full"
-                  />
-                </MagneticTilt>
-              </div>
-            </Phase>
+                    {/* PHASE 4: L1 LAUNCH (FIXED: Side-by-Side & Shortened) */}
+                    <Phase title="Phase 4: L1 Launch" subtitle="Level 1 Certification Flight - Launch Day Media." color="#22c55e">
+                      <div className="grid md:grid-cols-2 gap-6 items-start">
+                        {/* Launch Photo with Tilt */}
+                        <MagneticTilt intensity={12} className="w-full">
+                          <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/5 h-64 md:h-80">
+                            <ImageViewer
+                              src="/zoomer-images/phase-4/launch_day.jpg"
+                              alt="L1 Launch Day"
+                              trigger={
+                                <img
+                                  src="/zoomer-images/phase-4/launch_day.jpg"
+                                  alt="L1 Launch"
+                                  className="w-full h-full object-cover cursor-zoom-in hover:scale-105 transition-transform duration-500"
+                                />
+                              }
+                            />
+                            <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur px-3 py-1 rounded-full text-xs font-mono text-green-400 border border-green-500/30">
+                              STATUS: SUCCESS
+                            </div>
+                          </div>
+                        </MagneticTilt>
 
-            {/* PHASE 5: L1 RECOVERY */}
-            <Phase title="Phase 5: Recovery & Certification" subtitle="Successful recovery and Level 1 certification award." color="#22c55e">
-              <div className="grid md:grid-cols-2 gap-8">
-                <GalleryImage src="/zoomer-images/phase-5/l1_successful_recovery.jpg" alt="Recovery" caption="Rocket Recovered Intact" />
-                <GalleryImage src="/zoomer-images/phase-5/l1_tripoli_certificate.jpeg" alt="Certificate" caption="Tripoli L1 Certification" />
-              </div>
-            </Phase>
+                        {/* Launch Video */}
+                        <MagneticTilt intensity={12} className="w-full">
+                          <VideoPlayer
+                            src="/zoomer-images/phase-4/launch_video_l1.mp4"
+                            poster="/zoomer-images/phase-4/launch_day.jpg"
+                            className="h-64 md:h-80 w-full"
+                          />
+                        </MagneticTilt>
+                      </div>
+                    </Phase>
 
-            {/* PHASE 6: L2 TRADE STUDY */}
-            <Phase title="Phase 6: L2 Upgrade Analysis" subtitle="Optimizing aerodynamics for higher Mach numbers (Mach ~0.8)." color="#a855f7">
-              <div className="grid md:grid-cols-3 gap-6">
-                {zoomerPhase6Data.map((d, i) => (
-                  <TradeStudyCard key={i} data={d} />
-                ))}
-              </div>
-            </Phase>
+                    {/* PHASE 5: L1 RECOVERY */}
+                    <Phase title="Phase 5: Recovery & Certification" subtitle="Successful recovery and Level 1 certification award." color="#22c55e">
+                      <div className="grid md:grid-cols-2 gap-8">
+                        <GalleryImage src="/zoomer-images/phase-5/l1_successful_recovery.jpg" alt="Recovery" caption="Rocket Recovered Intact" />
+                        <GalleryImage src="/zoomer-images/phase-5/l1_tripoli_certificate.jpeg" alt="Certificate" caption="Tripoli L1 Certification" />
+                      </div>
+                    </Phase>
 
-            {/* PHASE 7: L2 LAUNCH (with Tilt + Video) */}
-            <Phase title="Phase 7: L2 Launch" subtitle="Level 2 Certification Flight - Launch Day Media." color="#a855f7">
-              <div className="flex justify-center py-4">
-                <MagneticTilt intensity={8} className="w-full max-w-2xl">
-                  <VideoPlayer
-                    src="/zoomer-images/phase-7/launch_video_l2.mp4"
-                    poster="/zoomer-images/phase-3/zoomer-thumbnail.jpg"
-                  />
-                </MagneticTilt>
-              </div>
-            </Phase>
+                    {/* PHASE 6: L2 TRADE STUDY */}
+                    <Phase title="Phase 6: L2 Upgrade Analysis" subtitle="Optimizing aerodynamics for higher Mach numbers (Mach ~0.8)." color="#a855f7">
+                      <div className="grid md:grid-cols-3 gap-6">
+                        {zoomerPhase6Data.map((d, i) => (
+                          <TradeStudyCard key={i} data={d} />
+                        ))}
+                      </div>
+                    </Phase>
 
-            {/* PHASE 8: L2 RECOVERY */}
-            <Phase title="Phase 8: L2 Success" subtitle="Dual deployment recovery and Level 2 certification award." color="#a855f7">
-              <div className="grid md:grid-cols-2 gap-8 pb-20">
-                <GalleryImage src="/zoomer-images/phase-8/l2_successful_recovery.jpg" alt="L2 Recovery" caption="Dual Deployment Success" />
-                <GalleryImage src="/zoomer-images/phase-8/l2_tripoli_certificate.jpeg" alt="L2 Certificate" caption="Tripoli L2 Certification" />
-              </div>
-            </Phase>
+                    {/* PHASE 7: L2 LAUNCH (with Tilt + Video) */}
+                    <Phase title="Phase 7: L2 Launch" subtitle="Level 2 Certification Flight - Launch Day Media." color="#a855f7">
+                      <div className="flex justify-center py-4">
+                        <MagneticTilt intensity={8} className="w-full max-w-2xl">
+                          <VideoPlayer
+                            src="/zoomer-images/phase-7/launch_video_l2.mp4"
+                            poster="/zoomer-images/phase-3/zoomer-thumbnail.jpg"
+                          />
+                        </MagneticTilt>
+                      </div>
+                    </Phase>
+
+                    {/* PHASE 8: L2 RECOVERY */}
+                    <Phase title="Phase 8: L2 Success" subtitle="Dual deployment recovery and Level 2 certification award." color="#a855f7">
+                      <div className="grid md:grid-cols-2 gap-8 pb-20">
+                        <GalleryImage src="/zoomer-images/phase-8/l2_successful_recovery.jpg" alt="L2 Recovery" caption="Dual Deployment Success" />
+                        <GalleryImage src="/zoomer-images/phase-8/l2_tripoli_certificate.jpeg" alt="L2 Certificate" caption="Tripoli L2 Certification" />
+                      </div>
+                    </Phase>
+                 </div>
+             </div>
           </div>
         </div>
       </>

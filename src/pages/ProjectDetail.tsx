@@ -545,7 +545,7 @@ const ProjectDetail = () => {
       "Designed a detailed scale model of the Falcon 9 launch vehicle, focusing on accuracy and printability.",
       "Utilized advanced SolidWorks features including lofting and shelling to create complex aerodynamic surfaces.",
       "Engineered the assembly to be modular, allowing for the separation of stages and payload fairing.",
-      "Prepared detailed technical drawings and renders to visualize the final assembly.",
+      "Sketched the model on a publicly available recreation of the falcon 9 blueprint created by Ryan Steven Horowitz.",
     ],
   };
 

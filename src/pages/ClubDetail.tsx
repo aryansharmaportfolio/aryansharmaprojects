@@ -2,12 +2,18 @@ import { useParams } from "react-router-dom";
 import DynamicSidebar from "@/components/DynamicSidebar";
 import { useState, useEffect } from "react";
 import { Award, Target } from "lucide-react";
+import { motion, useScroll, useTransform } from "framer-motion";
 
 const ClubDetail = () => {
   const { id } = useParams();
   
   // Initialize opacity to 0 for the fade-in effect
   const [opacity, setOpacity] = useState(0);
+
+  // Scroll hooks for Parallax Effect
+  const { scrollY } = useScroll();
+  // Scales from 1 (100%) to 1.1 (110%) as you scroll 500px down
+  const heroScale = useTransform(scrollY, [0, 500], [1, 1.1]);
 
   // Trigger the transition to opacity 1 after mount
   useEffect(() => {
@@ -21,30 +27,22 @@ const ClubDetail = () => {
     aeromavs: {
       name: "Aero Mavs",
       role: "Manufacturing",
-      // UPDATED: Points to your local logo file
       logo: "/aeromavs-logo-thumbnail.png",
       achievements: [
-        "Designing and modeling a fully assembled H-motor high-powered rocket in SolidWorks, validating architecture against stability and performance parameters simulated in OpenRocket.",
-        "Performing a CFD analysis using SolidWorks Flow Simulation to determine key flight characteristics, such as drag force and aerodynamic stability, on the rocket's comprehensive 3D model before fabrication.",
-        "3D printing ogive nose cone and laser-cutting individual parts for the precise construction of the wooden fin can assembly.",
-        "Drilling mounting points and installing hardware to secure the recovery system and ensure structural integrity for launch.",
+        "Performing composite material layups, such as mid-body sections, using wet layup techniques with epoxy resin and Mylar sheets for a smooth surface finish."
       ],
     },
     aiaa: {
       name: "UTA Design-Build-Fly Team",
       role: "Structures/Manufacturing",
-      // UPDATED: Points to your local logo file
       logo: "/dbf-logo-thumbnail.png",
       achievements: [
-        "Designed and fabricated custom aircraft components for competition",
-        "Conducted aerodynamic analysis and performance testing",
-        "Collaborated with team members on structural optimization",
+        "Developing a manufacturing proposal suggesting a design of a separate propulsion battery compartment for rapid battery integration to meet both flight safety and mission speed requirements."
       ],
     },
     "chs-aerospace": {
       name: "Coppell High School Aerospace Club",
       role: "Co-Founder/Executive",
-      // Kept as the inside picture you defined earlier
       logo: "/chs-inside.jpg",
       achievements: [
         "Co-founded and grew the school's first aerospace club to over 115 members, establishing it as the largest student organization in the school's history (est. 1965).",
@@ -73,7 +71,13 @@ const ClubDetail = () => {
       >
         {/* Hero image - respects sidebar on left, responsive margin */}
         <div className="relative h-[300px] sm:h-[400px] md:h-[500px] overflow-hidden ml-12 sm:ml-14 md:ml-16">
-          <img src={club.logo} alt={club.name} className="w-full h-full object-cover" />
+          {/* Parallax Image using framer-motion */}
+          <motion.img 
+            src={club.logo} 
+            alt={club.name} 
+            className="w-full h-full object-cover"
+            style={{ scale: heroScale }}
+          />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/20" />
           
           {/* Floating accent elements - hidden on mobile */}

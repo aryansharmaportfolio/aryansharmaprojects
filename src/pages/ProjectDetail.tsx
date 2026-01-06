@@ -42,16 +42,19 @@ const preloadImages = (urls: string[]): Promise<void[]> => {
   );
 };
 
-// --- Asset Loader Component (same style as main site) ---
+// --- Asset Loader Component (Updated to match Hero.tsx / Main Website) ---
 const AssetLoader = () => (
   <div className="fixed inset-0 z-50 bg-background flex flex-col items-center justify-center">
-    <div className="relative">
-      <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full animate-pulse" />
-      <Rocket className="w-16 h-16 text-primary animate-bounce relative z-10" />
+    <div className="relative flex flex-col items-center">
+      <div className="relative flex items-center justify-center w-24 h-24 mb-8">
+         {/* Pulse Effect */}
+         <div className="absolute inset-0 bg-white/10 rounded-full blur-xl animate-pulse" />
+         {/* Glassmorphism Circle */}
+         <div className="relative flex items-center justify-center w-full h-full rounded-full border-2 border-white/10 bg-white/5 backdrop-blur-sm">
+            <Rocket className="w-10 h-10 text-white animate-pulse" strokeWidth={1.5} />
+         </div>
+      </div>
     </div>
-    <p className="mt-4 text-muted-foreground font-mono text-sm tracking-widest animate-pulse">
-      LOADING ASSETS...
-    </p>
   </div>
 );
 

@@ -42,7 +42,7 @@ const preloadImages = (urls: string[]): Promise<void[]> => {
   );
 };
 
-// --- Asset Loader Component (Updated to match Hero.tsx / Main Website) ---
+// --- Asset Loader Component ---
 const AssetLoader = () => (
   <div className="fixed inset-0 z-50 bg-background flex flex-col items-center justify-center">
     <div className="relative flex flex-col items-center">
@@ -99,9 +99,10 @@ const Phase = ({ id, title, subtitle, color, children }: PhaseProps) => (
 interface VideoPlayerProps {
   src: string;
   poster?: string;
+  className?: string; // Added className prop for sizing
 }
 
-const VideoPlayer = ({ src, poster }: VideoPlayerProps) => {
+const VideoPlayer = ({ src, poster, className }: VideoPlayerProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isMuted, setIsMuted] = useState(true);
@@ -125,7 +126,10 @@ const VideoPlayer = ({ src, poster }: VideoPlayerProps) => {
 
   return (
     <div
-      className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/5 bg-black group"
+      className={cn(
+        "relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/5 bg-black group",
+        className 
+      )}
       onMouseEnter={() => setShowControls(true)}
       onMouseLeave={() => setShowControls(isPlaying ? false : true)}
     >
@@ -136,7 +140,7 @@ const VideoPlayer = ({ src, poster }: VideoPlayerProps) => {
         muted={isMuted}
         loop
         playsInline
-        className="w-full h-auto"
+        className="w-full h-full object-cover" 
         onEnded={() => setIsPlaying(false)}
       />
 
@@ -421,40 +425,37 @@ const ProjectDetail = () => {
               </div>
             </Phase>
 
-            {/* PHASE 4: L1 LAUNCH (with Tilt + Video) */}
+            {/* PHASE 4: L1 LAUNCH (FIXED: Side-by-Side & Shortened) */}
             <Phase title="Phase 4: L1 Launch" subtitle="Level 1 Certification Flight - Launch Day Media." color="#22c55e">
-              <div className="space-y-8">
+              <div className="grid md:grid-cols-2 gap-6 items-start">
                 {/* Launch Photo with Tilt */}
-                <div className="flex justify-center py-4">
-                  <MagneticTilt intensity={12} className="w-full max-w-2xl">
-                    <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/5">
-                      <ImageViewer
-                        src="/zoomer-images/phase-4/launch_day.jpg"
-                        alt="L1 Launch Day"
-                        trigger={
-                          <img
-                            src="/zoomer-images/phase-4/launch_day.jpg"
-                            alt="L1 Launch"
-                            className="w-full h-auto cursor-zoom-in hover:scale-105 transition-transform duration-500"
-                          />
-                        }
-                      />
-                      <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur px-3 py-1 rounded-full text-xs font-mono text-green-400 border border-green-500/30">
-                        STATUS: SUCCESS
-                      </div>
+                <MagneticTilt intensity={12} className="w-full">
+                  <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/5 h-64 md:h-80">
+                    <ImageViewer
+                      src="/zoomer-images/phase-4/launch_day.jpg"
+                      alt="L1 Launch Day"
+                      trigger={
+                        <img
+                          src="/zoomer-images/phase-4/launch_day.jpg"
+                          alt="L1 Launch"
+                          className="w-full h-full object-cover cursor-zoom-in hover:scale-105 transition-transform duration-500"
+                        />
+                      }
+                    />
+                    <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur px-3 py-1 rounded-full text-xs font-mono text-green-400 border border-green-500/30">
+                      STATUS: SUCCESS
                     </div>
-                  </MagneticTilt>
-                </div>
+                  </div>
+                </MagneticTilt>
 
                 {/* Launch Video */}
-                <div className="flex justify-center">
-                  <MagneticTilt intensity={8} className="w-full max-w-2xl">
-                    <VideoPlayer
-                      src="/zoomer-images/phase-4/launch_video_l1.mp4"
-                      poster="/zoomer-images/phase-4/launch_day.jpg"
-                    />
-                  </MagneticTilt>
-                </div>
+                <MagneticTilt intensity={12} className="w-full">
+                  <VideoPlayer
+                    src="/zoomer-images/phase-4/launch_video_l1.mp4"
+                    poster="/zoomer-images/phase-4/launch_day.jpg"
+                    className="h-64 md:h-80 w-full"
+                  />
+                </MagneticTilt>
               </div>
             </Phase>
 

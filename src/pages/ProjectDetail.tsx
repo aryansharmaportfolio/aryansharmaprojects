@@ -437,7 +437,7 @@ const ProjectDetail = () => {
           {/* 2. MAIN CONTENT (The 8 Phases) */}
           <div className="container mx-auto max-w-5xl px-4 py-20 space-y-32">
             {/* PHASE 1: L1 TRADE STUDY */}
-            <Phase id="phase-1" title="Phase 1: L1 Analysis" subtitle="Trade study comparing drag coefficients based on root chord lengths." color="hsl(var(--primary))">
+            <Phase id="phase-1" title="Phase 1: L1 Analysis" subtitle="Trade study comparing drag coefficients based on root chord lengths for (Mach ~0.373)." color="hsl(var(--primary))">
               <div className="grid md:grid-cols-3 gap-6">
                 {zoomerPhase1Data.map((d, i) => (
                   <TradeStudyCard key={i} data={d} />
@@ -496,7 +496,7 @@ const ProjectDetail = () => {
             {/* PHASE 5: L1 RECOVERY */}
             <Phase title="Phase 5: L1 Success" subtitle="Successful recovery and Level 1 certification award." color="#22c55e">
               <div className="grid md:grid-cols-2 gap-8">
-                <GalleryImage src="/zoomer-images/phase-5/l1_successful_recovery.jpg" alt="Recovery" caption="Rocket Recovered Intact" />
+                <GalleryImage src="/zoomer-images/phase-5/l1_successful_recovery.jpg" alt="Recovery" caption="Successful Recovery" />
                 <GalleryImage src="/zoomer-images/phase-5/l1_tripoli_certificate.jpeg" alt="Certificate" caption="Tripoli L1 Certification" />
               </div>
             </Phase>
@@ -525,7 +525,7 @@ const ProjectDetail = () => {
             {/* PHASE 8: L2 RECOVERY */}
             <Phase title="Phase 8: L2 Success" subtitle="Successful recovery and Level 2 certification award." color="#a855f7">
               <div className="grid md:grid-cols-2 gap-8 pb-20">
-                <GalleryImage src="/zoomer-images/phase-8/l2_successful_recovery.jpg" alt="L2 Recovery" caption="Dual Deployment Success" />
+                <GalleryImage src="/zoomer-images/phase-8/l2_successful_recovery.jpg" alt="L2 Recovery" caption="Successful Recovery" />
                 <GalleryImage src="/zoomer-images/phase-8/l2_tripoli_certificate.jpeg" alt="L2 Certificate" caption="Tripoli L2 Certification" />
               </div>
             </Phase>

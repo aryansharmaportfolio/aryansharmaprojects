@@ -5,10 +5,55 @@ import FalconViewer from "@/components/FalconViewer";
 import ZoomerCFDViewer from "@/components/ZoomerCFDViewer";
 import MagneticTilt from "@/components/motion/MagneticTilt";
 import ImageViewer from "@/components/ImageViewer";
-import ProjectLoader from "@/components/ProjectLoader";
-import { ChevronDown, ZoomIn, Play, Pause, Volume2, VolumeX } from "lucide-react";
+import { ChevronDown, ZoomIn, Play, Pause, Volume2, VolumeX, Rocket, Wrench, Code } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+
+// --- All Zoomer Images for Preloading ---
+const ZOOMER_IMAGES = [
+  "/zoomer-images/phase-1/l1_ts_long.png",
+  "/zoomer-images/phase-1/l1_ts_standard.png",
+  "/zoomer-images/phase-1/l1_ts_short.png",
+  "/zoomer-images/phase-3/fin_can.jpg",
+  "/zoomer-images/phase-3/gps_module.jpg",
+  "/zoomer-images/phase-3/zoomer-thumbnail.jpg",
+  "/zoomer-images/phase-4/launch_day.jpg",
+  "/zoomer-images/phase-5/l1_successful_recovery.jpg",
+  "/zoomer-images/phase-5/l1_tripoli_certificate.jpeg",
+  "/zoomer-images/phase-6/l2_ts_long.png",
+  "/zoomer-images/phase-6/l2_ts_standard.png",
+  "/zoomer-images/phase-6/l2_ts_short.png",
+  "/zoomer-images/phase-8/l2_successful_recovery.jpg",
+  "/zoomer-images/phase-8/l2_tripoli_certificate.jpeg",
+];
+
+// --- Preload Images Helper ---
+const preloadImages = (urls: string[]): Promise<void[]> => {
+  return Promise.all(
+    urls.map(
+      (url) =>
+        new Promise<void>((resolve) => {
+          const img = new Image();
+          img.onload = () => resolve();
+          img.onerror = () => resolve(); // Resolve even on error to not block
+          img.src = url;
+        })
+    )
+  );
+};
+
+// --- Asset Loader Component (same style as main site) ---
+const AssetLoader = () => (
+  <div className="fixed inset-0 z-50 bg-background flex flex-col items-center justify-center">
+    <div className="relative">
+      <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full animate-pulse" />
+      <Rocket className="w-16 h-16 text-primary animate-bounce relative z-10" />
+    </div>
+    <p className="mt-4 text-muted-foreground font-mono text-sm tracking-widest animate-pulse">
+      LOADING ASSETS...
+    </p>
+  </div>
+);
 
 // --- Types & Data for Zoomer Project ---
 
@@ -162,8 +207,8 @@ const ProjectDetail = () => {
   const location = useLocation();
   const returnSection = location.state?.from || "projects";
 
-  // Simulated Loading State
-  const [isLoading, setIsLoading] = useState(true);
+  // Asset Preloading State
+  const [assetsLoaded, setAssetsLoaded] = useState(false);
   const [opacity, setOpacity] = useState(0);
 
   // Hero parallax scroll - use window scroll instead of target ref to avoid hydration issues
@@ -174,28 +219,32 @@ const ProjectDetail = () => {
   const heroScale = useTransform(scrollY, [0, 400], [1, 1.1]);
   const heroY = useTransform(scrollY, [0, 800], [0, 150]);
   const smoothHeroY = useSpring(heroY, { stiffness: 100, damping: 30 });
+
   useEffect(() => {
-    // Show loader for 1.5s then fade in content
-    const loadTimer = setTimeout(() => setIsLoading(false), 1500);
-    const fadeTimer = setTimeout(() => setOpacity(1), 1600);
+    // Preload all Zoomer images if viewing Zoomer project
+    if (id === "zoomer-rocket") {
+      preloadImages(ZOOMER_IMAGES).then(() => {
+        setAssetsLoaded(true);
+        setTimeout(() => setOpacity(1), 100);
+      });
+    } else {
+      // For other projects, no heavy preloading needed
+      setAssetsLoaded(true);
+      setTimeout(() => setOpacity(1), 100);
+    }
+  }, [id]);
 
-    return () => {
-      clearTimeout(loadTimer);
-      clearTimeout(fadeTimer);
-    };
-  }, []);
-
-  // --- Zoomer Specific Data ---
+  // --- Zoomer Specific Data (with fixed paths) ---
   const zoomerPhase1Data: TradeStudyData[] = [
-    { config: "Long Configuration", speed: "Mach 0.373", chord: "3.4 in", cd: "0.437", image: "/zoomer-images/Phase 1/l1_ts_long.png" },
-    { config: "Standard Configuration", speed: "Mach 0.373", chord: "3.29 in", cd: "0.338", image: "/zoomer-images/Phase 1/l1_ts_standard.png", isChosen: true },
-    { config: "Short Configuration", speed: "Mach 0.373", chord: "3.1 in", cd: "0.449", image: "/zoomer-images/Phase 1/l1_ts_short.png" },
+    { config: "Long Configuration", speed: "Mach 0.373", chord: "3.4 in", cd: "0.437", image: "/zoomer-images/phase-1/l1_ts_long.png" },
+    { config: "Standard Configuration", speed: "Mach 0.373", chord: "3.29 in", cd: "0.338", image: "/zoomer-images/phase-1/l1_ts_standard.png", isChosen: true },
+    { config: "Short Configuration", speed: "Mach 0.373", chord: "3.1 in", cd: "0.449", image: "/zoomer-images/phase-1/l1_ts_short.png" },
   ];
 
   const zoomerPhase6Data: TradeStudyData[] = [
-    { config: "Long Configuration", speed: "Mach 0.803", chord: "3.4 in", cd: "0.471", image: "/zoomer-images/Phase 6/l2_ts_long.png" },
-    { config: "Standard Configuration", speed: "Mach 0.803", chord: "3.29 in", cd: "0.475", image: "/zoomer-images/Phase 6/l2_ts_standard.png", isChosen: true },
-    { config: "Short Configuration", speed: "Mach 0.803", chord: "3.1 in", cd: "0.472", image: "/zoomer-images/Phase 6/l2_ts_short.png" },
+    { config: "Long Configuration", speed: "Mach 0.803", chord: "3.4 in", cd: "0.471", image: "/zoomer-images/phase-6/l2_ts_long.png" },
+    { config: "Standard Configuration", speed: "Mach 0.803", chord: "3.29 in", cd: "0.475", image: "/zoomer-images/phase-6/l2_ts_standard.png", isChosen: true },
+    { config: "Short Configuration", speed: "Mach 0.803", chord: "3.1 in", cd: "0.472", image: "/zoomer-images/phase-6/l2_ts_short.png" },
   ];
 
   // Helper for rendering Trade Study Cards
@@ -275,23 +324,10 @@ const ProjectDetail = () => {
     </motion.div>
   );
 
+  // --- Show Loader While Assets Load ---
+  if (!assetsLoaded) return <AssetLoader />;
+
   // --- RENDER CONTENT ---
-
-  if (isLoading) return <ProjectLoader />;
-
-  const projectData: Record<string, any> = {
-    "falcon-9-model": { /* ... existing Falcon data ... */ },
-    "zoomer-rocket": {
-      name: "Zoomer Project Showcase",
-      description: "A complete journey from trade studies and modeling to L1/L2 certification flights.",
-      logo: "/zoomer-images/Phase 3/zoomer-thumbnail.jpg",
-    },
-  };
-
-  const project = projectData[id || ""];
-
-  if (!project && id !== "falcon-9-model")
-    return <div className="min-h-screen flex items-center justify-center">Project not found.</div>;
 
   // --- ZOOMER ROCKET CUSTOM LAYOUT ---
   if (id === "zoomer-rocket") {
@@ -308,7 +344,7 @@ const ProjectDetail = () => {
               style={{ opacity: heroOpacity, scale: heroScale, y: smoothHeroY }}
             >
               <img
-                src="/zoomer-images/Phase 3/zoomer-thumbnail.jpg"
+                src="/zoomer-images/phase-3/zoomer-thumbnail.jpg"
                 alt="Zoomer Hero"
                 className="w-full h-full object-cover"
               />
@@ -376,9 +412,9 @@ const ProjectDetail = () => {
             {/* PHASE 3: FABRICATION */}
             <Phase title="Phase 3: Fabrication" subtitle="Construction of the airframe, fin can, and avionics assembly." color="#f59e0b">
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <GalleryImage src="/zoomer-images/Phase 3/fin_can.jpg" alt="Fin Can" caption="Internal Fin Can Structure" />
-                <GalleryImage src="/zoomer-images/Phase 3/gps_module.jpg" alt="Avionics" caption="GPS & Flight Computer" />
-                <GalleryImage src="/zoomer-images/Phase 3/zoomer-thumbnail.jpg" alt="Painting" caption="Final Assembly & Painting" />
+                <GalleryImage src="/zoomer-images/phase-3/fin_can.jpg" alt="Fin Can" caption="Internal Fin Can Structure" />
+                <GalleryImage src="/zoomer-images/phase-3/gps_module.jpg" alt="Avionics" caption="GPS & Flight Computer" />
+                <GalleryImage src="/zoomer-images/phase-3/zoomer-thumbnail.jpg" alt="Painting" caption="Final Assembly & Painting" />
               </div>
             </Phase>
 
@@ -390,11 +426,11 @@ const ProjectDetail = () => {
                   <MagneticTilt intensity={12} className="w-full max-w-2xl">
                     <div className="relative rounded-2xl overflow-hidden shadow-2xl border-4 border-white/5">
                       <ImageViewer
-                        src="/zoomer-images/Phase 4/launch_day.jpg"
+                        src="/zoomer-images/phase-4/launch_day.jpg"
                         alt="L1 Launch Day"
                         trigger={
                           <img
-                            src="/zoomer-images/Phase 4/launch_day.jpg"
+                            src="/zoomer-images/phase-4/launch_day.jpg"
                             alt="L1 Launch"
                             className="w-full h-auto cursor-zoom-in hover:scale-105 transition-transform duration-500"
                           />
@@ -411,8 +447,8 @@ const ProjectDetail = () => {
                 <div className="flex justify-center">
                   <MagneticTilt intensity={8} className="w-full max-w-2xl">
                     <VideoPlayer
-                      src="/zoomer-images/Phase 4/launch_video_l1.mp4"
-                      poster="/zoomer-images/Phase 4/launch_day.jpg"
+                      src="/zoomer-images/phase-4/launch_video_l1.mp4"
+                      poster="/zoomer-images/phase-4/launch_day.jpg"
                     />
                   </MagneticTilt>
                 </div>
@@ -422,8 +458,8 @@ const ProjectDetail = () => {
             {/* PHASE 5: L1 RECOVERY */}
             <Phase title="Phase 5: Recovery & Certification" subtitle="Successful recovery and Level 1 certification award." color="#22c55e">
               <div className="grid md:grid-cols-2 gap-8">
-                <GalleryImage src="/zoomer-images/Phase 5/l1_successful_recovery.jpg" alt="Recovery" caption="Rocket Recovered Intact" />
-                <GalleryImage src="/zoomer-images/Phase 5/l1_tripoli_certificate.jpeg" alt="Certificate" caption="Tripoli L1 Certification" />
+                <GalleryImage src="/zoomer-images/phase-5/l1_successful_recovery.jpg" alt="Recovery" caption="Rocket Recovered Intact" />
+                <GalleryImage src="/zoomer-images/phase-5/l1_tripoli_certificate.jpeg" alt="Certificate" caption="Tripoli L1 Certification" />
               </div>
             </Phase>
 
@@ -441,8 +477,8 @@ const ProjectDetail = () => {
               <div className="flex justify-center py-4">
                 <MagneticTilt intensity={8} className="w-full max-w-2xl">
                   <VideoPlayer
-                    src="/zoomer-images/Phase 7/launch_video_l2.mp4"
-                    poster="/zoomer-images/Phase 3/zoomer-thumbnail.jpg"
+                    src="/zoomer-images/phase-7/launch_video_l2.mp4"
+                    poster="/zoomer-images/phase-3/zoomer-thumbnail.jpg"
                   />
                 </MagneticTilt>
               </div>
@@ -451,8 +487,8 @@ const ProjectDetail = () => {
             {/* PHASE 8: L2 RECOVERY */}
             <Phase title="Phase 8: L2 Success" subtitle="Dual deployment recovery and Level 2 certification award." color="#a855f7">
               <div className="grid md:grid-cols-2 gap-8 pb-20">
-                <GalleryImage src="/zoomer-images/Phase 8/l2_successful_recovery.jpg" alt="L2 Recovery" caption="Dual Deployment Success" />
-                <GalleryImage src="/zoomer-images/Phase 8/l2_tripoli_certificate.jpeg" alt="L2 Certificate" caption="Tripoli L2 Certification" />
+                <GalleryImage src="/zoomer-images/phase-8/l2_successful_recovery.jpg" alt="L2 Recovery" caption="Dual Deployment Success" />
+                <GalleryImage src="/zoomer-images/phase-8/l2_tripoli_certificate.jpeg" alt="L2 Certificate" caption="Tripoli L2 Certification" />
               </div>
             </Phase>
           </div>
@@ -461,21 +497,95 @@ const ProjectDetail = () => {
     );
   }
 
-  // --- DEFAULT FALLBACK FOR OTHER PROJECTS (e.g. Falcon 9) ---
-  const defaultProject = projectData["falcon-9-model"];
+  // --- FALCON 9 PROJECT (with Summary/Tech/Skills restored) ---
+  const falconProject = {
+    name: "Falcon 9-Inspired 3D Model",
+    description: "A detailed SolidWorks model inspired by SpaceX's Falcon 9 rocket.",
+    technologies: ["SolidWorks", "CAD Modeling", "3D Printing"],
+    skills: ["Engineering Design", "Prototyping", "Technical Documentation", "Problem Solving"],
+    summary: [
+      "Designed a detailed scale model of the Falcon 9 launch vehicle, focusing on accuracy and printability.",
+      "Utilized advanced SolidWorks features including lofting and shelling to create complex aerodynamic surfaces.",
+      "Engineered the assembly to be modular, allowing for the separation of stages and payload fairing.",
+      "Prepared detailed technical drawings and renders to visualize the final assembly.",
+    ],
+  };
 
   return (
     <>
       <DynamicSidebar returnSection={returnSection} />
       <div className="min-h-screen bg-background transition-opacity duration-700 ease-in-out" style={{ opacity }}>
+        {/* 3D Viewer */}
         <div className="relative h-[350px] sm:h-[450px] md:h-[600px] overflow-hidden ml-12 sm:ml-14 md:ml-16">
           <div className="absolute inset-0 z-10">
-            {id === "falcon-9-model" ? <FalconViewer /> : <img src={defaultProject?.logo} className="w-full h-full object-cover" />}
+            <FalconViewer />
           </div>
         </div>
-        <div className="container mx-auto px-4 py-12 max-w-6xl">
-          <h1 className="text-4xl font-bold mb-4">{defaultProject?.name}</h1>
-          <p className="text-xl text-muted-foreground">{defaultProject?.description}</p>
+
+        {/* Project Info with Summary/Tech/Skills */}
+        <div className="container mx-auto px-4 py-12 max-w-6xl ml-12 sm:ml-14 md:ml-16">
+          <h1 className="text-3xl sm:text-4xl font-bold mb-4">{falconProject.name}</h1>
+          <p className="text-lg sm:text-xl text-muted-foreground mb-12">{falconProject.description}</p>
+
+          <div className="grid md:grid-cols-2 gap-8 md:gap-12">
+            {/* Left Column: Summary */}
+            <div className="space-y-4">
+              <div className="flex items-center gap-2">
+                <div className="w-1 h-6 bg-primary rounded-full" />
+                <h2 className="text-xl sm:text-2xl font-bold">Summary</h2>
+              </div>
+              <ul className="space-y-3">
+                {falconProject.summary.map((item, i) => (
+                  <li key={i} className="text-muted-foreground text-sm sm:text-base leading-relaxed">
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Right Column: Technologies & Skills */}
+            <div className="space-y-8">
+              {/* Technologies Used */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center">
+                    <Wrench className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-bold">Technologies Used</h2>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {falconProject.technologies.map((tech) => (
+                    <span
+                      key={tech}
+                      className="px-4 py-2 bg-card border border-border rounded-full text-sm font-medium text-foreground hover:bg-accent transition-colors"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
+              {/* Skills Used */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-card border border-border flex items-center justify-center">
+                    <Code className="w-5 h-5 text-muted-foreground" />
+                  </div>
+                  <h2 className="text-xl sm:text-2xl font-bold">Skills Used</h2>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {falconProject.skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="px-4 py-2 bg-card border border-border rounded-full text-sm font-medium text-foreground hover:bg-accent transition-colors"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </>

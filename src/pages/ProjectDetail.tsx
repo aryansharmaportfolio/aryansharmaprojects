@@ -416,14 +416,6 @@ const ProjectDetail = () => {
                 >
                   
                 </motion.h1>
-                <motion.p
-                  className="text-base sm:text-lg md:text-2xl text-white/80 font-light max-w-2xl mx-auto"
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.4 }}
-                >
-                  Tripoli Level 1 & Level 2 Certified High-Power Rocket
-                </motion.p>
               </div>
 
               {/* Bouncing Arrow - UPDATED TO MATCH HERO.TSX */}

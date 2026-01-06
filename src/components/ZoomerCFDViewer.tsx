@@ -61,7 +61,7 @@ export default function ZoomerCFDViewer() {
       
       {/* HEADER */}
       <div className="absolute top-8 left-8 z-50 transition-all duration-500 pointer-events-none">
-        <h1 className="text-3xl font-black text-neutral-900 tracking-tighter">ZOOMER L2</h1>
+        <h1 className="text-3xl font-black text-neutral-900 tracking-tighter">ZOOMER</h1>
         <p className="text-neutral-500 text-[10px] font-bold uppercase tracking-widest mt-1">Interactive 3D Model</p>
       </div>
 

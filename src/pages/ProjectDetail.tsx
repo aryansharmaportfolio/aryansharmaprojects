@@ -651,7 +651,7 @@ const ProjectDetail = () => {
                 <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-foreground border-l-4 border-primary pl-3">
-                Reference
+                References
               </h2>
             </div>
             <div className="grid md:grid-cols-2 gap-6">

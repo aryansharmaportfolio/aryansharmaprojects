@@ -398,8 +398,7 @@ const ProjectDetail = () => {
                 alt="Zoomer Hero"
                 className="w-full h-full object-cover"
               />
-              {/* Subtle bottom vignette for scroll prompt visibility */}
-              <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-black/60 to-transparent" />
+              {/* Removed vignette - full brightness */}
             </motion.div>
 
             {/* Content */}

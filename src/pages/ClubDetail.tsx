@@ -1,7 +1,7 @@
 import { useParams } from "react-router-dom";
 import DynamicSidebar from "@/components/DynamicSidebar";
 import { useState, useEffect } from "react";
-import { Award, Target } from "lucide-react";
+import { Award, Target, Calendar } from "lucide-react";
 import { motion, useScroll, useTransform } from "framer-motion";
 
 const ClubDetail = () => {
@@ -27,6 +27,7 @@ const ClubDetail = () => {
     aeromavs: {
       name: "Aero Mavs",
       role: "Solid Rocketry Project Manager",
+      date: "Sep 2025 - Present",
       logo: "/aeromavs-logo-thumbnail.png",
       achievements: [
         "Performing composite material layups, such as mid-body sections, using wet layup techniques with epoxy resin and Mylar sheets for a smooth surface finish."
@@ -35,6 +36,7 @@ const ClubDetail = () => {
     aiaa: {
       name: "UTA Design-Build-Fly Team",
       role: "Structures/Manufacturing",
+      date: "Oct 2025 - Present",
       logo: "/dbf-logo-thumbnail.png",
       achievements: [
         "Developing a manufacturing proposal suggesting a design of a separate propulsion battery compartment for rapid battery integration to meet both flight safety and mission speed requirements."
@@ -43,6 +45,7 @@ const ClubDetail = () => {
     "chs-aerospace": {
       name: "Coppell High School Aerospace Club",
       role: "Co-Founder/Executive",
+      date: "Aug 2024 - May 2025",
       logo: "/chs-inside.jpg",
       achievements: [
         "Co-founded and grew the school's first aerospace club to over 115 members, establishing it as the largest student organization in the school's history (est. 1965).",
@@ -86,9 +89,19 @@ const ClubDetail = () => {
           
           <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-8 md:p-12">
             <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-foreground mb-1 sm:mb-2 tracking-tight">{club.name}</h1>
-            <div className="flex items-center gap-1.5 sm:gap-2">
-              <Target className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
-              <p className="text-base sm:text-xl md:text-2xl text-white font-semibold">{club.role}</p>
+            
+            <div className="flex flex-col gap-1.5 sm:gap-2">
+              {/* Role */}
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Target className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                <p className="text-base sm:text-xl md:text-2xl text-white font-semibold">{club.role}</p>
+              </div>
+
+              {/* Date */}
+              <div className="flex items-center gap-1.5 sm:gap-2">
+                <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
+                <p className="text-sm sm:text-lg md:text-xl text-white/90 font-medium">{club.date}</p>
+              </div>
             </div>
           </div>
         </div>

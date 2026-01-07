@@ -5,7 +5,7 @@ import FalconViewer from "@/components/FalconViewer";
 import ZoomerCFDViewer from "@/components/ZoomerCFDViewer";
 import MagneticTilt from "@/components/motion/MagneticTilt";
 import ImageViewer from "@/components/ImageViewer";
-import { ChevronDown, ZoomIn, Play, Pause, Volume2, VolumeX, Rocket, Wrench, Code, FileText } from "lucide-react";
+import { ChevronDown, ZoomIn, Play, Pause, Volume2, VolumeX, Rocket, Wrench, Code, FileText, Image as ImageIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 
@@ -539,13 +539,17 @@ const ProjectDetail = () => {
   const falconProject = {
     name: "Falcon 9-Inspired 3D Model",
     description: "A detailed SolidWorks model inspired by SpaceX's Falcon 9 rocket.",
-    technologies: ["SolidWorks", "CAD Modeling", "3D Printing"],
-    skills: ["Engineering Design", "Prototyping", "Technical Documentation", "Problem Solving"],
+    technologies: ["SolidWorks"],
+    skills: ["CAD Modeling", "Engineering Design"],
     summary: [
       "Designed a detailed scale model of the Falcon 9 launch vehicle, focusing on accuracy and printability.",
       "Utilized advanced SolidWorks features including lofting and shelling to create complex aerodynamic surfaces.",
       "Engineered the assembly to be modular, allowing for the separation of stages and payload fairing.",
       "Sketched the model on a publicly available recreation of the falcon 9 blueprint created by Ryan Steven Horowitz.",
+    ],
+    referenceImages: [
+      { src: "/falcon-images/falcon-blueprint.jpg", alt: "Falcon 9 Blueprint" },
+      { src: "/falcon-images/falcon-diagram.jpg", alt: "Falcon 9 Diagram" },
     ],
   };
 
@@ -637,6 +641,40 @@ const ProjectDetail = () => {
                   ))}
                 </div>
               </div>
+            </div>
+          </div>
+
+          {/* Reference Section with MagneticTilt Images */}
+          <div className="container mx-auto px-4 py-12 max-w-6xl ml-12 sm:ml-14 md:ml-16">
+            <div className="flex items-center gap-3 mb-8">
+              <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
+                <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+              </div>
+              <h2 className="text-2xl sm:text-3xl font-bold text-foreground border-l-4 border-primary pl-3">
+                Reference
+              </h2>
+            </div>
+            <div className="grid md:grid-cols-2 gap-6">
+              {falconProject.referenceImages.map((img, i) => (
+                <MagneticTilt key={i} intensity={6}>
+                  <ImageViewer
+                    src={img.src}
+                    alt={img.alt}
+                    trigger={
+                      <div className="relative rounded-2xl overflow-hidden border-4 border-white/5 shadow-2xl cursor-zoom-in group">
+                        <img
+                          src={img.src}
+                          alt={img.alt}
+                          className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
+                        />
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                          <ZoomIn className="w-10 h-10 text-white drop-shadow-lg" />
+                        </div>
+                      </div>
+                    }
+                  />
+                </MagneticTilt>
+              ))}
             </div>
           </div>
         </div>

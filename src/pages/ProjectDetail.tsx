@@ -398,8 +398,7 @@ const ProjectDetail = () => {
                 alt="Zoomer Hero"
                 className="w-full h-full object-cover"
               />
-              {/* Seamless gradient transition to content - matching main hero to about me */}
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
+              {/* Removed vignette - full brightness */}
             </motion.div>
 
             {/* Content */}

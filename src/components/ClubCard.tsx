@@ -52,11 +52,6 @@ const ClubCard = ({
         {/* Title and Description */}
         <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1 drop-shadow-lg text-left transition-all duration-300 ease-in-out">{name}</h3>
         <p className="text-sm sm:text-base text-white/90 drop-shadow-lg text-left transition-all duration-300 ease-in-out">{role}</p>
-        
-        {/* Date below the role */}
-        <p className="text-xs sm:text-sm text-white/70 drop-shadow-lg text-left mt-1 transition-all duration-300 ease-in-out">
-          {date}
-        </p>
       </div>
     </Card>
   );

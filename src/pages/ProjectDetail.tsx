@@ -398,7 +398,8 @@ const ProjectDetail = () => {
                 alt="Zoomer Hero"
                 className="w-full h-full object-cover"
               />
-              {/* Removed vignette - full brightness */}
+              {/* Seamless gradient transition to content - matching main hero to about me */}
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
             </motion.div>
 
             {/* Content */}
@@ -650,7 +651,7 @@ const ProjectDetail = () => {
                 <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
               </div>
               <h2 className="text-2xl sm:text-3xl font-bold text-foreground border-l-4 border-primary pl-3">
-                References
+                Reference
               </h2>
             </div>
             <div className="grid md:grid-cols-2 gap-6">

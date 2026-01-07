@@ -398,8 +398,8 @@ const ProjectDetail = () => {
                 alt="Zoomer Hero"
                 className="w-full h-full object-cover"
               />
-              {/* Gradient overlays for smooth fade - REMOVED DARK OVERLAY FOR FULL BRIGHTNESS */}
-              <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent h-full" />
+              {/* Seamless gradient transition to content - matching main hero to about me */}
+              <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
             </motion.div>
 
             {/* Content */}
@@ -548,7 +548,7 @@ const ProjectDetail = () => {
       "Sketched the model on a publicly available recreation of the falcon 9 blueprint created by Ryan Steven Horowitz.",
     ],
     referenceImages: [
-      { src: "/falcon-images/falcon-blueprint.jpg", alt: "Falcon 9 Blueprint" },
+      { src: "/falcon-images/falcon-blueprint.jpg", alt: "Falcon 9 Blueprint", credit: "Credit: Ryan Steven Horowitz" },
       { src: "/falcon-images/falcon-diagram.jpg", alt: "Falcon 9 Diagram" },
     ],
   };
@@ -657,22 +657,34 @@ const ProjectDetail = () => {
             <div className="grid md:grid-cols-2 gap-6">
               {falconProject.referenceImages.map((img, i) => (
                 <MagneticTilt key={i} intensity={6}>
-                  <ImageViewer
-                    src={img.src}
-                    alt={img.alt}
-                    trigger={
-                      <div className="relative rounded-2xl overflow-hidden border-4 border-white/5 shadow-2xl cursor-zoom-in group">
-                        <img
-                          src={img.src}
-                          alt={img.alt}
-                          className="w-full h-auto object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                          <ZoomIn className="w-10 h-10 text-white drop-shadow-lg" />
+                  <div className="flex flex-col">
+                    <ImageViewer
+                      src={img.src}
+                      alt={img.alt}
+                      trigger={
+                        <div className="relative rounded-2xl overflow-hidden border-4 border-white/5 shadow-2xl cursor-zoom-in group h-48 sm:h-56 md:h-64">
+                          <img
+                            src={img.src}
+                            alt={img.alt}
+                            className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                          />
+                          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
+                            <ZoomIn className="w-10 h-10 text-white drop-shadow-lg" />
+                          </div>
+                        </div>
+                      }
+                    />
+                    {/* Credit caption badge styled like club card dates */}
+                    {img.credit && (
+                      <div className="mt-3 self-start">
+                        <div className="bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full">
+                          <p className="text-xs font-bold text-white uppercase tracking-wider">
+                            {img.credit}
+                          </p>
                         </div>
                       </div>
-                    }
-                  />
+                    )}
+                  </div>
                 </MagneticTilt>
               ))}
             </div>

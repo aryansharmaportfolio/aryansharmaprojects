@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import profilePicture from "@/assets/profile-picture.jpg";
 import TypewriterHeader from "./TypewriterHeader";
 import DegreeProgress from "./DegreeProgress";
-import ResumeViewer from "./ResumeViewer";
 import MaskedTextReveal from "./motion/MaskedTextReveal";
 import { motion } from "framer-motion";
 
@@ -124,8 +123,6 @@ const AboutMe = () => {
                   Email
                 </a>
               </Button>
-              
-              <ResumeViewer />
 
               <Button variant="outline" className="gap-2 border-white/20 text-white hover:bg-white hover:text-black transition-all" asChild>
                 <a href="https://www.linkedin.com/in/aryan-in-aerospace/" target="_blank" rel="noopener noreferrer">

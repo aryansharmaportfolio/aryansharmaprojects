@@ -57,12 +57,12 @@ export default function ZoomerCFDViewer() {
   const [hasInteracted, setHasInteracted] = useState(false);
 
   return (
-    <div className="w-full h-[700px] relative bg-white rounded-xl overflow-hidden shadow-sm border border-neutral-200 font-sans select-none group">
+    <div className="w-full h-[350px] sm:h-[450px] md:h-[600px] lg:h-[700px] relative bg-white rounded-xl overflow-hidden shadow-sm border border-neutral-200 font-sans select-none group">
       
       {/* HEADER */}
-      <div className="absolute top-8 left-8 z-50 transition-all duration-500 pointer-events-none">
-        <h1 className="text-3xl font-black text-neutral-900 tracking-tighter">ZOOMER</h1>
-        <p className="text-neutral-500 text-[10px] font-bold uppercase tracking-widest mt-1">Interactive 3D Model</p>
+      <div className="absolute top-4 left-4 sm:top-6 sm:left-6 md:top-8 md:left-8 z-50 transition-all duration-500 pointer-events-none">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-neutral-900 tracking-tighter">ZOOMER</h1>
+        <p className="text-neutral-500 text-[8px] sm:text-[10px] font-bold uppercase tracking-widest mt-1">Interactive 3D Model</p>
       </div>
 
       {/* INSTRUCTION OVERLAY */}
@@ -70,7 +70,8 @@ export default function ZoomerCFDViewer() {
 
       {/* 3D SCENE */}
       <Canvas shadows dpr={[1, 2]}>
-        <PerspectiveCamera makeDefault position={[1246, 415, 724]} fov={35} />
+        {/* Adjusted camera for better mobile viewing - closer and more centered */}
+        <PerspectiveCamera makeDefault position={[1400, 500, 850]} fov={window.innerWidth < 768 ? 50 : 35} />
         <color attach="background" args={['#ffffff']} />
         
         <Suspense fallback={<Html center className="text-neutral-400 font-mono text-xs">Loading Model...</Html>}>
@@ -78,8 +79,6 @@ export default function ZoomerCFDViewer() {
           <ambientLight intensity={0.6} />
           <directionalLight position={[50, 100, 50]} intensity={2} castShadow />
           
-          {/* Grid component removed here */}
-
           <Center top>
             <ZoomerRocket />
           </Center>
@@ -87,8 +86,8 @@ export default function ZoomerCFDViewer() {
           <CameraControls 
             minPolarAngle={0} 
             maxPolarAngle={Math.PI / 1.8} 
-            minDistance={1200} 
-            maxDistance={1300} 
+            minDistance={window.innerWidth < 768 ? 900 : 1200} 
+            maxDistance={window.innerWidth < 768 ? 1100 : 1300} 
           />
           <ContactShadows resolution={1024} scale={300} blur={3} opacity={0.2} far={100} color="#000000" />
         </Suspense>

@@ -32,11 +32,11 @@ const CurrentWork = () => {
   return (
     <section id="current-work" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-black/0">
       <div className="container mx-auto max-w-7xl">
-        <div className="text-center mb-8 sm:mb-12 md:mb-16">
+        <div className="text-center mb-6 sm:mb-10 md:mb-16">
           <MaskedTextReveal>
-            <TypewriterHeader text="Current & Ongoing Work" className="mb-4 sm:mb-6" />
+            <TypewriterHeader text="Current & Ongoing Work" className="mb-3 sm:mb-4 md:mb-6 text-2xl sm:text-3xl md:text-4xl" />
           </MaskedTextReveal>
-          <p className="text-base sm:text-lg md:text-xl italic text-white px-4">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl italic text-white px-3 sm:px-4 max-w-3xl mx-auto">
             Continuously developing my technical abilities and practical knowledge by seeking hands-on experiences.
           </p>
         </div>

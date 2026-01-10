@@ -448,7 +448,7 @@ export default function FalconViewer() {
 
   return (
     <div 
-      className="w-full h-[400px] sm:h-[550px] md:h-[750px] relative bg-white border border-neutral-200 overflow-hidden shadow-sm group font-sans"
+      className="w-full h-[320px] sm:h-[450px] md:h-[600px] lg:h-[750px] relative bg-white border border-neutral-200 overflow-hidden shadow-sm group font-sans"
     >
       
       <style>{`
@@ -467,10 +467,10 @@ export default function FalconViewer() {
         }
       `}</style>
 
-      {/* 1. HEADER */}
-      <div className={`absolute top-4 left-4 sm:top-8 sm:left-8 z-50 transition-all duration-500 ${isOverview ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
-        <h1 className="text-xl sm:text-3xl md:text-4xl font-black text-neutral-900 tracking-tighter">FALCON 9</h1>
-        <p className="text-neutral-500 text-[10px] sm:text-xs font-bold uppercase tracking-widest mt-1">Interactive 3D Model</p>
+      {/* 1. HEADER - Always visible with better mobile sizing */}
+      <div className={`absolute top-3 left-3 sm:top-6 sm:left-6 md:top-8 md:left-8 z-50 transition-all duration-500 ${isOverview ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
+        <h1 className="text-base sm:text-xl md:text-3xl lg:text-4xl font-black text-neutral-900 tracking-tighter">FALCON 9</h1>
+        <p className="text-neutral-500 text-[8px] sm:text-[10px] md:text-xs font-bold uppercase tracking-widest mt-0.5 sm:mt-1">Interactive 3D Model</p>
       </div>
 
       {/* 2. WARNING POPUP WITH ARROW */}
@@ -487,9 +487,9 @@ export default function FalconViewer() {
       {/* 3. FULL SCREEN INSTRUCTION OVERLAY */}
       {!hasInteracted && <InstructionOverlay onDismiss={handleInteraction} />}
 
-      {/* 4. OVERVIEW PART SELECTION */}
-      <div className={`absolute right-2 sm:right-8 top-1/2 -translate-y-1/2 z-40 flex flex-col gap-1 sm:gap-2 transition-all duration-500 ${isOverview ? 'translate-x-0 opacity-100' : 'translate-x-20 opacity-0 pointer-events-none'}`}>
-        <div className="hidden sm:flex absolute -top-16 right-0 w-48 text-right flex-col items-end gap-1 animate-bounce">
+      {/* 4. OVERVIEW PART SELECTION - Better mobile positioning */}
+      <div className={`absolute right-1 sm:right-4 md:right-8 top-1/3 sm:top-1/2 -translate-y-1/2 z-40 flex flex-col gap-0.5 sm:gap-1 md:gap-2 transition-all duration-500 ${isOverview ? 'translate-x-0 opacity-100' : 'translate-x-20 opacity-0 pointer-events-none'}`}>
+        <div className="hidden md:flex absolute -top-16 right-0 w-48 text-right flex-col items-end gap-1 animate-bounce">
             <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest bg-white/90 px-2 py-1 rounded">
                 Click On Each Part To View In More Detail!
             </span>
@@ -502,9 +502,9 @@ export default function FalconViewer() {
             <button
               key={zone}
               onClick={() => handleZoneClick(zone)}
-              className="text-right text-[8px] sm:text-[10px] font-bold tracking-widest uppercase px-2 sm:px-4 py-1.5 sm:py-2 rounded-md transition-all duration-200 bg-white/80 text-neutral-400 hover:text-neutral-900 hover:bg-white hover:scale-105 border border-transparent hover:border-neutral-100 shadow-sm"
+              className="text-right text-[6px] sm:text-[8px] md:text-[10px] font-bold tracking-wider sm:tracking-widest uppercase px-1.5 sm:px-2 md:px-4 py-1 sm:py-1.5 md:py-2 rounded-md transition-all duration-200 bg-white/90 text-neutral-500 hover:text-neutral-900 hover:bg-white hover:scale-105 border border-transparent hover:border-neutral-100 shadow-sm"
             >
-              {isMobile ? zone.split(' ').slice(0, 2).join(' ') : zone}
+              {isMobile ? zone.split(' ')[0] : zone}
             </button>
           );
         })}
@@ -583,15 +583,15 @@ export default function FalconViewer() {
         </div>
       </div>
 
-      {/* 6. SLIDER */}
-      <div className={`absolute bottom-4 sm:bottom-20 md:bottom-40 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2 sm:gap-3 w-[calc(100%-2rem)] sm:w-80 md:w-96 p-3 sm:p-4 md:p-6 rounded-xl sm:rounded-2xl border shadow-xl backdrop-blur-md transition-all duration-500 
+      {/* 6. SLIDER - Repositioned for mobile */}
+      <div className={`absolute bottom-2 sm:bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-1 sm:gap-2 md:gap-3 w-[calc(100%-1rem)] sm:w-72 md:w-80 lg:w-96 p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl md:rounded-2xl border shadow-xl backdrop-blur-md transition-all duration-500 
         ${!isOverview ? 'opacity-0 pointer-events-none translate-y-20' : 'opacity-100 translate-y-0'}
-        ${warning ? 'bg-red-50/90 border-red-200 ring-2 ring-red-400 ring-offset-2' : 'bg-white/90 border-neutral-200'}
+        ${warning ? 'bg-red-50/90 border-red-200 ring-2 ring-red-400 ring-offset-2' : 'bg-white/95 border-neutral-200'}
       `}>
         
-        <div className="flex justify-between w-full text-[8px] sm:text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-1">
+        <div className="flex justify-between w-full text-[6px] sm:text-[8px] md:text-[10px] font-bold text-neutral-500 uppercase tracking-wider mb-0.5 sm:mb-1">
           <span>Stowed</span>
-          <span className="text-neutral-900 text-center">Stage Separation</span>
+          <span className="text-neutral-900 text-center text-[7px] sm:text-[9px] md:text-[10px]">Stage Separation</span>
           <span>Deployed</span>
         </div>
         <input 
@@ -599,7 +599,7 @@ export default function FalconViewer() {
           min="0" max="1" step="0.01" 
           value={exploded}
           onChange={(e) => setExploded(parseFloat(e.target.value))}
-          className={`w-full h-2 rounded-lg appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-400 ${warning ? 'bg-red-200 accent-red-500' : 'bg-neutral-200 accent-neutral-900 hover:accent-neutral-700'}`}
+          className={`w-full h-1.5 sm:h-2 rounded-lg appearance-none cursor-pointer transition-colors focus:outline-none focus:ring-2 focus:ring-neutral-400 ${warning ? 'bg-red-200 accent-red-500' : 'bg-neutral-200 accent-neutral-900 hover:accent-neutral-700'}`}
         />
       </div>
 

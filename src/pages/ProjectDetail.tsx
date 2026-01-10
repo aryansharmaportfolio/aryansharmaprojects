@@ -402,34 +402,23 @@ const ProjectDetail = () => {
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
             </motion.div>
 
-            {/* Content */}
+            {/* Content - Optimized for mobile viewing */}
             <motion.div
-              className="relative z-10 h-full flex flex-col items-center justify-center px-4"
+              className="relative z-10 h-full flex flex-col items-center justify-end pb-24 sm:pb-32 md:justify-center md:pb-0 px-4"
               style={{ opacity: heroOpacity }}
             >
-              <div className="text-center space-y-4 max-w-4xl mx-auto">
-                <motion.h1
-                  className="text-4xl sm:text-5xl md:text-7xl font-black tracking-tighter text-white drop-shadow-2xl"
-                  initial={{ opacity: 0, y: 30 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.8, delay: 0.2 }}
-                >
-                  
-                </motion.h1>
-              </div>
-
-              {/* Bouncing Arrow - UPDATED TO MATCH HERO.TSX */}
+              {/* Bouncing Arrow - Positioned for mobile */}
               <motion.div
-                className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4 z-20 cursor-pointer"
+                className="flex flex-col items-center gap-2 sm:gap-4 z-20 cursor-pointer"
                 onClick={() => document.getElementById("phase-1")?.scrollIntoView({ behavior: "smooth" })}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.8 }}
               >
-                <p className="text-white font-bold text-sm md:text-base tracking-[0.2em] animate-pulse drop-shadow-xl uppercase">
+                <p className="text-white font-bold text-xs sm:text-sm md:text-base tracking-[0.15em] sm:tracking-[0.2em] animate-pulse drop-shadow-xl uppercase">
                   Scroll to Explore
                 </p>
-                <ChevronDown className="w-8 h-8 text-white animate-bounce drop-shadow-xl" strokeWidth={2.5} />
+                <ChevronDown className="w-6 h-6 sm:w-8 sm:h-8 text-white animate-bounce drop-shadow-xl" strokeWidth={2.5} />
               </motion.div>
             </motion.div>
           </section>
@@ -445,9 +434,9 @@ const ProjectDetail = () => {
               </div>
             </Phase>
 
-            {/* PHASE 2: MODELING */}
+            {/* PHASE 2: MODELING - Responsive height */}
             <Phase title="Phase 2: Modeling" subtitle="Modeled in SolidWorks, click below to explore the 3D model." color="#3b82f6">
-              <div className="w-full h-[500px] sm:h-[600px] rounded-xl overflow-hidden border border-white/10 shadow-2xl">
+              <div className="w-full h-[350px] sm:h-[450px] md:h-[550px] lg:h-[600px] rounded-xl overflow-hidden border border-white/10 shadow-2xl">
                 <ZoomerCFDViewer />
               </div>
             </Phase>
@@ -557,17 +546,17 @@ const ProjectDetail = () => {
     <>
       <DynamicSidebar returnSection={returnSection} />
       <div className="min-h-screen bg-background transition-opacity duration-700 ease-in-out" style={{ opacity }}>
-        {/* 3D Viewer */}
-        <div className="relative h-[350px] sm:h-[450px] md:h-[600px] overflow-hidden ml-12 sm:ml-14 md:ml-16">
+        {/* 3D Viewer - Optimized heights for mobile */}
+        <div className="relative h-[280px] sm:h-[380px] md:h-[500px] lg:h-[600px] overflow-hidden ml-10 sm:ml-12 md:ml-14 lg:ml-16">
           <div className="absolute inset-0 z-10">
             <FalconViewer />
           </div>
         </div>
 
-        {/* Project Info with Summary/Tech/Skills */}
-        <div className="container mx-auto px-4 py-12 max-w-6xl ml-12 sm:ml-14 md:ml-16">
-          <h1 className="text-3xl sm:text-4xl font-bold mb-4">{falconProject.name}</h1>
-          <p className="text-lg sm:text-xl text-muted-foreground mb-12">{falconProject.description}</p>
+        {/* Project Info with Summary/Tech/Skills - Better mobile margins */}
+        <div className="container mx-auto px-3 sm:px-4 py-8 sm:py-12 max-w-6xl ml-10 sm:ml-12 md:ml-14 lg:ml-16">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4">{falconProject.name}</h1>
+          <p className="text-base sm:text-lg md:text-xl text-muted-foreground mb-8 sm:mb-12">{falconProject.description}</p>
 
           <div className="grid md:grid-cols-2 gap-8 md:gap-12">
             {/* Left Column: Summary */}
@@ -644,17 +633,17 @@ const ProjectDetail = () => {
             </div>
           </div>
 
-          {/* Reference Section with MagneticTilt Images */}
-          <div className="container mx-auto px-4 py-12 max-w-6xl ml-12 sm:ml-14 md:ml-16">
-            <div className="flex items-center gap-3 mb-8">
-              <div className="p-2 bg-primary/10 rounded-lg border border-primary/20">
-                <ImageIcon className="w-5 h-5 sm:w-6 sm:h-6 text-primary" />
+          {/* Reference Section with MagneticTilt Images - Fixed mobile layout */}
+          <div className="py-8 sm:py-12 max-w-6xl -ml-10 sm:-ml-12 md:-ml-14 lg:-ml-16">
+            <div className="flex items-center gap-2 sm:gap-3 mb-6 sm:mb-8">
+              <div className="p-1.5 sm:p-2 bg-primary/10 rounded-lg border border-primary/20">
+                <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-primary" />
               </div>
-              <h2 className="text-2xl sm:text-3xl font-bold text-foreground border-l-4 border-primary pl-3">
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-foreground border-l-4 border-primary pl-2 sm:pl-3">
                 References
               </h2>
             </div>
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid sm:grid-cols-2 gap-4 sm:gap-6">
               {falconProject.referenceImages.map((img, i) => (
                 <MagneticTilt key={i} intensity={6}>
                   <div className="flex flex-col">
@@ -662,23 +651,23 @@ const ProjectDetail = () => {
                       src={img.src}
                       alt={img.alt}
                       trigger={
-                        <div className="relative rounded-2xl overflow-hidden border-4 border-white/5 shadow-2xl cursor-zoom-in group h-48 sm:h-56 md:h-64">
+                        <div className="relative rounded-xl sm:rounded-2xl overflow-hidden border-2 sm:border-4 border-white/5 shadow-2xl cursor-zoom-in group h-40 sm:h-48 md:h-56 lg:h-64">
                           <img
                             src={img.src}
                             alt={img.alt}
                             className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                           />
                           <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                            <ZoomIn className="w-10 h-10 text-white drop-shadow-lg" />
+                            <ZoomIn className="w-8 h-8 sm:w-10 sm:h-10 text-white drop-shadow-lg" />
                           </div>
                         </div>
                       }
                     />
                     {/* Credit caption badge styled like club card dates */}
                     {img.credit && (
-                      <div className="mt-3 self-start">
-                        <div className="bg-black/40 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full">
-                          <p className="text-xs font-bold text-white uppercase tracking-wider">
+                      <div className="mt-2 sm:mt-3 self-start">
+                        <div className="bg-black/40 backdrop-blur-md border border-white/10 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full">
+                          <p className="text-[10px] sm:text-xs font-bold text-white uppercase tracking-wider">
                             {img.credit}
                           </p>
                         </div>

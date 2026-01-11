@@ -61,7 +61,8 @@ const TypewriterHeader = ({ text, className }: TypewriterHeaderProps) => {
 
   return (
     <div ref={elementRef} className={cn("inline-block", className)}>
-      <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold text-foreground border-b-4 border-primary pb-2">
+      {/* Responsive sizing: explicitly starts at text-2xl for mobile to ensure visibility */}
+      <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-foreground border-b-4 border-primary pb-2">
         {displayText}
         <span className="animate-pulse text-primary">_</span>
       </h2>

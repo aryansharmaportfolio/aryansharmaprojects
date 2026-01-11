@@ -29,9 +29,13 @@ const FeaturedProjects = () => {
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-8 sm:mb-12 md:mb-16">
           <MaskedTextReveal>
-            <TypewriterHeader text="Personal Projects" className="mb-4 sm:mb-6" />
+            {/* Explicit mobile text sizing to ensure visibility */}
+            <TypewriterHeader 
+              text="Personal Projects" 
+              className="mb-4 sm:mb-6 text-2xl sm:text-3xl md:text-4xl" 
+            />
           </MaskedTextReveal>
-          <p className="text-base sm:text-lg md:text-xl italic text-white px-4">
+          <p className="text-sm sm:text-base md:text-lg lg:text-xl italic text-white px-2 sm:px-4 max-w-3xl mx-auto">
             A showcase of hands-on projects. Click on a project to view a detailed overview of the design process and its outcome.
           </p>
         </div>

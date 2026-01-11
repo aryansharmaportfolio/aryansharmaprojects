@@ -197,8 +197,8 @@ const Hero = () => {
       {/* SCROLL SPACER */}
       <div ref={containerRef} className="h-[300vh] w-full pointer-events-none" />
 
-      {/* FIXED LAYER */}
-      <div className="fixed top-0 left-0 w-full h-full z-0 overflow-hidden bg-[#2b2b2b]">
+      {/* FIXED LAYER - Added bottom padding to prevent grey bar glitch */}
+      <div className="fixed top-0 left-0 w-full h-[100dvh] z-0 overflow-hidden bg-[#2b2b2b]">
         
         {/* Loading Overlay */}
         <div 
@@ -220,29 +220,36 @@ const Hero = () => {
         {/* Content */}
         <div className={cn("relative w-full h-full transition-opacity duration-1000", isLoaded ? "opacity-100" : "opacity-0")}>
             
-            {/* THE WEBGL CANVAS */}
-            <canvas ref={canvasRef} className="w-full h-full block" />
+            {/* THE WEBGL CANVAS - Use object-cover positioning for mobile crop instead of squish */}
+            <canvas 
+              ref={canvasRef} 
+              className="w-full h-full block object-cover object-center" 
+            />
 
-            {/* Title Overlay */}
+            {/* Title Overlay - Improved mobile visibility */}
             <div
-              className="absolute inset-0 flex flex-col items-center justify-center z-20 pointer-events-none"
+              className="absolute inset-0 flex flex-col items-center justify-center z-20 pointer-events-none px-4"
               style={{ opacity: textOpacity }}
             >
-              <div className="text-center px-4">
-                <h1 className="text-5xl md:text-8xl font-black text-white tracking-tighter mb-4 drop-shadow-2xl">
+              <div className="text-center">
+                {/* Responsive title sizing that maintains visibility on all devices */}
+                <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black text-white tracking-tighter mb-4 drop-shadow-2xl leading-tight">
                   PROJECT <br /> PORTFOLIO
                 </h1>
                 
-                {/* --- UPDATED SCROLL INDICATOR --- */}
-                <div className="mt-16 flex flex-col items-center gap-4">
-                  <p className="text-white font-bold text-sm md:text-base tracking-[0.2em] animate-pulse drop-shadow-xl">
+                {/* --- SCROLL INDICATOR - Better mobile positioning --- */}
+                <div className="mt-8 sm:mt-12 md:mt-16 flex flex-col items-center gap-2 sm:gap-4">
+                  <p className="text-white font-bold text-xs sm:text-sm md:text-base tracking-[0.15em] sm:tracking-[0.2em] animate-pulse drop-shadow-xl">
                     SCROLL TO EXPLORE
                   </p>
-                  <ChevronDown className="w-8 h-8 text-white animate-bounce drop-shadow-xl" strokeWidth={2.5} />
+                  <ChevronDown className="w-6 h-6 sm:w-8 sm:h-8 text-white animate-bounce drop-shadow-xl" strokeWidth={2.5} />
                 </div>
               </div>
             </div>
         </div>
+        
+        {/* Bottom fade to prevent grey bar - extends beyond viewport */}
+        <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-[#2b2b2b] to-transparent pointer-events-none" />
       </div>
     </div>
   );

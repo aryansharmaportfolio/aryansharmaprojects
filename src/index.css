@@ -327,6 +327,20 @@ html {
 }
 
 /* ==============================================
+   MOBILE UTILITY CLASSES
+   ============================================== */
+
+/* Hide scrollbar on mobile horizontal scroll containers */
+.scrollbar-hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;  /* Firefox */
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;  /* Chrome, Safari, Opera */
+}
+
+/* ==============================================
    LOVABLE OVERRIDES
    ============================================== */
 

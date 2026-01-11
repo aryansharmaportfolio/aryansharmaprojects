@@ -34,9 +34,13 @@ const CurrentWork = () => {
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-6 sm:mb-10 md:mb-16">
           <MaskedTextReveal>
-            <TypewriterHeader text="Current & Ongoing Work" className="mb-3 sm:mb-4 md:mb-6 text-2xl sm:text-3xl md:text-4xl" />
+            {/* Explicit text sizing with !important-like specificity for mobile visibility */}
+            <TypewriterHeader 
+              text="Current & Ongoing Work" 
+              className="mb-3 sm:mb-4 md:mb-6 !text-xl sm:!text-2xl md:!text-3xl lg:!text-4xl" 
+            />
           </MaskedTextReveal>
-          <p className="text-sm sm:text-base md:text-lg lg:text-xl italic text-white px-3 sm:px-4 max-w-3xl mx-auto">
+          <p className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl italic text-white px-2 sm:px-4 max-w-3xl mx-auto leading-relaxed">
             Continuously developing my technical abilities and practical knowledge by seeking hands-on experiences.
           </p>
         </div>

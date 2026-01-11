@@ -487,8 +487,15 @@ export default function FalconViewer() {
       {/* 3. FULL SCREEN INSTRUCTION OVERLAY */}
       {!hasInteracted && <InstructionOverlay onDismiss={handleInteraction} />}
 
-      {/* 4. OVERVIEW PART SELECTION - Better mobile positioning */}
-      <div className={`absolute right-1 sm:right-4 md:right-8 top-1/3 sm:top-1/2 -translate-y-1/2 z-40 flex flex-col gap-0.5 sm:gap-1 md:gap-2 transition-all duration-500 ${isOverview ? 'translate-x-0 opacity-100' : 'translate-x-20 opacity-0 pointer-events-none'}`}>
+      {/* 4. OVERVIEW PART SELECTION - Mobile horizontal scroll, Desktop vertical stack */}
+      <div className={`absolute z-40 transition-all duration-500 
+        ${/* Mobile: Bottom horizontal scroll */ ''}
+        bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 w-[calc(100%-1rem)] 
+        ${/* Desktop: Right side vertical */ ''}
+        md:bottom-auto md:left-auto md:translate-x-0 md:right-8 md:top-1/2 md:-translate-y-1/2 md:w-auto
+        ${isOverview ? 'opacity-100' : 'opacity-0 pointer-events-none translate-y-10 md:translate-y-0 md:translate-x-20'}`}>
+        
+        {/* Desktop instruction hint */}
         <div className="hidden md:flex absolute -top-16 right-0 w-48 text-right flex-col items-end gap-1 animate-bounce">
             <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest bg-white/90 px-2 py-1 rounded">
                 Click On Each Part To View In More Detail!
@@ -496,41 +503,51 @@ export default function FalconViewer() {
             <ArrowDown className="w-5 h-5 text-neutral-400 mr-4" />
         </div>
 
-        {Object.keys(ZOOM_ZONES).map((zone) => {
-          if (zone === 'overview') return null; 
-          return (
-            <button
-              key={zone}
-              onClick={() => handleZoneClick(zone)}
-              className="text-right text-[6px] sm:text-[8px] md:text-[10px] font-bold tracking-wider sm:tracking-widest uppercase px-1.5 sm:px-2 md:px-4 py-1 sm:py-1.5 md:py-2 rounded-md transition-all duration-200 bg-white/90 text-neutral-500 hover:text-neutral-900 hover:bg-white hover:scale-105 border border-transparent hover:border-neutral-100 shadow-sm"
-            >
-              {isMobile ? zone.split(' ')[0] : zone}
-            </button>
-          );
-        })}
+        {/* Mobile: horizontal scroll container */}
+        <div className="flex md:flex-col gap-1 md:gap-2 overflow-x-auto md:overflow-x-visible pb-1 md:pb-0 scrollbar-hide">
+          {Object.keys(ZOOM_ZONES).map((zone) => {
+            if (zone === 'overview') return null; 
+            return (
+              <button
+                key={zone}
+                onClick={() => handleZoneClick(zone)}
+                className="shrink-0 text-center md:text-right text-[8px] sm:text-[9px] md:text-[10px] font-bold tracking-wider uppercase px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 rounded-md transition-all duration-200 bg-white/95 text-neutral-600 hover:text-neutral-900 hover:bg-white hover:scale-105 border border-neutral-200 hover:border-neutral-300 shadow-sm"
+              >
+                {zone.split(' ').slice(0, isMobile ? 1 : 2).join(' ')}
+              </button>
+            );
+          })}
+        </div>
       </div>
 
-      {/* 5. SIDEBAR: DETAILED VIEW */}
+      {/* 5. SIDEBAR: DETAILED VIEW - Mobile optimized */}
       <div 
-        className={`absolute top-0 left-0 h-full w-full md:w-[400px] bg-neutral-950/95 backdrop-blur-xl z-50 text-white shadow-2xl transition-transform duration-700 ease-bezier flex flex-col ${!isOverview ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`absolute z-50 text-white shadow-2xl transition-transform duration-700 ease-bezier flex flex-col bg-neutral-950/95 backdrop-blur-xl
+          ${/* Mobile: Bottom sheet style */ ''}
+          bottom-0 left-0 right-0 h-[60%] rounded-t-2xl
+          ${/* Desktop: Full sidebar */ ''}
+          md:top-0 md:bottom-auto md:right-auto md:h-full md:w-[400px] md:rounded-none
+          ${!isOverview ? 'translate-y-0 md:translate-x-0 md:translate-y-0' : 'translate-y-full md:-translate-x-full md:translate-y-0'}`}
         style={{ transitionTimingFunction: 'cubic-bezier(0.4, 0, 0.2, 1)' }}
       >
-        <div className="p-4 sm:p-6 md:p-8 pb-4 shrink-0 border-b border-white/5 relative z-20 bg-neutral-950/50 backdrop-blur-md">
-            <div className="flex justify-between items-start gap-4">
+        {/* Mobile drag handle indicator */}
+        <div className="md:hidden w-12 h-1 bg-white/30 rounded-full mx-auto mt-2 mb-1" />
+        
+        <div className="p-3 sm:p-4 md:p-6 lg:p-8 pb-2 shrink-0 border-b border-white/5 relative z-20 bg-neutral-950/50 backdrop-blur-md">
+            <div className="flex justify-between items-center gap-2 mb-2 sm:mb-3">
                 <button 
                     onClick={handleReturnToOverview}
-                    className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-lg transition-all border border-red-500/20 group w-full justify-center mb-3 sm:mb-4"
+                    className="flex items-center gap-1.5 sm:gap-2 px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 hover:text-red-300 rounded-lg transition-all border border-red-500/20 group"
                 >
                     <CornerUpLeft className="w-3 h-3 sm:w-4 sm:h-4 group-hover:-translate-x-1 transition-transform" />
-                    <span className="text-[10px] sm:text-xs font-bold uppercase tracking-widest">Return to Overview</span>
+                    <span className="text-[8px] sm:text-[10px] md:text-xs font-bold uppercase tracking-widest">Back</span>
                 </button>
-            </div>
-            
-            <div className="flex items-center justify-between">
-                <div className="px-2 sm:px-3 py-1 border border-blue-500/30 bg-blue-500/10 rounded-full text-[8px] sm:text-[10px] font-bold tracking-[0.15em] sm:tracking-[0.2em] uppercase text-blue-400">
+                
+                <div className="px-2 py-1 border border-blue-500/30 bg-blue-500/10 rounded-full text-[7px] sm:text-[8px] md:text-[10px] font-bold tracking-[0.1em] sm:tracking-[0.15em] uppercase text-blue-400">
                     System Analysis
                 </div>
-                 <button 
+                
+                <button 
                     onClick={handleReturnToOverview}
                     className="p-1 rounded-full hover:bg-white/10 transition-colors text-neutral-500 hover:text-white"
                 >
@@ -539,39 +556,39 @@ export default function FalconViewer() {
             </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-4 sm:p-6 md:p-8 pt-4 relative z-10 pb-32 sm:pb-40">
+        <div className="flex-1 overflow-y-auto custom-scrollbar p-3 sm:p-4 md:p-6 lg:p-8 pt-2 relative z-10 pb-8 sm:pb-12 md:pb-20">
             {currentDetails && (
                 <>
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-black tracking-tighter leading-none mb-2 text-transparent bg-clip-text bg-gradient-to-br from-white to-neutral-500">
+                    <h2 className="text-lg sm:text-2xl md:text-3xl lg:text-4xl font-black tracking-tighter leading-none mb-1 sm:mb-2 text-transparent bg-clip-text bg-gradient-to-br from-white to-neutral-500">
                         {currentDetails.title}
                     </h2>
-                    <h3 className="text-sm sm:text-base md:text-lg text-blue-400 font-medium mb-4 sm:mb-6 tracking-tight flex items-center gap-2">
+                    <h3 className="text-xs sm:text-sm md:text-base lg:text-lg text-blue-400 font-medium mb-2 sm:mb-4 md:mb-6 tracking-tight flex items-center gap-2">
                         {currentDetails.subtitle}
                     </h3>
                     
-                    <div className="w-full h-px bg-white/10 mb-6" />
+                    <div className="w-full h-px bg-white/10 mb-3 sm:mb-6" />
                     
-                    <p className="text-neutral-300 leading-relaxed text-sm font-light opacity-90 mb-8 border-l-2 border-blue-500 pl-4">
+                    <p className="text-neutral-300 leading-relaxed text-xs sm:text-sm font-light opacity-90 mb-4 sm:mb-8 border-l-2 border-blue-500 pl-3 sm:pl-4">
                         {currentDetails.description}
                     </p>
 
-                    <div className="border-t border-white/10 pb-20">
-                        <DetailAccordion title="Technical Specifications" defaultOpen={true}>
-                            <div className="grid grid-cols-2 gap-3 py-2">
+                    <div className="border-t border-white/10">
+                        <DetailAccordion title="Technical Specifications" defaultOpen={!isMobile}>
+                            <div className="grid grid-cols-2 gap-2 sm:gap-3 py-1 sm:py-2">
                                 {currentDetails.specs.map((spec, i) => (
-                                    <div key={i} className="flex flex-col bg-white/5 p-3 rounded-lg border border-white/5 hover:border-white/10 transition-colors">
-                                        <span className="text-[9px] uppercase tracking-wider text-neutral-500 font-bold mb-1">{spec.label}</span>
-                                        <span className="text-xs font-mono text-blue-100">{spec.value}</span>
+                                    <div key={i} className="flex flex-col bg-white/5 p-2 sm:p-3 rounded-lg border border-white/5 hover:border-white/10 transition-colors">
+                                        <span className="text-[7px] sm:text-[9px] uppercase tracking-wider text-neutral-500 font-bold mb-0.5 sm:mb-1">{spec.label}</span>
+                                        <span className="text-[10px] sm:text-xs font-mono text-blue-100">{spec.value}</span>
                                     </div>
                                 ))}
                             </div>
                         </DetailAccordion>
 
-                        <DetailAccordion title="Mission Features">
-                            <ul className="space-y-2 py-2">
+                        <DetailAccordion title="Mission Features" defaultOpen={false}>
+                            <ul className="space-y-1 sm:space-y-2 py-1 sm:py-2">
                                 {currentDetails.features.map((feature, i) => (
-                                    <li key={i} className="flex items-start gap-3 text-xs text-neutral-300 p-2 hover:bg-white/5 rounded transition-colors">
-                                        <div className="w-1.5 h-1.5 bg-blue-500 rounded-full mt-1.5 shrink-0 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                                    <li key={i} className="flex items-start gap-2 sm:gap-3 text-[10px] sm:text-xs text-neutral-300 p-1.5 sm:p-2 hover:bg-white/5 rounded transition-colors">
+                                        <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 bg-blue-500 rounded-full mt-1 sm:mt-1.5 shrink-0 shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
                                         {feature}
                                     </li>
                                 ))}

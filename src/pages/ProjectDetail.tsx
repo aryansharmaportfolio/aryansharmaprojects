@@ -386,9 +386,9 @@ const ProjectDetail = () => {
         <DynamicSidebar returnSection={returnSection} />
 
         <div className="min-h-screen bg-background text-foreground transition-opacity duration-700" style={{ opacity }}>
-          {/* 1. HERO SECTION with Parallax */}
-          <section className="relative h-screen w-full overflow-hidden">
-            {/* Background Image with Parallax */}
+          {/* 1. HERO SECTION with Parallax - Mobile optimized */}
+          <section className="relative h-[100dvh] w-full overflow-hidden">
+            {/* Background Image with Parallax - Uses object-position for proper mobile cropping */}
             <motion.div
               className="absolute inset-0 z-0"
               style={{ opacity: heroOpacity, scale: heroScale, y: smoothHeroY }}
@@ -396,7 +396,7 @@ const ProjectDetail = () => {
               <img
                 src="/zoomer-images/phase-3/zoomer-thumbnail.jpg"
                 alt="Zoomer Hero"
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-[center_30%] sm:object-center"
               />
               {/* Seamless gradient transition to content - matching main hero to about me */}
               <div className="absolute inset-0 bg-gradient-to-t from-background via-background/60 to-transparent" />
@@ -404,23 +404,26 @@ const ProjectDetail = () => {
 
             {/* Content - Optimized for mobile viewing */}
             <motion.div
-              className="relative z-10 h-full flex flex-col items-center justify-end pb-24 sm:pb-32 md:justify-center md:pb-0 px-4"
+              className="relative z-10 h-full flex flex-col items-center justify-end pb-16 sm:pb-24 md:pb-32 lg:justify-center lg:pb-0 px-4"
               style={{ opacity: heroOpacity }}
             >
-              {/* Bouncing Arrow - Positioned for mobile */}
+              {/* Bouncing Arrow - Positioned for mobile visibility */}
               <motion.div
-                className="flex flex-col items-center gap-2 sm:gap-4 z-20 cursor-pointer"
+                className="flex flex-col items-center gap-2 sm:gap-3 md:gap-4 z-20 cursor-pointer"
                 onClick={() => document.getElementById("phase-1")?.scrollIntoView({ behavior: "smooth" })}
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.8 }}
               >
-                <p className="text-white font-bold text-xs sm:text-sm md:text-base tracking-[0.15em] sm:tracking-[0.2em] animate-pulse drop-shadow-xl uppercase">
+                <p className="text-white font-bold text-[10px] sm:text-xs md:text-sm lg:text-base tracking-[0.1em] sm:tracking-[0.15em] md:tracking-[0.2em] animate-pulse drop-shadow-xl uppercase">
                   Scroll to Explore
                 </p>
-                <ChevronDown className="w-6 h-6 sm:w-8 sm:h-8 text-white animate-bounce drop-shadow-xl" strokeWidth={2.5} />
+                <ChevronDown className="w-5 h-5 sm:w-6 sm:h-6 md:w-8 md:h-8 text-white animate-bounce drop-shadow-xl" strokeWidth={2.5} />
               </motion.div>
             </motion.div>
+            
+            {/* Bottom edge fix - prevents grey bar glitch on mobile */}
+            <div className="absolute bottom-0 left-0 right-0 h-1 bg-background z-20" />
           </section>
 
           {/* 2. MAIN CONTENT (The 8 Phases) */}

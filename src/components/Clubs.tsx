@@ -44,9 +44,13 @@ const Clubs = () => {
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-8 sm:mb-12 md:mb-16">
           <MaskedTextReveal>
-            <TypewriterHeader text="Clubs & Organizations" className="mb-4 sm:mb-6" />
+            {/* Explicit mobile sizing for visibility */}
+            <TypewriterHeader 
+              text="Clubs & Organizations" 
+              className="mb-4 sm:mb-6 text-xl sm:text-2xl md:text-3xl lg:text-4xl" 
+            />
           </MaskedTextReveal>
-          <p className="text-base sm:text-lg md:text-xl italic text-white px-4">
+          <p className="text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl italic text-white px-2 sm:px-4 max-w-3xl mx-auto">
             Actively contributing to aerospace and engineering communities through hands-on collaboration.
           </p>
         </div>

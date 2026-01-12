@@ -550,7 +550,7 @@ const ProjectDetail = () => {
       <DynamicSidebar returnSection={returnSection} />
       <div className="min-h-screen bg-background transition-opacity duration-700 ease-in-out" style={{ opacity }}>
         {/* 3D Viewer - Optimized heights for mobile */}
-        <div className="relative h-[280px] sm:h-[380px] md:h-[500px] lg:h-[600px] overflow-hidden ml-10 sm:ml-12 md:ml-14 lg:ml-16">
+        <div className="relative h-[360px] sm:h-[450px] md:h-[500px] lg:h-[600px] overflow-hidden ml-10 sm:ml-12 md:ml-14 lg:ml-16">
           <div className="absolute inset-0 z-10">
             <FalconViewer />
           </div>

@@ -490,7 +490,7 @@ export default function FalconViewer() {
       {/* 4. OVERVIEW PART SELECTION - Mobile horizontal scroll, Desktop vertical stack */}
       <div className={`absolute z-40 transition-all duration-500 
         ${/* Mobile: Bottom horizontal scroll */ ''}
-        bottom-20 sm:bottom-24 left-1/2 -translate-x-1/2 w-[calc(100%-1rem)] 
+        bottom-[calc(env(safe-area-inset-bottom)+6.25rem)] sm:bottom-24 left-1/2 -translate-x-1/2 w-[calc(100%-1rem)] 
         ${/* Desktop: Right side vertical */ ''}
         md:bottom-auto md:left-auto md:translate-x-0 md:right-8 md:top-1/2 md:-translate-y-1/2 md:w-auto
         ${isOverview ? 'opacity-100' : 'opacity-0 pointer-events-none translate-y-10 md:translate-y-0 md:translate-x-20'}`}>
@@ -504,7 +504,7 @@ export default function FalconViewer() {
         </div>
 
         {/* Mobile: horizontal scroll container */}
-        <div className="flex md:flex-col gap-1 md:gap-2 overflow-x-auto md:overflow-x-visible pb-1 md:pb-0 scrollbar-hide">
+        <div className="flex md:flex-col gap-1 md:gap-2 overflow-x-auto md:overflow-x-visible pb-2 md:pb-0 scrollbar-hide">
           {Object.keys(ZOOM_ZONES).map((zone) => {
             if (zone === 'overview') return null; 
             return (
@@ -601,7 +601,7 @@ export default function FalconViewer() {
       </div>
 
       {/* 6. SLIDER - Repositioned for mobile */}
-      <div className={`absolute bottom-2 sm:bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-1 sm:gap-2 md:gap-3 w-[calc(100%-1rem)] sm:w-72 md:w-80 lg:w-96 p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl md:rounded-2xl border shadow-xl backdrop-blur-md transition-all duration-500 
+      <div className={`absolute bottom-[calc(env(safe-area-inset-bottom)+2.5rem)] sm:bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-1 sm:gap-2 md:gap-3 w-[calc(100%-1rem)] sm:w-72 md:w-80 lg:w-96 p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl md:rounded-2xl border shadow-xl backdrop-blur-md transition-all duration-500 
         ${!isOverview ? 'opacity-0 pointer-events-none translate-y-20' : 'opacity-100 translate-y-0'}
         ${warning ? 'bg-red-50/90 border-red-200 ring-2 ring-red-400 ring-offset-2' : 'bg-white/95 border-neutral-200'}
       `}>

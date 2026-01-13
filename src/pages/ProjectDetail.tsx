@@ -16,6 +16,7 @@ const ZOOMER_IMAGES = [
   "/zoomer-images/phase-1/l1_ts_short.png",
   "/zoomer-images/phase-3/fin_can.jpg",
   "/zoomer-images/phase-3/gps_module.jpg",
+  "/zoomer-images/phase-3/gps_controller.jpg",
   "/zoomer-images/phase-3/zoomer-thumbnail.jpg",
   "/zoomer-images/phase-4/launch_day.jpg",
   "/zoomer-images/phase-5/l1_successful_recovery.jpg",
@@ -446,9 +447,10 @@ const ProjectDetail = () => {
 
             {/* PHASE 3: FABRICATION */}
             <Phase title="Phase 3: Fabrication" subtitle="Construction of the nose cone, fin can, and airframe." color="#f59e0b">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <GalleryImage src="/zoomer-images/phase-3/fin_can.jpg" alt="Fin Can" caption="Fin Can Assembly" />
                 <GalleryImage src="/zoomer-images/phase-3/gps_module.jpg" alt="Avionics" caption="GPS Module" />
+                <GalleryImage src="/zoomer-images/phase-3/gps_controller.jpg" alt="GPS Controller" caption="GPS Controller" />
                 <GalleryImage src="/zoomer-images/phase-3/zoomer-thumbnail.jpg" alt="Painting" caption="Painted and Fully Assembled" />
               </div>
             </Phase>

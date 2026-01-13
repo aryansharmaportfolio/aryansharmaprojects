@@ -405,7 +405,7 @@ const ProjectDetail = () => {
 
             {/* Content - Optimized for mobile viewing */}
             <motion.div
-              className="relative z-10 h-full flex flex-col items-center justify-end pb-16 sm:pb-24 md:pb-32 lg:justify-center lg:pb-0 px-4"
+              className="relative z-10 h-full flex flex-col items-center justify-end pb-8 sm:pb-12 md:pb-16 px-4"
               style={{ opacity: heroOpacity }}
             >
               {/* Bouncing Arrow - Positioned for mobile visibility */}

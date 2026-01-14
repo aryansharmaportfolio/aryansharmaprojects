@@ -4,7 +4,7 @@ import MaskedTextReveal from "./motion/MaskedTextReveal";
 import StaggerContainer, { StaggerItem } from "./motion/StaggerContainer";
 
 const CurrentWork = () => {
-  const topRowWork = [
+  const workItems = [
     {
       id: "work-1",
       title: "UTA AeroMavs IREC (2026)",
@@ -14,27 +14,18 @@ const CurrentWork = () => {
     },
     {
       id: "work-2",
-      title: "UTA Design-Build-Fly (2026)",
-      role: "Structures/Manufacturing",
-      image: "/dbf-thumbnail.jpg",
-      description: "Most people see a skeleton of ribs and spars; we see a bird of prey waiting for its wings. Through 3D modeling and stress analysis, we are engineering an airframe that's as light as a feather yet as tough as a rock. With enough time and proper engineering, any pile of materials can be convinced it belongs in the clouds.",
+      title: "UTARI Composite Research",
+      role: "Undergraduate Research Assistant",
+      image: "/utari-thumbnail.jpg",
+      description: "Working under the mentorship of Dr. Lin and a PhD candidate, focusing on impact drop tower systematically crushing composite materials to ensure the next generation of aerospace materials is nothing short of indestructible.",
     },
   ];
-
-  const bottomWork = {
-    id: "work-3",
-    title: "UTARI Composite Research",
-    role: "Undergraduate Research Assistant",
-    image: "/utari-thumbnail.jpg",
-    description: "Working under the mentorship of Dr. Lin and a PhD candidate, focusing on impact drop tower systematically crushing composite materials to ensure the next generation of aerospace materials is nothing short of indestructible.",
-  };
 
   return (
     <section id="current-work" className="py-12 sm:py-16 md:py-24 px-4 sm:px-6 bg-black/0">
       <div className="container mx-auto max-w-7xl">
         <div className="text-center mb-6 sm:mb-10 md:mb-16">
           <MaskedTextReveal>
-            {/* Explicit text sizing with !important-like specificity for mobile visibility */}
             <TypewriterHeader 
               text="Current & Ongoing Work" 
               className="mb-3 sm:mb-4 md:mb-6 !text-xl sm:!text-2xl md:!text-3xl lg:!text-4xl" 
@@ -45,20 +36,13 @@ const CurrentWork = () => {
           </p>
         </div>
 
-        {/* Top row - two cards side by side with stagger */}
+        {/* Two cards side by side */}
         <StaggerContainer className="grid sm:grid-cols-2 gap-6 sm:gap-8">
-          {topRowWork.map((work) => (
+          {workItems.map((work) => (
             <StaggerItem key={work.id}>
               <WorkCard {...work} />
             </StaggerItem>
           ))}
-        </StaggerContainer>
-
-        {/* Bottom row - full width card */}
-        <StaggerContainer className="mt-6 sm:mt-8">
-          <StaggerItem>
-            <WorkCard {...bottomWork} />
-          </StaggerItem>
         </StaggerContainer>
       </div>
     </section>

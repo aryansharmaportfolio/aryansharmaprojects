@@ -248,8 +248,6 @@ const Hero = () => {
             </div>
         </div>
         
-        {/* Bottom fade to prevent grey bar - extends beyond viewport */}
-        <div className="absolute bottom-0 left-0 right-0 h-4 bg-gradient-to-t from-[#2b2b2b] to-transparent pointer-events-none" />
       </div>
     </div>
   );

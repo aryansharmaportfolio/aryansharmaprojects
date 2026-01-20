@@ -1,11 +1,11 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
-import { ArrowLeft, Calendar, User, Award, ExternalLink } from "lucide-react";
+import { ArrowLeft, User, Award, ExternalLink } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 
-// Mock data - Ensure this matches your existing data structure in ClubDetail.tsx
+// Ensure this data matches your actual data source
 const clubsData = [
   {
     id: "aeromavs",
@@ -14,7 +14,7 @@ const clubsData = [
     date: "Aug 2023 - Present",
     description: "Leading the propulsion team for the university's high-powered rocketry club.",
     image: "/aeromavs-logo-thumbnail.png", 
-    heroImage: "/aeromavs-logo-thumbnail.png", // Replace with actual hero if different
+    heroImage: "/aeromavs-logo-thumbnail.png",
     fullDescription: "Detailed description for AeroMavs...",
     technologies: ["Solid Motors", "Aerodynamics", "Simulation", "CAD"],
     links: { website: "https://aeromavs.com" }
@@ -83,16 +83,9 @@ const ClubDetail = () => {
               
               <h1 className="text-4xl md:text-6xl font-bold mb-4 tracking-tight">{club.name}</h1>
               <div className="flex flex-wrap items-center gap-4 text-lg text-white/80">
-                <span className="flex items-center gap-2">
-                  <User className="h-5 w-5 text-blue-400" />
+                <span className="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full border border-white/10 backdrop-blur-sm">
+                  <User className="h-4 w-4 text-blue-400" />
                   {club.role}
-                </span>
-                {/* We keep the date in the header metadata if you want, but user asked to remove "badge" from inside card/hero. 
-                    If you want it gone completely from the header text line too, delete the span below. 
-                    For now I removed the 'Badge' component style. */}
-                <span className="flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-blue-400" />
-                  {club.date}
                 </span>
               </div>
             </motion.div>
@@ -130,7 +123,7 @@ const ClubDetail = () => {
               </h3>
               <div className="flex flex-wrap gap-2">
                 {club.technologies?.map((tech) => (
-                  <Badge key={tech} variant="secondary" className="bg-white/10 hover:bg-white/20 text-blue-200 border-none">
+                  <Badge key={tech} variant="secondary" className="bg-white/10 hover:bg-white/20 text-blue-200 border-none transition-colors">
                     {tech}
                   </Badge>
                 ))}
@@ -145,7 +138,7 @@ const ClubDetail = () => {
                 transition={{ delay: 0.1 }}
               >
                 <a href={club.links.website} target="_blank" rel="noopener noreferrer" className="block">
-                  <Button className="w-full gap-2" variant="secondary">
+                  <Button className="w-full gap-2 bg-white text-black hover:bg-white/90 transition-colors">
                     Visit Website
                     <ExternalLink className="h-4 w-4" />
                   </Button>

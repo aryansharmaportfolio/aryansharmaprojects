@@ -13,6 +13,7 @@ const TeamProjects = () => {
       title: "UTA Design-Build-Fly (2026)",
       description: "Developed a manufacturing proposal suggesting a design of a separate propulsion battery compartment for rapid battery integration to meet both flight safety and mission speed requirements.",
       image: "/dbf-thumbnail.jpg",
+      date: "OCT 2025 - JAN 2026",
     },
   ];
 
@@ -42,6 +43,13 @@ const TeamProjects = () => {
                 className="relative overflow-hidden cursor-pointer group bg-card/80 backdrop-blur border-white/5 transition-all duration-500 hover:border-white/20 hover:shadow-2xl"
                 onClick={() => handleCardClick(project.id)}
               >
+                {/* Glass morphic date badge - on top of card */}
+                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">
+                  <div className="px-3 py-1.5 sm:px-4 sm:py-2 bg-black/50 backdrop-blur-md rounded-lg border border-white/20">
+                    <span className="text-xs sm:text-sm font-semibold text-white/90 tracking-wide">{project.date}</span>
+                  </div>
+                </div>
+
                 {/* Hero Image */}
                 <div className="relative h-48 sm:h-56 md:h-64 lg:h-72 overflow-hidden">
                   <img

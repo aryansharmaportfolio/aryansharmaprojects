@@ -35,7 +35,8 @@ const TeamProjectDetail = () => {
       heroImage: "/dbf-thumbnail.jpg",
       date: "October 2025 - January 2026",
       images: [
-        { src: "/dbf2026-images/Manufacturing Proposal.png", alt: "Manufacturing Proposal", badge: "Manufacturing Proposal" },
+        { src: "/dbf2026-images/manufacturing-proposal.png", alt: "Manufacturing Proposal", badge: "Manufacturing Proposal" },
+        { src: "/dbf2026-images/proposal-sketch.jpg", alt: "Proposal Sketch", badge: "Proposal Sketch" },
       ],
     },
   };
@@ -95,7 +96,7 @@ const TeamProjectDetail = () => {
 
           {/* Images Section */}
           {project.images.length > 0 && (
-            <div className="grid grid-cols-1 gap-6 sm:gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
               {project.images.map((image, index) => (
                 <MagneticTilt key={index} className="relative group">
                   <ImageViewer 

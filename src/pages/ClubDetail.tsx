@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
 import { useEffect } from "react";
 
-// Ensure this data matches your actual data source
+// MOCK DATA - Ensure this matches your actual data source or imports
 const clubsData = [
   {
     id: "aeromavs",
@@ -79,12 +79,12 @@ const ClubDetail = () => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              {/* DATE BADGE REMOVED FROM HERE */}
+              {/* --- DATE REMOVED FROM HERE --- */}
               
               <h1 className="text-4xl md:text-6xl font-bold mb-4 tracking-tight">{club.name}</h1>
               <div className="flex flex-wrap items-center gap-4 text-lg text-white/80">
-                <span className="flex items-center gap-2 bg-white/5 px-3 py-1 rounded-full border border-white/10 backdrop-blur-sm">
-                  <User className="h-4 w-4 text-blue-400" />
+                <span className="flex items-center gap-2">
+                  <User className="h-5 w-5 text-blue-400" />
                   {club.role}
                 </span>
               </div>
@@ -123,7 +123,7 @@ const ClubDetail = () => {
               </h3>
               <div className="flex flex-wrap gap-2">
                 {club.technologies?.map((tech) => (
-                  <Badge key={tech} variant="secondary" className="bg-white/10 hover:bg-white/20 text-blue-200 border-none transition-colors">
+                  <Badge key={tech} variant="secondary" className="bg-white/10 hover:bg-white/20 text-blue-200 border-none">
                     {tech}
                   </Badge>
                 ))}
@@ -138,7 +138,7 @@ const ClubDetail = () => {
                 transition={{ delay: 0.1 }}
               >
                 <a href={club.links.website} target="_blank" rel="noopener noreferrer" className="block">
-                  <Button className="w-full gap-2 bg-white text-black hover:bg-white/90 transition-colors">
+                  <Button className="w-full gap-2" variant="secondary">
                     Visit Website
                     <ExternalLink className="h-4 w-4" />
                   </Button>

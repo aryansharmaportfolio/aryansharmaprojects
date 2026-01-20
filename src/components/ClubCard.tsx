@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Calendar } from "lucide-react";
 import { Link } from "react-router-dom";
 
 interface ClubCardProps {
@@ -20,10 +20,12 @@ const ClubCard = ({ id, name, role, date, description, image, index }: ClubCardP
       transition={{ duration: 0.5, delay: index * 0.1 }}
       className="h-full"
     >
-      <Link to={`/clubs/${id}`} className="group relative block h-full w-full overflow-hidden rounded-2xl bg-neutral-900 border border-white/10">
-        {/* Glassmorphic Date Badge - Updated Style */}
-        <div className="absolute top-4 left-4 z-20 px-3 py-1.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-white/90 text-xs font-medium shadow-sm">
-          {date}
+      <Link to={`/clubs/${id}`} className="group relative block h-full w-full overflow-hidden rounded-3xl bg-neutral-900 border border-white/10">
+        
+        {/* UPDATED: Glassmorphic Date Badge to match Project/3D Cards */}
+        <div className="absolute top-5 left-5 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 text-white/90 text-xs font-medium shadow-lg transition-transform duration-300 group-hover:scale-105">
+          <Calendar className="w-3.5 h-3.5 text-blue-400" />
+          <span>{date}</span>
         </div>
 
         <div className="aspect-[4/3] w-full overflow-hidden">
@@ -36,13 +38,13 @@ const ClubCard = ({ id, name, role, date, description, image, index }: ClubCardP
         </div>
 
         <div className="absolute bottom-0 w-full p-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-12 z-20">
-          <div className="transform transition-transform duration-500 group-hover:-translate-y-2">
-            <h3 className="text-xl font-bold text-white mb-1 flex items-center gap-2">
+          <div className="transform transition-transform duration-500 group-hover:-translate-y-1">
+            <h3 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
               {name}
-              <ArrowUpRight className="w-4 h-4 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-blue-400" />
+              <ArrowUpRight className="w-5 h-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-blue-400" />
             </h3>
-            <p className="text-white/70 text-sm mb-2">{role}</p>
-            <p className="text-white/60 text-xs line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
+            <p className="text-blue-200/80 text-sm font-medium mb-2">{role}</p>
+            <p className="text-white/60 text-sm line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
               {description}
             </p>
           </div>

@@ -1,57 +1,59 @@
-import { motion } from "framer-motion";
-import { ArrowUpRight, Calendar } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Card } from "@/components/ui/card";
 
 interface ClubCardProps {
   id: string;
   name: string;
   role: string;
+  logo: string;
   date: string;
-  description: string;
-  image: string;
-  index: number;
+  onClick: () => void;
+  isExpanded: boolean;
 }
 
-const ClubCard = ({ id, name, role, date, description, image, index }: ClubCardProps) => {
+const ClubCard = ({
+  name,
+  role,
+  logo,
+  date,
+  onClick,
+  isExpanded
+}: ClubCardProps) => {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: index * 0.1 }}
-      className="h-full"
+    <Card 
+      onClick={onClick} 
+      className={`group relative overflow-hidden cursor-pointer transition-all duration-500 hover:shadow-2xl hover:-translate-y-2 h-64 sm:h-72 md:h-80 border-0 rounded-xl bg-transparent ${isExpanded ? 'scale-110 opacity-0' : 'scale-100 opacity-100'}`}
     >
-      <Link to={`/clubs/${id}`} className="group relative block h-full w-full overflow-hidden rounded-3xl bg-neutral-900 border border-white/10">
+      {/* Full-bleed image with gradient overlay */}
+      <div className="absolute inset-0">
+        <img src={logo} alt={name} className="w-full h-full object-cover" />
+        {/* Dark gradient for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/50 to-transparent" />
         
-        {/* UPDATED: Glassmorphic Date Badge to match Project/3D Cards */}
-        <div className="absolute top-5 left-5 z-20 flex items-center gap-2 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-xl border border-white/10 text-white/90 text-xs font-medium shadow-lg transition-transform duration-300 group-hover:scale-105">
-          <Calendar className="w-3.5 h-3.5 text-blue-400" />
-          <span>{date}</span>
+        {/* Simple black overlay on hover */}
+        <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
+      </div>
+      
+      {/* Date Display - Top Left Glass Badge */}
+      <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-30 pointer-events-none">
+        <div className="bg-black/40 backdrop-blur-md border border-white/10 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full">
+          <p className="text-xs font-bold text-white uppercase tracking-wider drop-shadow-md">
+            {date}
+          </p>
         </div>
+      </div>
+      
+      {/* Text overlay at bottom */}
+      <div className="absolute bottom-0 left-0 right-0 p-3 sm:p-4 md:p-6 z-20 flex flex-col justify-end overflow-hidden pointer-events-none">
+        {/* Click to learn text */}
+        <p className="text-base sm:text-lg md:text-2xl font-bold text-white text-left opacity-0 max-h-0 group-hover:opacity-100 group-hover:max-h-40 group-hover:mb-2 transition-all duration-300 ease-in-out">
+          Click to learn more about
+        </p>
 
-        <div className="aspect-[4/3] w-full overflow-hidden">
-          <div className="absolute inset-0 bg-black/20 z-10 group-hover:bg-black/10 transition-colors duration-500" />
-          <img
-            src={image}
-            alt={name}
-            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-          />
-        </div>
-
-        <div className="absolute bottom-0 w-full p-6 bg-gradient-to-t from-black/90 via-black/60 to-transparent pt-12 z-20">
-          <div className="transform transition-transform duration-500 group-hover:-translate-y-1">
-            <h3 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
-              {name}
-              <ArrowUpRight className="w-5 h-5 opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300 text-blue-400" />
-            </h3>
-            <p className="text-blue-200/80 text-sm font-medium mb-2">{role}</p>
-            <p className="text-white/60 text-sm line-clamp-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 delay-100">
-              {description}
-            </p>
-          </div>
-        </div>
-      </Link>
-    </motion.div>
+        {/* Title and Description */}
+        <h3 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1 drop-shadow-lg text-left transition-all duration-300 ease-in-out">{name}</h3>
+        <p className="text-sm sm:text-base text-white/90 drop-shadow-lg text-left transition-all duration-300 ease-in-out">{role}</p>
+      </div>
+    </Card>
   );
 };
-
 export default ClubCard;

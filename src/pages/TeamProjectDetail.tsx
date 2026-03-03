@@ -72,13 +72,6 @@ const TeamProjectDetail = () => {
           {/* Gradient overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-background/20" />
           
-          {/* Glass morphic date badge - top left */}
-          <div className="absolute top-4 left-4 sm:top-6 sm:left-6">
-            <div className="flex items-center gap-1.5 sm:gap-2 px-3 py-1.5 sm:px-4 sm:py-2 bg-black/40 backdrop-blur-md rounded-lg border border-white/20">
-              <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white/80" />
-              <span className="text-xs sm:text-sm font-medium text-white/90">{project.date}</span>
-            </div>
-          </div>
 
           {/* Floating accent elements - hidden on mobile */}
           <div className="hidden sm:block absolute top-8 right-8 w-24 h-24 bg-primary/10 rounded-full blur-3xl" />
@@ -86,7 +79,7 @@ const TeamProjectDetail = () => {
         </div>
 
         {/* Project Info */}
-        <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 max-w-6xl -mt-24 relative z-10">
+        <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12 max-w-6xl relative z-10">
           <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold mb-3 sm:mb-4 text-white">
             {project.name}
           </h1>

@@ -28,7 +28,7 @@ const Clubs = () => {
       name: "UTA Design-Build-Fly Team",
       role: "Structures/Manufacturing",
       logo: "/dbf-logo-thumbnail.png",
-      date: "Oct 2025 - Present",
+      date: "Oct 2025 - Jan 2026",
     },
     {
       id: "chs-aerospace",

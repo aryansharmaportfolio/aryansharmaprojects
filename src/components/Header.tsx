@@ -16,7 +16,7 @@ const Header = ({ activeSection }: { activeSection: string }) => {
   const [scrollDirection, setScrollDirection] = useState("down");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const lastScrollY = useRef(0);
-  const isScrolling = useRef<NodeJS.Timeout | null>(null);
+  const isScrolling = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {

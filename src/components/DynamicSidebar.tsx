@@ -20,7 +20,7 @@ const DynamicSidebar = ({ returnSection }: DynamicSidebarProps) => {
   const [isLaunching, setIsLaunching] = useState(false);
   const [smoke, setSmoke] = useState<SmokePuff[]>([]);
   const navigate = useNavigate();
-  const smokeIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const smokeIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);

@@ -150,11 +150,11 @@ const AboutMe = () => {
               transition={{ delay: 0.3, duration: 0.6 }}
             >
               <p>
-                I'm a student majoring in <span className="font-semibold text-white">Aerospace Engineering</span> at the University of Texas at Arlington, passionate about turning complex theories into a tangible reality. My path is rooted in hands-on application, from analyzing aircraft structural design on the Design-Build-Fly team to collaborating on the manufacture of the 2026 UTA IREC rocket with AeroMavs. My dedication to aerospace took flight when I co-founded my high school's first aerospace club, growing it to over 115 members.
+                Honors Mechanical Engineering and Aerospace minor at The University of Texas at Arlington with proven experience spanning aerospace defense, advanced laboratory research, and high-power rocketry. Currently serving as a Mechanical Engineer Intern at Safran Electronics &amp; Defense, supporting commercial aircraft MRO operations, DFM, additive manufacturing tooling, and vendor procurement under strict ITAR compliance.
               </p>
               
               <p>
-                I continue to pursue that same drive for innovation and leadership, blending my technical skills with a commitment to teamwork and pushing the limits of what we can achieve in the sky.
+                At UTARI, conduct structural integrity research utilizing high-speed Digital Image Correlation (DIC) and MTS testing. As Solid Rocketry Project Manager for UTA AeroMavs, led manufacturing to achieve 2nd place at the 2026 Lone Star Cup with a 10,656 ft apogee, alongside holding an independent Tripoli Level 2 High-Power Rocketry certification. Skilled in SolidWorks (CAD, FEA, CFD), composite wet layups, and vendor procurement. Seeking opportunities to apply hands-on design, testing, and leadership to complex aerospace and defense challenges.
               </p>
             </motion.div>
           </div>
@@ -163,4 +163,5 @@ const AboutMe = () => {
     </section>
   );
 };
+
 export default AboutMe;

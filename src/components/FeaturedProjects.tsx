@@ -21,6 +21,14 @@ const FeaturedProjects = () => {
       image: "/zoomer-thumbnail.jpg",
       date: "Sep 2025 - Nov 2025",
       imageFit: "cover" as const
+    },
+    {
+      id: "utari-composite-research",
+      title: "UTARI Composite Research",
+      description: "Undergraduate Research Assistant — Working under the mentorship of Dr. Lin and a PhD candidate, focusing on impact drop tower systematically crushing composite materials to ensure the next generation of aerospace materials is nothing short of indestructible.",
+      image: "/utari-thumbnail.jpg",
+      date: "Jan 2026 - May 2026",
+      imageFit: "cover" as const
     }
   ];
 

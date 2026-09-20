@@ -49,8 +49,8 @@ const FeaturedProjects = () => {
         </div>
 
         <StaggerContainer className="grid sm:grid-cols-2 gap-6 sm:gap-8">
-          {projects.map(project => (
-            <StaggerItem key={project.id}>
+          {projects.map((project, index) => (
+            <StaggerItem key={project.id} className={index === 2 ? "sm:col-span-2" : ""}>
               <MagneticTilt intensity={5}>
                 <ProjectCard {...project} />
               </MagneticTilt>

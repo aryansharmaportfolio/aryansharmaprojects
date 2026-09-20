@@ -6,11 +6,11 @@ import StaggerContainer, { StaggerItem } from "./motion/StaggerContainer";
 const CurrentWork = () => {
   const workItems = [
     {
-      id: "work-1",
-      title: "UTA AeroMavs IREC (2026)",
-      role: "Manufacturing",
-      image: "/irec-thumbnail.jpg",
-      description: "Why settle for the speed limit when you can ignore gravity entirely? The AeroMavs '26 is a fiberglass fever dream born from late-night layups, precision drilling, and a healthy disregard for the sound barrier. Meticulously crafted for that one glorious moment of vertical chaos.",
+      id: "work-safran",
+      title: "Safran Electronics & Defense, Avionics",
+      role: "Mechanical Engineer Intern",
+      image: "/safran-thumbnail.jpg",
+      description: "Contributing to the design and development of avionics enclosures and mechanical systems for defense-grade aerospace electronics, gaining hands-on experience with industry-standard CAD tools and manufacturing processes.",
     },
   ];
 

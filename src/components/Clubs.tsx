@@ -21,7 +21,7 @@ const Clubs = () => {
       name: "Aero Mavs",
       role: "Solid Rocketry Project Manager",
       logo: "/aeromavs-logo-thumbnail.png",
-      date: "Sep 2025 - Present",
+      date: "Sep 2025 - May 2026",
     },
     {
       id: "aiaa",

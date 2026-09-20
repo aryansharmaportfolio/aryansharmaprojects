@@ -3,7 +3,6 @@ import { Mail, Linkedin, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import profilePicture from "@/assets/profile-picture.jpg";
 import TypewriterHeader from "./TypewriterHeader";
-import DegreeProgress from "./DegreeProgress";
 import MaskedTextReveal from "./motion/MaskedTextReveal";
 import { motion } from "framer-motion";
 
@@ -132,7 +131,6 @@ const AboutMe = () => {
               </Button>
             </div>
 
-            <DegreeProgress />
           </motion.div>
 
           {/* Right Column - Bio */}

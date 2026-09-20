@@ -4,16 +4,33 @@ import MaskedTextReveal from "./motion/MaskedTextReveal";
 import StaggerContainer, { StaggerItem } from "./motion/StaggerContainer";
 import { Card } from "./ui/card";
 
+interface TeamProject {
+  id: string;
+  title: string;
+  description: string;
+  image: string;
+  date: string;
+  role?: string;
+}
+
 const TeamProjects = () => {
   const navigate = useNavigate();
 
-  const projects = [
+  const projects: TeamProject[] = [
     {
       id: "uta-dbf-2026",
       title: "UTA Design-Build-Fly (2026)",
       description: "Developed a manufacturing proposal suggesting a design of a separate propulsion battery compartment for rapid battery integration to meet both flight safety and mission speed requirements.",
       image: "/dbf-thumbnail.jpg",
       date: "OCT 2025 - JAN 2026",
+    },
+    {
+      id: "uta-aeromavs-irec-2026",
+      title: "UTA AeroMavs IREC (2026)",
+      role: "Project Manager/Manufacturing",
+      description: "Why settle for the speed limit when you can ignore gravity entirely? The AeroMavs '26 is a fiberglass fever dream born from late-night layups, precision drilling, and a healthy disregard for the sound barrier. Meticulously crafted for that one glorious moment of vertical chaos.",
+      image: "/irec-thumbnail.jpg",
+      date: "SEP 2025 - MAY 2026",
     },
   ];
 
@@ -36,7 +53,7 @@ const TeamProjects = () => {
           </p>
         </div>
 
-        <StaggerContainer className="grid gap-6 sm:gap-8">
+        <StaggerContainer className="grid sm:grid-cols-2 gap-6 sm:gap-8">
           {projects.map((project) => (
             <StaggerItem key={project.id}>
               <Card
@@ -66,7 +83,12 @@ const TeamProjects = () => {
                   <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 sm:mb-3">
                     {project.title}
                   </h3>
-                  <p className="text-sm sm:text-base text-white/80 leading-relaxed max-w-3xl">
+                  {project.role && (
+                    <p className="text-sm sm:text-base text-white/90 font-medium mb-2 sm:mb-3">
+                      {project.role}
+                    </p>
+                  )}
+                  <p className="text-sm sm:text-base text-white/80 leading-relaxed">
                     {project.description}
                   </p>
                 </div>

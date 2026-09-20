@@ -39,6 +39,13 @@ const TeamProjectDetail = () => {
         { src: "/dbf2026-images/proposal-sketch.jpg", alt: "Proposal Sketch", badge: "Proposal Sketch" },
       ],
     },
+    "uta-aeromavs-irec-2026": {
+      name: "UTA AeroMavs IREC (2026)",
+      description: "Why settle for the speed limit when you can ignore gravity entirely? The AeroMavs '26 is a fiberglass fever dream born from late-night layups, precision drilling, and a healthy disregard for the sound barrier. Meticulously crafted for that one glorious moment of vertical chaos.",
+      heroImage: "/irec-thumbnail.jpg",
+      date: "September 2025 - May 2026",
+      images: [],
+    },
   };
 
   const project = projectData[id || ""];

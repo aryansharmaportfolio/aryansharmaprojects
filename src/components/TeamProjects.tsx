@@ -74,12 +74,12 @@ const TeamProjects = () => {
                     alt={project.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                   />
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+                  {/* Gradient blend into card body */}
+                  <div className="absolute inset-x-0 bottom-0 h-16 bg-gradient-to-t from-black/80 to-transparent" />
                 </div>
 
-                {/* Content Overlay - top padding keeps text clear of the date badge */}
-                <div className="absolute bottom-0 left-0 right-0 pt-16 sm:pt-20 p-4 sm:p-6 md:p-8">
+                {/* Content below the image - never overlaps the date badge */}
+                <div className="p-4 sm:p-6 md:p-8 pt-4 sm:pt-5 md:pt-6">
                   <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 sm:mb-3">
                     {project.title}
                   </h3>

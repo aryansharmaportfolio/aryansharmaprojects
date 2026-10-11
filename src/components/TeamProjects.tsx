@@ -78,8 +78,8 @@ const TeamProjects = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                 </div>
 
-                {/* Content Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
+                {/* Content Overlay - top padding keeps text clear of the date badge */}
+                <div className="absolute bottom-0 left-0 right-0 pt-16 sm:pt-20 p-4 sm:p-6 md:p-8">
                   <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 sm:mb-3">
                     {project.title}
                   </h3>

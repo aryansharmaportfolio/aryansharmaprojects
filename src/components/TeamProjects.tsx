@@ -60,10 +60,10 @@ const TeamProjects = () => {
                 className="relative overflow-hidden cursor-pointer group bg-card/80 backdrop-blur border-white/5 transition-all duration-500 hover:border-white/20 hover:shadow-2xl"
                 onClick={() => handleCardClick(project.id)}
               >
-                {/* Glass morphic date badge - on top of card */}
-                <div className="absolute top-3 left-3 sm:top-4 sm:left-4 z-10">
-                  <div className="px-3 py-1.5 sm:px-4 sm:py-2 bg-black/50 backdrop-blur-md rounded-lg border border-white/20">
-                    <span className="text-xs sm:text-sm font-semibold text-white/90 tracking-wide">{project.date}</span>
+                {/* Glass morphic date badge - on top of card (sized to match other sections) */}
+                <div className="absolute top-2 sm:top-4 left-2 sm:left-4 z-30 pointer-events-none">
+                  <div className="px-2 sm:px-3 py-1 sm:py-1.5 bg-black/40 backdrop-blur-md rounded-full border border-white/10">
+                    <span className="text-xs font-bold text-white uppercase tracking-wider drop-shadow-md">{project.date}</span>
                   </div>
                 </div>
 
@@ -78,8 +78,8 @@ const TeamProjects = () => {
                   <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
                 </div>
 
-                {/* Content Overlay */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-6 md:p-8">
+                {/* Content Overlay - top padding keeps text clear of the date badge */}
+                <div className="absolute bottom-0 left-0 right-0 pt-16 sm:pt-20 p-4 sm:p-6 md:p-8">
                   <h3 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-2 sm:mb-3">
                     {project.title}
                   </h3>

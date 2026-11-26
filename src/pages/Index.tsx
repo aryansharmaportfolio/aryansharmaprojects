@@ -5,6 +5,7 @@ import Hero from "@/components/Hero";
 import AboutMe from "@/components/AboutMe";
 import FeaturedProjects from "@/components/FeaturedProjects";
 import TeamProjects from "@/components/TeamProjects";
+import Experiences from "@/components/Experiences";
 import CurrentWork from "@/components/CurrentWork";
 import Clubs from "@/components/Clubs";
 import Footer from "@/components/Footer";
@@ -89,6 +90,10 @@ const Index = () => {
 
             <AnimatedSection>
               <TeamProjects />
+            </AnimatedSection>
+
+            <AnimatedSection>
+              <Experiences />
             </AnimatedSection>
             
             <AnimatedSection>

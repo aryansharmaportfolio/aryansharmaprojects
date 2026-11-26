@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+.experience-card-shade {
+  background: linear-gradient(to top, hsl(var(--experience-scrim) / 0.9), hsl(var(--experience-scrim) / 0.4), transparent);
+}
+
+.experience-date-pill {
+  background: hsl(var(--experience-scrim) / 0.4);
+}
+
 html {
   scroll-behavior: smooth;
   scroll-padding-top: 6rem;
@@ -12,6 +20,7 @@ html {
     /* RESTORED: Original Dark Grey (#2b2b2b) */
     --background: 0 0% 17%;
     --foreground: 0 0% 100%;
+    --experience-scrim: 0 0% 0%;
 
     /* Match Cards/Popovers/Sidebar to background for seamless look */
     --card: 0 0% 17%;

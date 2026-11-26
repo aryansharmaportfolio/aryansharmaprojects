@@ -77,7 +77,7 @@ const WorkDetail = () => {
     <div className="min-h-screen bg-background">
       <div className="container mx-auto px-6 py-12">
         <Button
-          onClick={() => navigate("/", { state: { section: "current-work" } })}
+          onClick={() => navigate("/", { state: { section: "experiences" } })}
           variant="ghost"
           className="mb-8 gap-2 hover:bg-secondary"
         >

@@ -98,7 +98,7 @@ const Header = ({ activeSection }: { activeSection: string }) => {
       { label: "Home", id: "home" },
       { label: "About Me", id: "about" },
       { label: "Projects", id: "projects" },
-      { label: "Current Work", id: "current-work" },
+      { label: "Experiences", id: "experiences" },
       { label: "Clubs", id: "clubs" },
   ];
 

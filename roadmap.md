@@ -1,4 +1,4 @@
 - [x] Consolidate UTARI and Safran in Experiences with matching cards and date pills.
 - [x] Remove Current Work from the homepage and update navigation/return targets (DynamicSidebar has no section links).
 - [x] Verify desktop/mobile layout, both detail windows, and date tests.
-- [ ] Add Safran photo when supplied (waiting for upload).
+- [x] Add the supplied Safran photo to its card and detail window.

@@ -1,3 +1,5 @@
+import safranPhoto from "../assets/safran.jpg.asset.json";
+
 export interface Experience {
   id: string;
   title: string;
@@ -20,6 +22,7 @@ export const experiences: Experience[] = [
     id: "work-safran",
     title: "Safran Electronics & Defense, Avionics",
     role: "Mechanical Engineer Intern",
+    image: safranPhoto.url,
     description: "Contributing to the design and development of avionics enclosures and mechanical systems for defense-grade aerospace electronics, gaining hands-on experience with industry-standard CAD tools and manufacturing processes.",
     date: "JUN 2026 - DEC 2026",
   },
